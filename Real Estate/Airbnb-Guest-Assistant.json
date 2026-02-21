@@ -1,0 +1,876 @@
+{
+  "name": "Airbnb Guest Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "5c8d2013-4bb8-476b-84a3-4b2ddea3e569",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        640,
+        360
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "PHFKmuDYWAWJyAHe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "042a2eee-5990-4018-88eb-de3b2955897d",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1660,
+        360
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "PHFKmuDYWAWJyAHe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "folder",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "options": {}
+      },
+      "id": "a96ced6d-426f-48aa-b174-eb3a64332671",
+      "name": "Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -160,
+        780
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "vBDzrDMXMNFgtVf9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "https://drive.google.com/file/d/1Ce2evOt4kIxYgCIIWOTKjDYw_TEwwhtq/view?usp=drive_link",
+          "mode": "url"
+        },
+        "options": {
+          "binaryPropertyName": "data",
+          "googleFileConversion": {
+            "conversion": {
+              "docsToFormat": "text/plain"
+            }
+          }
+        }
+      },
+      "id": "071ab689-351e-45d7-96e0-828ac0b92f3b",
+      "name": "Get File Content",
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        60,
+        780
+      ],
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "vBDzrDMXMNFgtVf9",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "dc21a412-1967-4ad7-8484-ccf379632da8",
+      "name": "Default Data Loader",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "typeVersion": 1,
+      "position": [
+        600,
+        1000
+      ]
+    },
+    {
+      "parameters": {
+        "chunkSize": 500,
+        "chunkOverlap": 50
+      },
+      "id": "3e3b38e8-89a1-4292-b254-9aa347bf6c02",
+      "name": "Character Text Splitter",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterCharacterTextSplitter",
+      "typeVersion": 1,
+      "position": [
+        600,
+        1180
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "id": "24aff186-ef93-4a34-9adc-30a194a15abb",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        280,
+        780
+      ]
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "cb079d86-a333-4073-aede-d4cf4fcd02fb",
+      "name": "Embeddings OpenAI1",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        440,
+        1000
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "PHFKmuDYWAWJyAHe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Tool to Add a Google Drive File to Vector DB",
+        "height": 661.3783861449286,
+        "width": 1290.2441524753906,
+        "color": 5
+      },
+      "id": "a759b89e-8bd7-4a95-80bd-2f77e033de13",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -340,
+        680
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## RAG AI Agent with Chat Interface",
+        "height": 711.4232611135845,
+        "width": 1905.0323056629377
+      },
+      "id": "be50a82b-531d-4d4b-94f0-93bb6002032a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        -40,
+        -40
+      ]
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "639a52f5-5ed6-4d89-8cb4-58c26be2e1e9",
+      "name": "Embeddings OpenAI2",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1160,
+        500
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "PHFKmuDYWAWJyAHe",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Pinecone",
+        "description": "this is the vector database that contains the property info faq and answers. use this first to look for answers."
+      },
+      "id": "0613d2e7-09d6-41be-8e31-87183e20a153",
+      "name": "Vector Store Tool",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        1340,
+        200
+      ]
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "air12",
+          "mode": "list",
+          "cachedResultName": "air12"
+        },
+        "options": {}
+      },
+      "id": "665c3869-9ce5-4941-a1cd-d03987821328",
+      "name": "Pinecone Vector Store1",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        1300,
+        380
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "ooxyNJwHOsFoFU7W",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "insert",
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "air12",
+          "mode": "list",
+          "cachedResultName": "air12"
+        },
+        "options": {}
+      },
+      "id": "63c508e7-c75d-4412-a8c5-71ae1b3ba685",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        540,
+        780
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "ooxyNJwHOsFoFU7W",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is FiFi. How can I assist you today?",
+        "options": {}
+      },
+      "id": "f13700d2-ec9e-4b26-8d56-7b010f07d676",
+      "name": "When chat message received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        80,
+        300
+      ],
+      "webhookId": "057f6fe7-e865-42b6-9020-8cc759271eb9"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d4b513c8-c4a4-4441-ae0d-35cc29240ce0",
+              "name": "sessionId",
+              "value": "={{ $json.sessionId }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "5a74cb47-fbe2-4bae-843c-1b3c19142f05",
+      "name": "Captures session id",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        380,
+        220
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('When chat message received').item.json.chatInput }}",
+        "options": {
+          "systemMessage": "CURRENT_TIME: {{$json[\"timestamp\"]}}\nCURRENT_DATE: {{$json[\"formattedDate\"]}}\n\nYou are a happy and friendly AI assistant for an Airbnb property located at 3009 Grant St., Concord, CA. You are aware of the current date and time shown above.\n\nDATA SOURCES:\n1. ALWAYS check Pinecone database first for answering questions.\n2. Use SerpAPI only for location/nearby place queries\n3. NEVER reference the Zep chat memory for answers. \n\nTONE:\nMaintain a warm, friendly, and conversational tone. Use positive and encouraging language, and show empathy when users are frustrated. Keep explanations simple.\n\nTERM MATCHING:\nBefore searching the database, match these variations to the same term:\n- check in, check-in, checkin → \"check-in\"\n- check out, check-out, checkout → \"check-out\"\n- wifi, wi-fi, wi fi → \"WiFi\"\n- hot tub, hottub, hot-tub → \"hot tub\"\n- tv, t.v., television → \"TV\"\n\nSPECIAL RESPONSES:\n1. For check-in queries: ALWAYS include both time (2 pm) and access code (5555)\n2. For check-out queries: ALWAYS include both time (12 pm) and closing instructions\n3. For WiFi queries: ALWAYS include the password\n4. For amenity queries: ALWAYS include both instructions and link\n\nAMENITY LINKS:\nWhen these items are mentioned, include their link:\n- TV Remote: [Click here for TV Remote instructions](https://bit.ly/420GR7T)\n- Hot Tub: [Click here for Hot Tub instructions](https://www.youtube.com/watch?v=vzcO-MvpPks)\n- Ceiling Fan: [Click here for Ceiling Fan instructions](https://drive.google.com/file/d/1rCvGnm7wJT1dCd60RlEnW6DhcwvWVpOu/view?usp=sharing)\n- Thermostat: [Click here for Thermostat instructions](https://www.youtube.com/watch?v=cD4ZVG3C7As)\n- Oven: [Click here for Oven instructions](https://drive.google.com/file/d/1bgUF8Dffo5_E7hv_MFl1TQ1q84fpMJz8/view?usp=drive_link)\n\nRESPONSE FORMAT:\n\n1. Provide the information from Pinecone's details field\n2. If it's an amenity with a link, add:\n   \"For more information: [LINK]\"\n3. For lists (like games), show each item on a new line with bullet points\n\nIF NO INFORMATION FOUND:\n\"I don't have that information in our property database. Please contact the host, Gustavo Uribe, at 925-555-1234 for assistance.\"\n\nEXAMPLE RESPONSES:\n\nCheck-out query:\n\"Based on our property database: Check-out time is 12 pm (noon). Please close all doors and windows, turn off the hot tub, and don't forget your chargers!\"\n\nHot tub query:\n\"Based on our property database: To turn the hot tub on or off, lift the lever in the grey metal box next to the door. Adjust the jets and water temperature using the panel controls.\n\nFor more information: [Click here for Hot Tub instructions](https://www.youtube.com/watch?v=VJVpf6B8l84)\"\n\nBoard games query:\n\"Based on our property database: A variety of board games and playing cards are located in the main living room closet. The available games are:\n- Sorry\n- Codenames\n- Monopoly\n- Scrabble\"\n\nSAFETY GUARDRAILS:\n\nAPPROPRIATE TOPICS:\n\n\nOnly provide information directly related to the property, local attractions, and guest services\nDefer personal or private questions about the host or other guests to the host contact number\nDo not provide personal information about the host beyond the provided contact details\nDo not provide information about security systems, cameras, or property vulnerabilities\n\n\nLOCAL RECOMMENDATIONS:\n\n\nOnly use SerpAPI to provide factual information about:\n\nRestaurants and dining\nTourist attractions\nShopping areas\nParks and recreation\nPublic transportation\nEmergency services\n\n\nDo not provide recommendations for:\n\nAdult entertainment\nIllegal activities or substances\nPrivate residences\nNon-public locations\n\nEMERGENCY SITUATIONS:\n\n\nFor medical emergencies: Direct guests to call 911\nFor non-emergency maintenance issues: Provide host contact information\nFor safety concerns: Direct to appropriate emergency services\nNever attempt to provide medical, legal, or safety advice\n\n\nINAPPROPRIATE REQUESTS:\n\nDecline requests for:\n\nAdditional guests beyond capacity\nLate check-out without host approval\nAccess to restricted areas\nProperty modifications\nHost's personal information\nOther guests' information\nSecurity system information\n\n\nResponse for inappropriate requests:\n\"I apologize, but I cannot assist with that request. Please contact the host, Gustavo Uribe, at 925-555-1234 for any special arrangements or concerns.\"\n\n\nDISPUTE HANDLING:\n\nDo not engage in:\n\nPayment disputes\nDamage claims\nReservation modifications\nGuest conflicts\n\n\nDirect all such matters to the host or Airbnb support"
+        }
+      },
+      "id": "ff860b0a-6d87-4f51-9352-a51853bd9599",
+      "name": "RAG AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        900,
+        80
+      ]
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        1060,
+        300
+      ],
+      "id": "df63946f-426f-4484-aa4e-b4dae4ff6a26",
+      "name": "SerpAPI",
+      "credentials": {
+        "serpApi": {
+          "id": "lsbBUPJ5EVjCl45d",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "{{ $json.session_id || Math.random().toString(36).substring(2, 10) }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryZep",
+      "typeVersion": 1.3,
+      "position": [
+        840,
+        520
+      ],
+      "id": "6fbfe3c1-bea5-459f-b2b6-586a59cae105",
+      "name": "Zep",
+      "credentials": {
+        "zepApi": {
+          "id": "TRvT6eCcKfl5vpOz",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "https://api.getzep.com/api/v2/sessions-ordered",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "zepApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=Authorization",
+              "value": "API-Key z_1dWlkIjoiZmRmMzI0ZDMtMWUyNy00OTI0LTgzZDQtYTQ4Yzc5MWVjYjc4In0.WSX3jgySGOVMlDdWa8P7dcqQ0t1nP3Pw-HIWY0rY7Z3k98hTotTitSDg2oV3-bbv1HSSDXKT5gj-HOcWyfuR8g"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2160,
+        880
+      ],
+      "id": "c7953720-fd35-4b52-8a51-fdb5ec88ef20",
+      "name": "HTTP Request",
+      "credentials": {
+        "zepApi": {
+          "id": "TRvT6eCcKfl5vpOz",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Parse the input data\nconst data = JSON.parse($json.data);\n\n// Extract the sessions array\nconst sessions = data.sessions || [];\n\n// Map the sessions array to extract only session_id\nreturn sessions.map(session => {\n  return {\n    json: {\n      session_id: session.session_id\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2380,
+        880
+      ],
+      "id": "dce5991a-f972-4f85-aa38-a350a651efb6",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "url": "={{$json[\"url\"]}}",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "zepApi",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "=Authorization",
+              "value": "API-Key z_1dWlkIjoiZmRmMzI0ZDMtMWUyNy00OTI0LTgzZDQtYTQ4Yzc5MWVjYjc4In0.WSX3jgySGOVMlDdWa8P7dcqQ0t1nP3Pw-HIWY0rY7Z3k98hTotTitSDg2oV3-bbv1HSSDXKT5gj-HOcWyfuR8g"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2920,
+        880
+      ],
+      "id": "ae84b765-9967-4ea1-922f-6866d0b3a1f9",
+      "name": "HTTP Request1",
+      "credentials": {
+        "zepApi": {
+          "id": "TRvT6eCcKfl5vpOz",
+          "name": "Zep Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Create dynamic URLs for each session ID\nreturn items.map(item => {\n  return {\n    json: {\n      session_id: item.json.session_id,\n      url: `https://api.getzep.com/api/v2/sessions/${item.json.session_id}/memory`\n    }\n  };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2640,
+        880
+      ],
+      "id": "74f4922f-72a6-4dac-823a-9d2105b37186",
+      "name": "Code1"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Input is expected to contain multiple sessions, each with \"messages\" and \"facts\"\n// Split sessions and structure the output\n\n// Simulate two sessions based on input data\nconst sessions = [\n    {\n        session_id: \"Session 1\",\n        messages: [\n            {\n                uuid: \"937b7674-231a-4c4e-baa1-44dcf4727201\",\n                created_at: \"2024-12-18T22:52:30.849671Z\",\n                updated_at: \"0001-01-01T00:00:00Z\",\n                role: \"Human\",\n                role_type: \"user\",\n                content: \"where can i park?\",\n                token_count: 0\n            },\n            {\n                uuid: \"cf67088c-925b-4fe8-a52c-d3b0a7782db0\",\n                created_at: \"2024-12-18T22:52:30.849671Z\",\n                updated_at: \"0001-01-01T00:00:00Z\",\n                role: \"AI\",\n                role_type: \"assistant\",\n                content: \"You’ve got parking options! 🚗 You can park in the driveway or find a spot on the street. Just remember, no parallel parking in your dreams! Happy parking!\",\n                token_count: 0\n            },\n            {\n                uuid: \"718f25e3-0d0a-4c05-bc41-f4ea30780d77\",\n                created_at: \"2024-12-19T00:42:53.057886Z\",\n                updated_at: \"0001-01-01T00:00:00Z\",\n                role: \"Human\",\n                role_type: \"user\",\n                content: \"what are some good italian restaurants nearby\",\n                token_count: 0\n            },\n            {\n                uuid: \"5e98aed7-d11a-47ff-ad7b-609fb26c0916\",\n                created_at: \"2024-12-19T00:42:53.057886Z\",\n                updated_at: \"0001-01-01T00:00:00Z\",\n                role: \"AI\",\n                role_type: \"assistant\",\n                content: \"Here are some delicious Italian restaurants nearby...\",\n                token_count: 0\n            }\n        ],\n        facts: [\n            \"The closet contains a variety of board games.\",\n            \"Board games are located in the closet.\",\n            \"Board games are perfect for a fun game night.\"\n        ]\n    },\n    {\n        session_id: \"Session 2\",\n        messages: [\n            {\n                uuid: \"8984547c-bc9d-4d75-81e7-bc6008a9e59b\",\n                created_at: \"2024-12-18T20:09:12.296453Z\",\n                updated_at: \"0001-01-01T00:00:00Z\",\n                role: \"Human\",\n                role_type: \"user\",\n                content: \"what pre-rolls do you have?\",\n                token_count: 0\n            },\n            {\n                uuid: \"5c3a19bb-b944-4156-a50b-827e97e93c14\",\n                created_at: \"2024-12-18T20:09:12.296453Z\",\n                updated_at: \"0001-01-01T00:00:00Z\",\n                role: \"AI\",\n                role_type: \"assistant\",\n                content: \"I'm sorry, but it seems I don't have the current information on available pre-rolls at the moment...\",\n                token_count: 0\n            }\n        ],\n        facts: [\n            \"AI suggests exploring other product types.\",\n            \"AI (assistant) currently has 'Edible - Cookies' available.\"\n        ]\n    }\n];\n\n// Transform each session into an output item\nreturn sessions.map(session => {\n    return {\n        json: {\n            session_id: session.session_id,\n            messages: session.messages, // Include all messages for the session\n            facts: session.facts // Include all associated facts\n        }\n    };\n});"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        3140,
+        880
+      ],
+      "id": "61bea00e-9296-40a4-a03b-3625017fe27e",
+      "name": "Code2"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1cGQydmnStiSgDVFWfzh3Z38lNt67Eurn7J-kIjUBuFU",
+          "mode": "list",
+          "cachedResultName": "Zepmemory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cGQydmnStiSgDVFWfzh3Z38lNt67Eurn7J-kIjUBuFU/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1cGQydmnStiSgDVFWfzh3Z38lNt67Eurn7J-kIjUBuFU/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "session_id": "={{ $json.session_id }}",
+            "created_at": "={{ $json.messages[0].created_at }}",
+            "updated_at": "={{ $json.messages[0].updated_at }}",
+            "role": "={{ $json.messages[0].role }}",
+            "content": "={{ $json.messages[0].content }}",
+            "token_count": "={{ $json.messages[0].token_count }}",
+            "user_id": "={{ $json.messages[0].uuid }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "session_id",
+              "displayName": "session_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "displayName": "created_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at",
+              "displayName": "updated_at",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "user_id",
+              "displayName": "user_id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "role",
+              "displayName": "role",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "content",
+              "displayName": "content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "facts",
+              "displayName": "facts",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "entity_name",
+              "displayName": "entity_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "entity_summary",
+              "displayName": "entity_summary",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "context",
+              "displayName": "context",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "token_count",
+              "displayName": "token_count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "messages",
+              "displayName": "messages",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.5,
+      "position": [
+        3360,
+        880
+      ],
+      "id": "c39e31ac-3381-4642-a2b4-98000ce8f5bf",
+      "name": "Google Sheets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "IKl9sX1aVQI8pvAf",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        900,
+        320
+      ],
+      "id": "ba75fef4-c65d-42e4-948c-d53104d34bb6",
+      "name": "Window Buffer Memory"
+    }
+  ],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get File Content": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Character Text Splitter": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Default Data Loader",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI1": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Default Data Loader": {
+      "ai_document": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI2": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store1",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vector Store Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store1": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Vector Store Tool",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Captures session id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Captures session id": {
+      "main": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI": {
+      "ai_tool": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Zep": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Code1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Code2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code2": {
+      "main": [
+        [
+          {
+            "node": "Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "RAG AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "pinData": {},
+  "triggerCount": 2,
+  "meta": null
+}

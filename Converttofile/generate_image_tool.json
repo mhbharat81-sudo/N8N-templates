@@ -1,0 +1,240 @@
+{
+  "name": "Tool - Generate Image",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "imageContext"
+            },
+            {
+              "name": "imageTitle"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "e02b5b63-b58e-46eb-a9d8-3a401abc5195",
+      "name": "workflow_trigger"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.openai.com/v1/images/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "model",
+              "value": "gpt-image-1"
+            },
+            {
+              "name": "prompt",
+              "value": "=<prompt>\n  Use either this prompt to generate an image OR generate an image based around the provided text content that \n\n  {{ $('workflow_trigger').item.json.imageContext }}\n</prompt>\n\n<brand_guidelines>\n  {{ $node[\"set_brand_guidelines\"].json.brand_guidelines }}\n</brand_guidelines>\n"
+            },
+            {
+              "name": "size",
+              "value": "1536x1024"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        512,
+        0
+      ],
+      "id": "669a3541-7a2c-42e8-abe7-d27ee0c7c486",
+      "name": "generate_image",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "skdqhkqVaNqXc7bD",
+          "name": "Open AI Image Generation API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b8fdb1d1-2fe2-4a3f-867c-af393c29a725",
+              "name": "brand_guidelines",
+              "value": "<newsletter_image_guidelines>\n\nFollow these image generation guidelines if and only if you the image you are generating is for The Recap AI Newsletter. Make sure each future image has more varied composition, perspective, and visual storytelling so they don't all feel centered or static. Avoid using text on your generated image.\n\nThe image should be low-detail. Avoid a lot of detail granularity.\n\n## Core Medium & Finish\n- **Digital watercolor emulating traditional cold-press paper.**\n- Visible **paper tooth / grain** showing through transparent washes.\n- Slight **edge darkening / pigment accumulation** along stroke boundaries (capillary effects).\n- Occasional **backruns/cauliflowers** in broader washes for authenticity.\n- Semi-opaque **gouache-like touches** for top highlights but kept subtle.\n\n## Brushwork & Edges\n- Mix of **wet-on-wet soft blends** in background vs. **wet-on-dry, controlled edges** in focal areas.\n- **Layered glazing:** multiple transparent passes building value without losing luminosity.\n- **Drybrush texture** in select high-detail zones to suggest fine texture over paper grain.\n- Edges: ~70% soft / lost, 30% crisp to guide eye; crisp edges concentrated in focal center.\n\n## Value Structure\n- Strong **midtone foundation**; deepest darks reserved for accent lines/shadows to anchor form.\n- Highlights largely from **unpainted paper**; minimal white paint.\n- **High contrast center;** peripheral areas drop in contrast & detail (vignette feel).\n\n## Color Palette\n- **Naturalistic but slightly restrained palette**: warm earths + cool neutrals + a few saturated accents.\n  - Warm skin/earth family: transparent red oxide / burnt sienna / quinacridone coral notes.\n  - Cool neutrals/blues: ultramarine / indanthrone mixes knocked back with neutral tint.\n  - Desaturated violets & grays made by mixing complements.\n- Strategic **pops of high-chroma red** against muted field to create focal pull.\n- Gentle **temperature shifts** within planes (warm light vs cooler shadow glazes).\n\n## Wash Handling\n- Background: **broad, mottled, low-detail wash** with visible granulation; soft transitions.\n- Focal region: **tighter, smaller strokes**, successive glazes for modeling.\n- Subtle **blooms** where wetter strokes met drying wash—keep organic, not messy.\n\n## Line & Drawing Feel\n- Minimal overt linework; form defined mostly by **value & color edge**.\n- Where line exists, it’s **soft graphite-like or sepia watercolor pencil underdrawing** faintly visible at edges.\n\n## Texture & Imperfections\n- Include **tiny blooms, speckling, and lifting marks** to avoid digital sterility.\n- Slight **color separation** in some darker mixes (granulating pigment look).\n\n## Lighting Treatment\n- Soft, diffuse lighting; no harsh cast shadows.\n- Use **controlled negative painting** to carve lighter shapes from darker surrounding washes.\n\n## Rendering Balance\n- Central area rendered to a **tight illustrative realism**; outer areas looser, sketch-wash style.\n- Maintain **painterly brush geometry**—visible stroke direction rather than airbrushed blends.\n\n---\n\n### Prompt Building Blocks (mix & match)\nYou can assemble something like:\n\n> watercolor illustration on cold-press paper texture, layered transparent glazes, controlled wet-on-dry details over loose wet-in-wet background washes, subtle pigment granulation and backruns, high-chroma accent reds against muted blues/earth neutrals, unpainted paper highlights, soft-to-hard edge transitions guiding focus, semi-opaque gouache touches for specular hits, slight drybrush texture in focal areas, illustrative realism center fading to loose vignette edges\n\nIf using a structured syntax (e.g., for an image model that supports modifiers):\n\n- **Medium:** watercolor painting, cold-press paper texture  \n- **Technique:** layered glazing, wet-on-wet background, wet-on-dry focal details, drybrush highlights  \n- **Color:** muted neutral palette + selective vivid red accents, warm vs cool temperature shifts  \n- **Finish:** visible brush strokes, granulation, backruns, paper showing through highlights  \n- **Composition treatment:** high-detail central focal zone, softer peripheral washes, vignette edges  \n- **Mood:** serious / contemplative (optional; stylistic, not subject)\n\n---\n\n### Negative / Quality Controls\nAdd negative prompts to avoid digital artifacts:\n- no airbrush plastic skin\n- no hard comic inking outlines\n- no flat vector color fills\n- avoid oversaturated neon palette\n- avoid photo-bashing / sharp photographic textures\n\n</newsletter_image_guidelines>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        256,
+        0
+      ],
+      "id": "7f7aed33-2435-4c35-ab78-331049104715",
+      "name": "set_brand_guidelines"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "data[0].b64_json",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        752,
+        0
+      ],
+      "id": "27dbe311-cbff-4f3f-b4f7-3d6cd0672aa4",
+      "name": "convert_to_png"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08KC39K8DR",
+          "mode": "id"
+        },
+        "text": "=*I've generated an image for you:* `{{ $('workflow_trigger').item.json.imageTitle }}`",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1008,
+        -96
+      ],
+      "id": "837d3969-c466-4e9b-b81e-4527dc2008c6",
+      "name": "share_image",
+      "webhookId": "3bc90c98-27ef-4c97-90e2-f52baaa737e7",
+      "credentials": {
+        "slackApi": {
+          "id": "fwr8qjVGI2AnQimg",
+          "name": "Slack - Marketing Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "options": {
+          "channelId": "=C08KC39K8DR"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1008,
+        112
+      ],
+      "id": "1806ae22-c942-4d91-a246-e4c884119a27",
+      "name": "upload_image",
+      "webhookId": "dcbe45b9-9239-4f48-83ff-b3bcc0aabb54",
+      "credentials": {
+        "slackApi": {
+          "id": "fwr8qjVGI2AnQimg",
+          "name": "Slack - Marketing Agent"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "workflow_trigger": [
+      {
+        "json": {
+          "imageContext": "An image symbolizing the massive financial success of TSMC, a chip manufacturer, reaching a $1 trillion valuation driven by the AI boom. The image could feature a silicon wafer or a computer chip that is glowing brightly, with stock market charts and dollar signs rising in the background. The visual should connect the physical hardware of the chip with the abstract concept of immense wealth and market dominance in the AI industry.",
+          "imageTitle": "TSMC Trillion Dollar AI Bet"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "workflow_trigger": {
+      "main": [
+        [
+          {
+            "node": "set_brand_guidelines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_brand_guidelines": {
+      "main": [
+        [
+          {
+            "node": "generate_image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_image": {
+      "main": [
+        [
+          {
+            "node": "convert_to_png",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "convert_to_png": {
+      "main": [
+        [
+          {
+            "node": "share_image",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "upload_image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_image": {
+      "main": [
+        []
+      ]
+    },
+    "share_image": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "227d4033-a6a4-4dbc-9aca-27c5cbb1bcc2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "Bjh2btzF5NhFcLDk",
+  "tags": []
+}

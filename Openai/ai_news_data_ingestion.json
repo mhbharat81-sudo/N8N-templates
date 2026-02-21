@@ -1,0 +1,2775 @@
+{
+  "name": "AI News Data Ingestion",
+  "nodes": [
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 4
+            }
+          ]
+        },
+        "feedUrl": "https://rss.app/feeds/e2QjBpEDLPfVUeoI.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        1920
+      ],
+      "id": "897b3fd0-e306-4ad1-8c96-4f5c6f94c63b",
+      "name": "the_neuron_trigger"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 4
+            }
+          ]
+        },
+        "feedUrl": "https://rss.app/feeds/x8T02B3GXYy18pNy.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        2140
+      ],
+      "id": "0858121f-f5d4-466f-9544-3ee5eb9ddcda",
+      "name": "futurepedia_trigger"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 4
+            }
+          ]
+        },
+        "feedUrl": "https://rss.app/feeds/3tDyvQwHp8cgL7qs.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        2360
+      ],
+      "id": "40c61163-fec9-4d9d-8a17-e2d3b3fca505",
+      "name": "superhuman_trigger"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "qVEM2rCD1jlJPeRs",
+          "mode": "list",
+          "cachedResultName": "Data Ingestion — Node - Scrape Url"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $node[\"get_identity\"].json.url }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1800,
+        520
+      ],
+      "id": "2ffeea6e-7f70-429e-98f3-37df82ab8f01",
+      "name": "scrape_url",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Given content fetched from a web page, analyze this content to determine if it is a full piece of content that would be considered relevent to our AI Newsletter which features stories, advancements, and other interesting happenings in the tech and AI space.\n\n- Job postings are not relevant content\n- Content centered around unrelated industries is not relevant\n- Only AI and AI Adjacent content should be considered relevant\n\n---\n{{ $json.data.json.content }}",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        2320,
+        520
+      ],
+      "id": "5be2469e-8e8a-44aa-8133-46b5cce240b1",
+      "name": "evaluate_content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3261021f-54d8-4cce-a78a-12e40520d2c1",
+              "name": "sourceName",
+              "value": "the-neuron",
+              "type": "string"
+            },
+            {
+              "id": "a7a3c290-4b8c-46e5-a9e2-d7c9c03d3bee",
+              "name": "feedType",
+              "value": "newsletter",
+              "type": "string"
+            },
+            {
+              "id": "efb8285b-9def-4cef-883f-af6fbdafa0c7",
+              "name": "feedUrl",
+              "value": "https://www.theneurondaily.com/archive",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        1920
+      ],
+      "id": "c9a58751-27b2-481a-8aa0-8a1c23113c42",
+      "name": "normalize_neuron"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3261021f-54d8-4cce-a78a-12e40520d2c1",
+              "name": "sourceName",
+              "value": "futurepedia",
+              "type": "string"
+            },
+            {
+              "id": "a7a3c290-4b8c-46e5-a9e2-d7c9c03d3bee",
+              "name": "feedType",
+              "value": "newsletter",
+              "type": "string"
+            },
+            {
+              "id": "efb8285b-9def-4cef-883f-af6fbdafa0c7",
+              "name": "feedUrl",
+              "value": "https://futurepedia.beehiiv.com/archive",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        2140
+      ],
+      "id": "92ef0060-89bb-4b4a-a146-b04cc5056498",
+      "name": "normalize_futurepedia"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3261021f-54d8-4cce-a78a-12e40520d2c1",
+              "name": "sourceName",
+              "value": "superhuman",
+              "type": "string"
+            },
+            {
+              "id": "a7a3c290-4b8c-46e5-a9e2-d7c9c03d3bee",
+              "name": "feedType",
+              "value": "newsletter",
+              "type": "string"
+            },
+            {
+              "id": "efb8285b-9def-4cef-883f-af6fbdafa0c7",
+              "name": "feedUrl",
+              "value": "https://www.superhuman.ai/archive",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        2360
+      ],
+      "id": "8353ca9e-1c23-4503-add4-f455d635a71d",
+      "name": "normalize_superhuman"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 4
+            }
+          ]
+        },
+        "feedUrl": "https://rss.app/feeds/Kc554BCmk9PUValj.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        1700
+      ],
+      "id": "8f8d57bc-71c9-4daa-867f-b81bd127baf7",
+      "name": "the_rundown_ai_trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3261021f-54d8-4cce-a78a-12e40520d2c1",
+              "name": "sourceName",
+              "value": "the-rundown-ai",
+              "type": "string"
+            },
+            {
+              "id": "a7a3c290-4b8c-46e5-a9e2-d7c9c03d3bee",
+              "name": "feedType",
+              "value": "newsletter",
+              "type": "string"
+            },
+            {
+              "id": "efb8285b-9def-4cef-883f-af6fbdafa0c7",
+              "name": "feedUrl",
+              "value": "https://www.therundown.ai/archive",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        1700
+      ],
+      "id": "dbf3e7b5-71a8-4e60-a6a1-b8bf79bacc5c",
+      "name": "normalize_the_rundown_ai"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 4
+            }
+          ]
+        },
+        "feedUrl": "https://rss.beehiiv.com/feeds/22I6c0vJXV.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        2580
+      ],
+      "id": "3300f8c0-6ac3-4cb1-b146-4280b42cab4d",
+      "name": "taaft_trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3261021f-54d8-4cce-a78a-12e40520d2c1",
+              "name": "sourceName",
+              "value": "taaft",
+              "type": "string"
+            },
+            {
+              "id": "a7a3c290-4b8c-46e5-a9e2-d7c9c03d3bee",
+              "name": "feedType",
+              "value": "newsletter",
+              "type": "string"
+            },
+            {
+              "id": "efb8285b-9def-4cef-883f-af6fbdafa0c7",
+              "name": "feedUrl",
+              "value": "https://newsletter.theresanaiforthat.com/archive",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        2580
+      ],
+      "id": "480adc6e-36a0-4efd-b981-8561836a16b0",
+      "name": "normalize_taaft"
+    },
+    {
+      "parameters": {
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "value": 4
+            }
+          ]
+        },
+        "feedUrl": "https://rss.app/feeds/O60XfEFYoxJhYVkS.xml"
+      },
+      "type": "n8n-nodes-base.rssFeedReadTrigger",
+      "typeVersion": 1,
+      "position": [
+        -1080,
+        1480
+      ],
+      "id": "71650d77-74bc-4257-a08f-0834a3ee2e53",
+      "name": "bens_bites_trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3261021f-54d8-4cce-a78a-12e40520d2c1",
+              "name": "sourceName",
+              "value": "bens-bites",
+              "type": "string"
+            },
+            {
+              "id": "a7a3c290-4b8c-46e5-a9e2-d7c9c03d3bee",
+              "name": "feedType",
+              "value": "newsletter",
+              "type": "string"
+            },
+            {
+              "id": "efb8285b-9def-4cef-883f-af6fbdafa0c7",
+              "name": "feedUrl",
+              "value": "https://bensbites.beehiiv.com/archive",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        40,
+        1480
+      ],
+      "id": "9fc0364e-1bd1-42b0-8c6c-0a3898313e76",
+      "name": "normalize_bens_bites"
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "data-ingestion",
+        "fileName": "={{ $('get_identity').item.json.uploadFileName + \".md.temp\" }}",
+        "binaryData": false,
+        "fileContent": "={{ $('scrape_url').item.json.data.json.content }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        3560,
+        360
+      ],
+      "id": "354fc078-ee9c-48e0-96e8-b25414c8dd43",
+      "name": "upload_temp_markdown",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.aitools.inc/admin/files/copy/data-ingestion",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"srcKey\": \"{{ $('get_identity').item.json.uploadFileName + '.md.temp' }}\",\n  \"dstKey\": \"{{ $('get_identity').item.json.uploadFileName + '.md' }}\",\n  \"newContentType\": \"application/vnd.aitools.{{ $('get_identity').item.json.feedType }}+md\",\n  \"newMetadata\": {\n    \"key\": \"{{ $('get_identity').item.json.uploadFileName + '.md' }}\",\n    \"type\": \"{{ $('get_identity').item.json.feedType }}\",\n    \"title\": {{ JSON.stringify($('get_identity').item.json.title) }},\n    \"authors\": {{ JSON.stringify($('get_identity').item.json.authors ?? \"\") }},\n    \"source-name\": \"{{ $('get_identity').item.json.sourceName }}\",\n    \"external-source-urls\": {{ JSON.stringify($('try_extract_external_sources').item.json.output.external_source_urls ?? \"\") }},\n    \"image-urls\": {{ JSON.stringify($('scrape_url').item.json.data.json.main_content_image_urls.join(\",\")) }},\n    \"url\": \"{{ $('get_identity').item.json.url }}\",\n    \"timestamp\": \"{{ $('get_identity').item.json.publishedTimestamp }}\",\n    \"feed-url\": \"{{ $('get_identity').item.json.feedUrl }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3780,
+        360
+      ],
+      "id": "25c7af90-065b-4664-8ee6-64731831fd03",
+      "name": "copy_markdown",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "operation": "upload",
+        "bucketName": "data-ingestion",
+        "fileName": "={{ $('get_identity').item.json.uploadFileName + \".html.temp\" }}",
+        "binaryData": false,
+        "fileContent": "={{ $('scrape_url').item.json.data.rawHtml }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        3560,
+        680
+      ],
+      "id": "44b5771c-6cc4-44ca-9723-6ee2e0caf849",
+      "name": "upload_temp_html",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.aitools.inc/admin/files/copy/data-ingestion",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"srcKey\": \"{{ $('get_identity').item.json.uploadFileName + '.html.temp' }}\",\n  \"dstKey\": \"{{ $('get_identity').item.json.uploadFileName + '.html' }}\",\n  \"newContentType\": \"application/vnd.aitools.{{ $('get_identity').item.json.feedType }}.raw+html\",\n  \"newMetadata\": {\n    \"key\": \"{{ $('get_identity').item.json.uploadFileName + '.md' }}\",\n    \"type\": \"{{ $('get_identity').item.json.feedType }}\",\n    \"title\": {{ JSON.stringify($('get_identity').item.json.title) }},\n    \"authors\": {{ JSON.stringify($('get_identity').item.json.authors ?? \"\") }},\n    \"source-name\": \"{{ $('get_identity').item.json.sourceName }}\",\n    \"external-source-urls\": {{ JSON.stringify($('try_extract_external_sources').item.json.output.external_source_urls ?? \"\") }},\n    \"image-urls\": {{ JSON.stringify($('scrape_url').item.json.data.json.main_content_image_urls.join(\",\")) }},\n    \"url\": \"{{ $('get_identity').item.json.url }}\",\n    \"timestamp\": \"{{ $('get_identity').item.json.publishedTimestamp }}\",\n    \"feed-url\": \"{{ $('get_identity').item.json.feedUrl }}\"\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        3780,
+        680
+      ],
+      "id": "b71fca50-97e9-4ba1-821b-5f69e83e3554",
+      "name": "copy_html",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "maxTries": 5
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "data-ingestion",
+        "fileKey": "={{ $('get_identity').item.json.uploadFileName + '.html.temp' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4000,
+        680
+      ],
+      "id": "85ff3e4c-6955-44bf-9f97-efb4cdd19510",
+      "name": "delete_temp_html",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "bucketName": "data-ingestion",
+        "fileKey": "={{ $('get_identity').item.json.uploadFileName + '.md.temp' }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        4000,
+        360
+      ],
+      "id": "dfcfc3fa-ef49-4e50-b0f2-2878c5e9acbf",
+      "name": "delete_temp_markdown",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        1260
+      ],
+      "id": "00eb73f0-8539-4031-bdc4-8f258550d705",
+      "name": "google_news_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/AkOariu1C7YyUUMv.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        1260
+      ],
+      "id": "792f0df0-9243-4431-b447-7d639a411353",
+      "name": "fetch_google_news_feed"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const domainSourceMap = {\n  \"engadget.com\": \"engadget\",\n  \"gizmodo.com\": \"gizmodo\",\n  \"techcrunch.com\": \"techcrunch\",\n  \"theverge.com\": \"the-verge\",\n  \"cnbc.com\": \"cnbc\",\n  \"forbes.com\": \"forbes\",\n  \"tradingview.com\": \"trading-view\",\n  \"economist.com\": \"economist\",\n  \"tomshardware.com\": \"toms-hardware\",\n  \"timesofindia.indiatimes.com\": \"times-of-india\",\n  \"seekingalpha.com\": \"seeking-alpha\",\n  \"fool.com\": \"the-motley-fool\",\n  \"sherwood.news\": \"sherwood-news\",\n  \"theregister.com\": \"the-register\",\n  \"yahoo.com\": \"yahoo\",\n  \"finance.yahoo.com\": \"yahoo-finance\",\n  \"venturebeat.com\": \"venture-beat\",\n  \"gurufocus.com\": \"guru-focus\",\n  \"yourstory.com\": \"your-story\",\n  \"theguardian.com\": \"the-guardian\",\n  \"spectrum.ieee.org\": \"spectrum-ieee\",\n  \"nasdaq.com\": \"nasdaq\",\n  \"euractiv.com\": \"euractiv\",\n  \"fortune.com\": \"fortune\",\n  \"indexbox.io\": \"indexbox\",\n  \"phys.org\": \"phys\",\n  \"reuters.com\": \"reuters\",\n  \"bloomberg.com\": \"bloomberg\",\n  \"ign.com\": \"ign\",\n  \"japantimes.co.jp\": \"japan-times\",\n  \"thehindu.com\": \"the-hindu\",\n  \"ft.com\": \"financial-times\",\n  \"nytimes.com\": \"the-new-york-times\",\n  \"aftermath.site\": \"aftermath\",\n  \"computerworld.com\": \"computer-world\",\n  \"business.inquirer.net\": \"business-inquirer\",\n  \"androidpolice.com\": \"android-police\",\n  \"scmp.com\": \"scmp\",\n  \"azure.microsoft.com\": \"microsoft-azure\",\n  \"benzinga.com\": \"benzinga\"\n}\n\n// Use a regex to extract the hostname.\n// The regex breakdown:\n// ^(?:https?:\\/\\/)?  --> Optionally match the protocol (http:// or https://)\n// (?:www\\.)?         --> Optionally match \"www.\"\n// ([^\\/]+)           --> Capture all characters until the first \"/\" (the hostname)\nconst match = $input.item.json.url.match(/^(?:https?:\\/\\/)?(?:www\\.)?([^\\/]+)/i);\n\nif (!match) {\n  throw new Error(\"Unable to regex match url\")\n}\n\nconst domain = match[1];\nlet sourceName = domainSourceMap[domain];\n\nif (!sourceName) {\n  // Fallback: generate a friendly name by removing any leading \"www.\", \n  // then removing the TLD (the last dot segment),\n  // and finally replacing any remaining dots with dashes.\n  sourceName = domain\n    .replace(/^www\\./, '')\n    .replace(/\\.[^.]+$/, '') // removes the TLD\n    .replace(/\\./g, '-');\n}\n\nif (!sourceName) {\n    throw new Error(`Unknown source detected: ${domain}`);\n}\n\nreturn {\n  sourceName: sourceName,\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/AkOariu1C7YyUUMv.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        1260
+      ],
+      "id": "ad8fc277-0e20-4a2e-af0f-9fcea15b7fb9",
+      "name": "normalize_google_news_articles"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a082ec0-16b7-4d5b-832d-2609a06fae15",
+              "name": "title",
+              "value": "={{ $json.title }}",
+              "type": "string"
+            },
+            {
+              "id": "6838c8ba-c498-49f5-bb97-bee33f02dd20",
+              "name": "url",
+              "value": "={{ $json.link }}",
+              "type": "string"
+            },
+            {
+              "id": "13967cc2-74e2-445f-b88f-f15405cd89d8",
+              "name": "authors",
+              "value": "={{ $json.creator }}",
+              "type": "string"
+            },
+            {
+              "id": "a33938bc-1743-4e67-bdaf-c4c1d5bc3ce0",
+              "name": "date",
+              "value": "={{ $json.pubDate }}",
+              "type": "string"
+            },
+            {
+              "id": "7edee0aa-3a35-41bf-b616-85246fed3436",
+              "name": "publishedTimestamp",
+              "value": "={{ $json.isoDate }}",
+              "type": "string"
+            },
+            {
+              "id": "a68bb301-94e1-414d-96f8-09f6453b45c1",
+              "name": "sourceName",
+              "value": "={{ $json.sourceName }}",
+              "type": "string"
+            },
+            {
+              "id": "00b19e33-754f-4347-a30a-bb33b3740919",
+              "name": "feedType",
+              "value": "={{ $json.feedType }}",
+              "type": "string"
+            },
+            {
+              "id": "24e1b6dc-81e2-4964-a56c-36ceccd9e1f2",
+              "name": "feedUrl",
+              "value": "={{ $json.feedUrl }}",
+              "type": "string"
+            },
+            {
+              "id": "b287462d-3fad-46a2-bc42-5aa98aa8bde3",
+              "name": "uploadFileName",
+              "value": "={{ \n  $json.isoDate.substring(0, 10) + \"/\" + \n  $json.title\n    .toLowerCase()\n    .replace(/[^a-z0-9 -]/g, '')  // remove characters outside a-z, 0-9, space, and dash\n    .trim()                      // remove any leading/trailing whitespace\n    .replace(/\\s+/g, '-')        // replace whitespace with dash\n    .replace(/-+/g, '-')         // collapse multiple dashes\n  + '.' + $json.sourceName \n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        620,
+        520
+      ],
+      "id": "13bea670-03fc-421c-a788-b9b437c3d4c4",
+      "name": "get_identity",
+      "alwaysOutputData": false
+    },
+    {
+      "parameters": {
+        "resource": "bucket",
+        "operation": "search",
+        "bucketName": "data-ingestion",
+        "additionalFields": {
+          "prefix": "={{ $json.uploadFileName }}"
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        960,
+        520
+      ],
+      "id": "11277ab7-bbb1-4258-b31d-3c0ec290c397",
+      "name": "search_existing_resource",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "fbf2844d-f77e-4c7f-a223-42b674d3668c",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1260,
+        520
+      ],
+      "id": "cf968e4b-98a1-45e0-9677-b857363b9597",
+      "name": "skip_existing_resources"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        1020
+      ],
+      "id": "23a19409-ab0c-46e0-af0f-f8dd6689e179",
+      "name": "hacker_news_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/jf3MZ9ZlVZhrVEjD.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        1020
+      ],
+      "id": "39bbc2f6-5c90-4ea6-a246-8745c2495daa",
+      "name": "fetch_hacker_news_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        1260
+      ],
+      "id": "7bcfbc97-9164-467a-91c2-6272f47eed44",
+      "name": "split_google_news_items"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        1020
+      ],
+      "id": "c237bbae-c6ce-474e-91c0-e8a9d52bd95f",
+      "name": "split_hacker_news_items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "22197457-7f84-4504-a14f-a5346a80359f",
+              "leftValue": "={{ $('evaluate_content').item.json.output.is_revelant_content }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2800,
+        520
+      ],
+      "id": "e88a1441-eb25-4fcf-af18-c21e94bb9eda",
+      "name": "ensure_revelant"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n        \"chainOfThought\": {\n          \"type\": \"string\",\n          \"description\": \"Sequential reasoning to determine if the provided content is a valid and relevant piece of content that an AI or tech enthusiast would be interested in reading and learning about.\"\n        },\n\t\t\"is_revelant_content\": {\n\t\t\t\"type\": \"boolean\",\n            \"description\": \"Indicator if the provided content is relevant piece of content to the AI industry.\"\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2480,
+        900
+      ],
+      "id": "63eeb6ae-406a-4a34-962f-e88bafedfc56",
+      "name": "is_revelant_content_parser"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Use a regex to extract the hostname.\n// The regex breakdown:\n// ^(?:https?:\\/\\/)?  --> Optionally match the protocol (http:// or https://)\n// (?:www\\.)?         --> Optionally match \"www.\"\n// ([^\\/]+)           --> Capture all characters until the first \"/\" (the hostname)\nconst match = $input.item.json.url.match(/^(?:https?:\\/\\/)?(?:www\\.)?([^\\/]+)/i);\n\nif (!match) {\n  throw new Error(\"Unable to regex match url\")\n}\n\nconst domain = match[1];\nconst sourceName = domain\n  .replace(/^www\\./, '')\n  .replace(/\\.[^.]+$/, '') // removes the TLD\n  .replace(/\\./g, '-');\n\nif (!sourceName) {\n    throw new Error(`Unknown source detected: ${domain}`);\n}\n\nreturn {\n  sourceName: sourceName,\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/AkOariu1C7YyUUMv.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        1020
+      ],
+      "id": "9e77f9a2-6825-4e3b-8667-39b9832a3f86",
+      "name": "normalize_hacker_news_articles"
+    },
+    {
+      "parameters": {
+        "text": "=You are given:\n\n1. **Content Website**: The domain hosting the content (e.g., `https://www.bloomberg.com/news/…`).  \n2. **Content Title and Body**: Text or markdown content extracted from a web page.  \n3. **Links Found on Content Page**: A list of hyperlinks that appear in or around the same article or page.\n\n## Your Task\n\n- Identify any **external source links** that are most relevant to the main topic of the content. It is possible there are NOT ANY good external source links.\n- **External** means the link must be on a domain *different* from the Content Website’s domain.\n- **Relevance** means it must directly reference a primary source (e.g., a product announcement, study, press release, etc.) that underpins the main topic.\n- **Exclude** links that are:\n  - On the same domain as the Content Website\n  - Generic homepages, profile pages, or unrelated side links\n  - Not clearly connected to the main focus of the article\n  - To storefront pages like eCommerce sites, to bookstore pages, to direct product listings, or other place to order a product directly.\n  - To shopping websites like bookstores and other retail stores.\n- If one or more valid external links exist, return them in a single comma-separated string as `external_source_urls`.\n- If no external links meet these criteria, omit the `external_source_urls` field entirely.\n\n## Output Format\n\n- Return only the answer in plain text.\n- Either:\n  1. `external_source_urls: <comma-separated list of valid external links>`\n  2. Omit the field if no valid external links exist.\n\n\n## Other Details\nIt is critical that your source link is relevant to the main content and would be useful context to evaluate when writing a newsletter overview about this content targeted towards AI enthusiasts and people interested in the AI space.\n\n---\n\n### Example Scenario\n\nIf the article is focused on an AI breakthrough from OpenAI and there is an external link to an official OpenAI product announcement hosted on openai.com, include that link (since it is on a *different* domain and relevant to the main topic). If all links point to the same domain or are irrelevant, do not return any `external_source_urls`.\n\n---\nContent Website:\n{{ $('scrape_url').item.json.data.metadata.url }}\n\n\nContent Title:\n{{ $('scrape_url').item.json.data.metadata.title }}\n\nContent:\n{{ $('scrape_url').item.json.data.json.content }}\n\nLinks Found on Content Page:\n{{ $('scrape_url').item.json.data.links.map(item => item.split(\"?\")[0]).join(\"\\n\") }}\n",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "external_source_urls",
+              "description": "Optional comma-separated values list of urls that are external sources referenced on this piece of content. The url here should NOT be on the same domain as the url of the main content piece, it should be an external url meaning another website. Make sure there is NOT a trailing comma after the last value."
+            }
+          ]
+        },
+        "options": {
+          "systemPromptTemplate": "You are an expert extraction algorithm.\nOnly extract relevant information from the text.\nIf you do not know the value of an attribute asked to extract, you may omit the attribute's value."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        3100,
+        520
+      ],
+      "id": "d5578e6d-4925-4af2-8e25-f4a19fce28fd",
+      "name": "try_extract_external_sources",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o3-mini",
+          "mode": "list",
+          "cachedResultName": "o3-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2720,
+        900
+      ],
+      "id": "bb745d34-d17b-4ab3-aa1d-35184cd5efa7",
+      "name": "o3-mini"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/F3rBf24jLxG6mNoJ.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        780
+      ],
+      "id": "10d7c69d-0b27-4396-ae40-c4184e9a2770",
+      "name": "fetch_reddit_artificial_inteligence_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        780
+      ],
+      "id": "a56eb812-a169-40aa-b9b9-596c7b1702e0",
+      "name": "split_reddit_artificial_inteligence_items"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "subreddit": "ArtificialInteligence",
+        "postId": "={{ $json.url.match(/comments\\/([^/]+)/)[1] }}"
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        780
+      ],
+      "id": "016c774f-0bf8-4997-9277-8c65750588ca",
+      "name": "get_reddit_artificial_inteligence_items",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "701be722-6eb4-48f5-bc12-ed858a58bce1",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7e9f6852-ccf6-488e-8019-899aaa1ef6ff",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "79bc5622-4063-48a8-835b-8b45746a7f2e",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "1a4ca682-edac-47b1-8e84-dbaa3f79a819",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "reddit.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "f29b29c7-d183-450a-b9e6-b02635a2dead",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "youtube.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "ab07ea23-fe91-4669-8417-396fe65765bf",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "youtu.be",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "eb92ce45-bdb8-4e8e-bf6b-d3d27a3d9108",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "x.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "6f51a62d-08ca-4ef4-abf1-cb29f8b3734e",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "github.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "5ae77967-31a2-4f52-85c8-ee4b06c86fbf",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "i.redd.it",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "264842c1-8d69-4d4e-8c0b-0982cc9db627",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "=v.redd.it",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -200,
+        780
+      ],
+      "id": "5177bf5f-18a4-45a7-aee0-e5b6d0e17d9a",
+      "name": "filter_reddit_artificial_inteligence_items"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ecd02ccb-0790-44ab-8bb0-246881e35a20",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        2080,
+        520
+      ],
+      "id": "350bd662-5a04-4c92-9e40-b970fcb9062c",
+      "name": "filter_scrape_errors"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Use a regex to extract the hostname.\n// The regex breakdown:\n// ^(?:https?:\\/\\/)?  --> Optionally match the protocol (http:// or https://)\n// (?:www\\.)?         --> Optionally match \"www.\"\n// ([^\\/]+)           --> Capture all characters until the first \"/\" (the hostname)\nconst match = $input.item.json.url.match(/^(?:https?:\\/\\/)?(?:www\\.)?([^\\/]+)/i);\n\nif (!match) {\n  throw new Error(\"Unable to regex match url\")\n}\n\nconst domain = match[1];\nconst sourceName = domain\n  .replace(/^www\\./, '')\n  .replace(/\\.[^.]+$/, '') // removes the TLD\n  .replace(/\\./g, '-');\n\nif (!sourceName) {\n    throw new Error(`Unknown source detected: ${domain}`);\n}\n\nreturn {\n  sourceName: sourceName,\n  title: $input.item.json.title,\n  link: $input.item.json.url,\n  pubDate: new Date($input.item.json.created_utc * 1000).toISOString(),\n  isoDate: new Date($input.item.json.created_utc * 1000).toISOString(),\n  feedType: \"subreddit\",\n  feedUrl: \"https://rss.app/feeds/v1.1/AkOariu1C7YyUUMv.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        780
+      ],
+      "id": "baee5b56-2da7-472a-bae7-c024f55c9b96",
+      "name": "normalize_reddit_artificial_inteligence_items"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        780
+      ],
+      "id": "b2dfd54c-8cec-4368-9f64-5d13ea9fda6b",
+      "name": "reddit_artificial_inteligence_trigger"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        520
+      ],
+      "id": "0c6dc642-1de8-49d6-b7d8-8b83b3338168",
+      "name": "reddit_open_ai_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/1LDBacY8BC2qJaZh.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        520
+      ],
+      "id": "734b36c4-f171-4984-aedc-df277354c607",
+      "name": "fetch_reddit_open_ai_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        520
+      ],
+      "id": "608d4eac-35e3-4678-ba23-383fc50bd9ab",
+      "name": "split_reddit_open_ai_items"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "subreddit": "OpenAI",
+        "postId": "={{ $json.url.match(/comments\\/([^/]+)/)[1] }}"
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        520
+      ],
+      "id": "1239d4f3-1214-4024-9a61-a2e4be218d89",
+      "name": "get_reddit_open_ai_items",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "9743b6e1-a915-4a5c-b133-1e94d68e060d",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7e9f6852-ccf6-488e-8019-899aaa1ef6ff",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "79bc5622-4063-48a8-835b-8b45746a7f2e",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "1a4ca682-edac-47b1-8e84-dbaa3f79a819",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "reddit.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "f29b29c7-d183-450a-b9e6-b02635a2dead",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "youtube.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "ab07ea23-fe91-4669-8417-396fe65765bf",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "youtu.be",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "eb92ce45-bdb8-4e8e-bf6b-d3d27a3d9108",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "x.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "6f51a62d-08ca-4ef4-abf1-cb29f8b3734e",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "github.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "3edaa177-9a40-41de-bcc2-fe248a777626",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "i.redd.it",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "13ab666b-fcbf-4798-b3f6-f74079b8f6fa",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "v.redd.it",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -200,
+        520
+      ],
+      "id": "01c4b82f-61ed-4619-95c8-adbf9ec5e7aa",
+      "name": "filter_reddit_open_ai_items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Use a regex to extract the hostname.\n// The regex breakdown:\n// ^(?:https?:\\/\\/)?  --> Optionally match the protocol (http:// or https://)\n// (?:www\\.)?         --> Optionally match \"www.\"\n// ([^\\/]+)           --> Capture all characters until the first \"/\" (the hostname)\nconst match = $input.item.json.url.match(/^(?:https?:\\/\\/)?(?:www\\.)?([^\\/]+)/i);\n\nif (!match) {\n  throw new Error(\"Unable to regex match url\")\n}\n\nconst domain = match[1];\nconst sourceName = domain\n  .replace(/^www\\./, '')\n  .replace(/\\.[^.]+$/, '') // removes the TLD\n  .replace(/\\./g, '-');\n\nif (!sourceName) {\n    throw new Error(`Unknown source detected: ${domain}`);\n}\n\nreturn {\n  sourceName: sourceName,\n  title: $input.item.json.title,\n  link: $input.item.json.url,\n  pubDate: new Date($input.item.json.created_utc * 1000).toISOString(),\n  isoDate: new Date($input.item.json.created_utc * 1000).toISOString(),\n  feedType: \"subreddit\",\n  feedUrl: \"https://rss.app/feeds/v1.1/1LDBacY8BC2qJaZh.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        520
+      ],
+      "id": "c4262956-74df-4ed1-89c8-9f39943f5720",
+      "name": "normalize_reddit_open_ai_items"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        260
+      ],
+      "id": "069a03f7-6841-4d9f-8dad-2ac40df570e8",
+      "name": "reddit_artificial_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/upLgfm9lv7RXwzes.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        260
+      ],
+      "id": "0945d9fe-5fd8-4903-8d0d-7a2ae54e8704",
+      "name": "fetch_reddit_artificial_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        260
+      ],
+      "id": "addec1fa-68b3-42db-b37b-b0ea580bd7cf",
+      "name": "split_reddit_artificial_items"
+    },
+    {
+      "parameters": {
+        "operation": "get",
+        "subreddit": "artificial",
+        "postId": "={{ $json.url.match(/comments\\/([^/]+)/)[1] }}"
+      },
+      "type": "n8n-nodes-base.reddit",
+      "typeVersion": 1,
+      "position": [
+        -420,
+        260
+      ],
+      "id": "dd2e8524-079f-4ef3-bb11-62ec01b63c6e",
+      "name": "get_reddit_artificial_items",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "0c525d94-7ad5-49ef-b5cd-f149992e85cd",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "7e9f6852-ccf6-488e-8019-899aaa1ef6ff",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "79bc5622-4063-48a8-835b-8b45746a7f2e",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "1a4ca682-edac-47b1-8e84-dbaa3f79a819",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "reddit.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "f29b29c7-d183-450a-b9e6-b02635a2dead",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "youtube.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "ab07ea23-fe91-4669-8417-396fe65765bf",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "youtu.be",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "eb92ce45-bdb8-4e8e-bf6b-d3d27a3d9108",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "x.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "6f51a62d-08ca-4ef4-abf1-cb29f8b3734e",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "github.com",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "3edaa177-9a40-41de-bcc2-fe248a777626",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "i.redd.it",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "13ab666b-fcbf-4798-b3f6-f74079b8f6fa",
+              "leftValue": "={{ $json.url_overridden_by_dest }}",
+              "rightValue": "v.redd.it",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -200,
+        260
+      ],
+      "id": "c5aa6fdf-fc83-4186-b6c7-8da6471899ec",
+      "name": "filter_reddit_artificial_items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Use a regex to extract the hostname.\n// The regex breakdown:\n// ^(?:https?:\\/\\/)?  --> Optionally match the protocol (http:// or https://)\n// (?:www\\.)?         --> Optionally match \"www.\"\n// ([^\\/]+)           --> Capture all characters until the first \"/\" (the hostname)\nconst match = $input.item.json.url.match(/^(?:https?:\\/\\/)?(?:www\\.)?([^\\/]+)/i);\n\nif (!match) {\n  throw new Error(\"Unable to regex match url\")\n}\n\nconst domain = match[1];\nconst sourceName = domain\n  .replace(/^www\\./, '')\n  .replace(/\\.[^.]+$/, '') // removes the TLD\n  .replace(/\\./g, '-');\n\nif (!sourceName) {\n    throw new Error(`Unknown source detected: ${domain}`);\n}\n\nreturn {\n  sourceName: sourceName,\n  title: $input.item.json.title,\n  link: $input.item.json.url,\n  pubDate: new Date($input.item.json.created_utc * 1000).toISOString(),\n  isoDate: new Date($input.item.json.created_utc * 1000).toISOString(),\n  feedType: \"subreddit\",\n  feedUrl: \"https://rss.app/feeds/v1.1/upLgfm9lv7RXwzes.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        260
+      ],
+      "id": "3112ea83-b498-4f5c-a4d7-01cc7382caaa",
+      "name": "normalize_reddit_artificial_items"
+    },
+    {
+      "parameters": {
+        "content": "## Web Content",
+        "height": 3960,
+        "width": 5380,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1140,
+        -1200
+      ],
+      "typeVersion": 1,
+      "id": "d629fc07-a17b-42b6-bbc2-602494179a6f",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        20
+      ],
+      "id": "d9654dc3-e5f2-4999-84a8-9640fac9535b",
+      "name": "blog_meta_ai_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/zqVI3dZrdbmZjbR8.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        20
+      ],
+      "id": "0ff81dd7-f01e-401f-95cd-37658321decd",
+      "name": "fetch_blog_meta_ai_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        20
+      ],
+      "id": "b4ce3b5a-6f7f-47e9-bbfb-b9a178f8adb2",
+      "name": "split_blog_meta_ai_items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  sourceName: \"blog-meta\",\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/zqVI3dZrdbmZjbR8.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        20
+      ],
+      "id": "0c6543af-8206-4acf-b96e-4d512f91a944",
+      "name": "normalize_blog_meta_ai_articles"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        -220
+      ],
+      "id": "e92e30c7-9525-4b2c-b9f0-f431735eee5f",
+      "name": "blog_cloudflare_ai_trigger"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -220
+      ],
+      "id": "f73e4157-d017-4217-b273-5066f81b0c84",
+      "name": "split_blog_cloudflare_ai_items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  sourceName: \"blog-cloudflare\",\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/iLzlJfBHVV0phe2n.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -220
+      ],
+      "id": "f164e5e1-5391-491a-9308-690940c674a1",
+      "name": "normalize_blog_cloudflare_ai_articles"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        -440
+      ],
+      "id": "2c1c760e-6601-4553-b61b-c72cfbca06a4",
+      "name": "blog_anthropic_ai_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/iLzlJfBHVV0phe2n.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        -220
+      ],
+      "id": "f7e06f39-c618-4ce3-b159-87843f92ae12",
+      "name": "fetch_blog_cloudflare_ai_feed"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/OFdSUsziElw0rkpx.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        -440
+      ],
+      "id": "f80fb857-6643-452c-a36e-bf51ed6639f0",
+      "name": "fetch_blog_anthropic_ai_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -440
+      ],
+      "id": "704ee292-3985-4f6b-8bde-520a62002398",
+      "name": "split_blog_anthropic_ai_items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  sourceName: \"blog-anthropic\",\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/OFdSUsziElw0rkpx.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -440
+      ],
+      "id": "1020f23c-2237-4123-a747-9ea1774f9bed",
+      "name": "normalize_blog_anthropic_ai_articles"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        -660
+      ],
+      "id": "f16bcb70-d8e8-4bac-b49a-337497dd7d64",
+      "name": "blog_google_ai_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/2CtvCsOtZS35jJgp.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        -660
+      ],
+      "id": "56212fd3-60fb-47af-ad6c-46c2012a6a4b",
+      "name": "fetch_blog_google_ai_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -660
+      ],
+      "id": "d0b89e1a-9c1a-4790-90b7-5c2fcc4ac6a3",
+      "name": "split_blog_google_ai_items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  sourceName: \"blog-google\",\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/2CtvCsOtZS35jJgp.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -660
+      ],
+      "id": "76067e39-d7fc-4e5b-b6c4-463ab62c9bc2",
+      "name": "normalize_blog_google_ai_articles"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        -880
+      ],
+      "id": "47d89efd-a4c6-46f5-8e85-ce2aae942110",
+      "name": "blog_open_ai_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/6BnoYYEtnCHXfHj0.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        -880
+      ],
+      "id": "501186d1-177e-4802-8d63-c6bb28029289",
+      "name": "fetch_blog_open_ai_feed"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  sourceName: \"blog-open-ai\",\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/6BnoYYEtnCHXfHj0.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -880
+      ],
+      "id": "11eb6b55-5663-4d56-a535-1d689abb0000",
+      "name": "normalize_blog_open_ai_articles"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -880
+      ],
+      "id": "0f9e75d0-f60b-445f-9e88-c32bd5c0d798",
+      "name": "split_blog_open_ai_items"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        -1100
+      ],
+      "id": "8f7fd2d2-b5df-404d-9057-3ac5922030e9",
+      "name": "blog_nvidia_ai_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/rXJrh1u8zDwJLUJK.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        -1100
+      ],
+      "id": "443553ab-f393-4bcb-8530-090561f1053b",
+      "name": "fetch_blog_nvidia_ai_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        -1100
+      ],
+      "id": "7e000da7-5938-42c6-8941-ea8610853cf1",
+      "name": "split_blog_nvidia_ai_items"
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {\n  sourceName: \"blog-nvidia-ai\",\n  title: $input.item.json.title,\n  creator: $input.item.json.authors[0]?.name,\n  link: $input.item.json.url,\n  pubDate: $input.item.json.date_published,\n  isoDate: $input.item.json.date_published,\n  feedType: \"article\",\n  feedUrl: \"https://rss.app/feeds/v1.1/rXJrh1u8zDwJLUJK.json\"\n}"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -1100
+      ],
+      "id": "208122f6-bded-47d8-adc5-0907736c5e06",
+      "name": "normalize_blog_nvidia_ai_articles"
+    },
+    {
+      "parameters": {
+        "amount": 180
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1540,
+        520
+      ],
+      "id": "fa5bdb57-0b1e-4791-bb6c-8fc28e13efb5",
+      "name": "delay",
+      "webhookId": "ea003ac0-5583-4e8d-812a-c9dd73c09cf4"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "the_neuron_trigger": {
+      "main": [
+        [
+          {
+            "node": "normalize_neuron",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "futurepedia_trigger": {
+      "main": [
+        [
+          {
+            "node": "normalize_futurepedia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "superhuman_trigger": {
+      "main": [
+        [
+          {
+            "node": "normalize_superhuman",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_url": {
+      "main": [
+        [
+          {
+            "node": "filter_scrape_errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "evaluate_content": {
+      "main": [
+        [
+          {
+            "node": "ensure_revelant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_neuron": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_futurepedia": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_superhuman": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "the_rundown_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "normalize_the_rundown_ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_the_rundown_ai": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "taaft_trigger": {
+      "main": [
+        [
+          {
+            "node": "normalize_taaft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_taaft": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "bens_bites_trigger": {
+      "main": [
+        [
+          {
+            "node": "normalize_bens_bites",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_bens_bites": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_temp_markdown": {
+      "main": [
+        [
+          {
+            "node": "copy_markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_temp_html": {
+      "main": [
+        [
+          {
+            "node": "copy_html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "copy_html": {
+      "main": [
+        [
+          {
+            "node": "delete_temp_html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "copy_markdown": {
+      "main": [
+        [
+          {
+            "node": "delete_temp_markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "google_news_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_google_news_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_google_news_feed": {
+      "main": [
+        [
+          {
+            "node": "split_google_news_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_identity": {
+      "main": [
+        [
+          {
+            "node": "search_existing_resource",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_google_news_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_existing_resource": {
+      "main": [
+        [
+          {
+            "node": "skip_existing_resources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "skip_existing_resources": {
+      "main": [
+        [
+          {
+            "node": "delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "hacker_news_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_hacker_news_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_google_news_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_google_news_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_hacker_news_feed": {
+      "main": [
+        [
+          {
+            "node": "split_hacker_news_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ensure_revelant": {
+      "main": [
+        [
+          {
+            "node": "try_extract_external_sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is_revelant_content_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "evaluate_content",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_hacker_news_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_hacker_news_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_hacker_news_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "try_extract_external_sources": {
+      "main": [
+        [
+          {
+            "node": "upload_temp_markdown",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "upload_temp_html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "o3-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "try_extract_external_sources",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "evaluate_content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_reddit_artificial_inteligence_feed": {
+      "main": [
+        [
+          {
+            "node": "split_reddit_artificial_inteligence_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_reddit_artificial_inteligence_items": {
+      "main": [
+        [
+          {
+            "node": "get_reddit_artificial_inteligence_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_reddit_artificial_inteligence_items": {
+      "main": [
+        [
+          {
+            "node": "filter_reddit_artificial_inteligence_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_reddit_artificial_inteligence_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_reddit_artificial_inteligence_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_scrape_errors": {
+      "main": [
+        [
+          {
+            "node": "evaluate_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_reddit_artificial_inteligence_items": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reddit_artificial_inteligence_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_reddit_artificial_inteligence_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reddit_open_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_reddit_open_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_reddit_open_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_reddit_open_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_reddit_open_ai_items": {
+      "main": [
+        [
+          {
+            "node": "get_reddit_open_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_reddit_open_ai_items": {
+      "main": [
+        [
+          {
+            "node": "filter_reddit_open_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_reddit_open_ai_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_reddit_open_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_reddit_open_ai_items": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "reddit_artificial_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_reddit_artificial_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_reddit_artificial_feed": {
+      "main": [
+        [
+          {
+            "node": "split_reddit_artificial_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_reddit_artificial_items": {
+      "main": [
+        [
+          {
+            "node": "get_reddit_artificial_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_reddit_artificial_items": {
+      "main": [
+        [
+          {
+            "node": "filter_reddit_artificial_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_reddit_artificial_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_reddit_artificial_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_reddit_artificial_items": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_meta_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_blog_meta_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_blog_meta_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_blog_meta_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_blog_meta_ai_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_blog_meta_ai_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_blog_meta_ai_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_cloudflare_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_blog_cloudflare_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_blog_cloudflare_ai_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_blog_cloudflare_ai_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_blog_cloudflare_ai_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_anthropic_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_blog_anthropic_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_blog_cloudflare_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_blog_cloudflare_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_blog_anthropic_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_blog_anthropic_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_blog_anthropic_ai_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_blog_anthropic_ai_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_blog_anthropic_ai_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_google_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_blog_google_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_blog_google_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_blog_google_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_blog_google_ai_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_blog_google_ai_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_blog_google_ai_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_open_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_blog_open_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_blog_open_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_blog_open_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_blog_open_ai_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_blog_open_ai_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_blog_open_ai_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_nvidia_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_blog_nvidia_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_blog_nvidia_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_blog_nvidia_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_blog_nvidia_ai_items": {
+      "main": [
+        [
+          {
+            "node": "normalize_blog_nvidia_ai_articles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalize_blog_nvidia_ai_articles": {
+      "main": [
+        [
+          {
+            "node": "get_identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delay": {
+      "main": [
+        [
+          {
+            "node": "scrape_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3900294b-41a6-4b62-ad9d-9fd7c734cab8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "pVcvUOoBnXkXQmdO",
+  "tags": [
+    {
+      "createdAt": "2025-02-26T02:19:06.270Z",
+      "updatedAt": "2025-02-26T02:19:06.270Z",
+      "id": "lqz73KAn3eV6NV38",
+      "name": "Entrypoint"
+    }
+  ]
+}

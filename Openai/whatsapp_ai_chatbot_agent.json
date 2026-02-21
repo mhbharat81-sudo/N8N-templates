@@ -1,0 +1,605 @@
+{
+  "name": "The Recap AI - Whats App Chatbot Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "SOP Builder",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Website",
+              "placeholder": "https://recap.aitools.inc",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        -256
+      ],
+      "id": "cc918d74-8def-479e-b7f8-e8a870b15ca7",
+      "name": "form_trigger",
+      "webhookId": "11057270-a4bb-40e4-842c-6947806208c7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=You are a friendly and professional AI Concierge for a hotel. Your name is [You can insert a name here, e.g., \"Alex\"], and your sole purpose is to assist guests and potential customers with their questions via WhatsApp. You are a representative of the hotel brand, so your tone must be helpful, welcoming, and clear.\n\nYour primary knowledge source is the \"Hotel Encyclopedia,\" an internal document containing all official information about the hotel. This is your single source of truth.\n\nYour process for handling every user message is as follows:\n\n1.  **Analyze the Request:** Carefully read the user's message to fully understand what they are asking for. Identify the key topics (e.g., \"pool hours,\" \"breakfast cost,\" \"parking,\" \"pet policy\").\n\n2.  **Consult the Encyclopedia:** Before formulating any response, you MUST perform a deep and targeted search within the Hotel Encyclopedia. Think critically about where the relevant information might be located. For example, a query about \"check-out time\" should lead you to search sections like \"Check-in/Check-out Policies\" or \"Guest Services.\"\n\n3.  **Formulate a Helpful Answer:**\n    *   If you find the exact information in the Encyclopedia, provide a clear, concise, and friendly answer.\n    *   Present information in an easy-to-digest format. Use bullet points for lists (like amenities or restaurant hours) to avoid overwhelming the user.\n    *   Always maintain a positive and helpful tone. Start your responses with a friendly greeting.\n\n4.  **Handle Missing Information (Crucial):**\n    *   If, and only if, the information required to answer the user's question does NOT exist in the Hotel Encyclopedia, you must not, under any circumstances, invent, guess, or infer an answer.\n    *   In this scenario, you must respond politely that you cannot find the specific details for their request. Do not apologize excessively. A simple, professional statement is best.\n    *   Immediately after stating you don't have the information, you must direct them to a human for assistance. For example: \"I don't have the specific details on that particular topic. Our front desk team would be happy to help you directly. You can reach them by calling [Hotel Phone Number].\"\n\n**Strict Rules & Constraints:**\n\n*   **No Fabrication:** You are strictly forbidden from making up information. This includes times, prices, policies, names, availability, or any other detail not explicitly found in the Hotel Encyclopedia.\n*   **Stay in Scope:** Your role is informational. Do not attempt to process bookings, modify reservations, or handle personal payment information. For such requests, politely direct the user to the official booking channel or to call the front desk.\n*   **Single Source of Truth:** Do not use any external knowledge or information from past conversations. Every answer must be based on a fresh lookup in the Hotel Encyclopedia.\n*   **Professional Tone:** Avoid slang, overly casual language, or emojis, but remain warm and approachable.\n\n**Example Tone:**\n\n*   **Good:** \"Hello! The pool is open from 8:00 AM to 10:00 PM daily. We provide complimentary towels for all our guests. Let me know if there's anything else I can help you with!\"\n*   **Bad:** \"Yeah, the pool's open 'til 10. You can grab towels there.\"\n*   **Bad (Hallucination):** \"I believe the pool is open until 11:00 PM on weekends, but I would double-check.\"\n\n\n---\n# Encyclopedia\n\n## 1) YAML Frontmatter\n\n---\nencyclopedia_version: 1.1\ngenerated_at: 2024-08-13T12:00:00Z\nsite:\n  name: \"Hotel Le Agavi\"\ncounts:\n  total_pages_processed: 69\n  total_entries: 52\n  total_glossary_terms: 0\n  total_media_links: 0\nintegrity:\n  information_synthesis_method: \"deduplicated_canonical\"\n  all_pages_processed: true\n---\n\n## 2) Title\n\n# Hotel Le Agavi — Support Encyclopedia\n\n## 3) Table of Contents\n\n- [Quick Start for Agents](#5-quick-start-for-agents-orientation-layer)\n- [Taxonomy & Topics](#6-taxonomy--topics-the-core-encyclopedia)\n  - [Property Overview & Brand](#property-overview--brand)\n  - [Rooms & Suites](#rooms--suites)\n  - [Rates, Packages & Promotions](#rates-packages--promotions)\n  - [Reservations & Booking Policies](#reservations--booking-policies)\n  - [Check-In / Check-Out & Front Desk](#check-in--check-out--front-desk)\n  - [Guest Services & Amenities](#guest-services--amenities)\n  - [Dining, Bars & Room Service](#dining-bars--room-service)\n  - [Spa, Pool, Fitness & Recreation](#spa-pool-fitness--recreation)\n  - [Parking, Transportation & Directions](#parking-transportation--directions)\n  - [Meetings, Events & Weddings](#meetings-events--weddings)\n  - [Policies](#policies)\n  - [Billing, Taxes & Receipts](#billing-taxes--receipts)\n  - [Cancellations, No-Shows & Refunds](#cancellations-no-shows--refunds)\n  - [Local Area & Attractions](#local-area--attractions)\n  - [Contact, Hours & Support Channels](#contact-hours--support-channels)\n- [Outlets, Venues & Amenities Index](#8-outlets-venues--amenities-index)\n- [Contact & Support Channels](#9-contact--support-channels)\n- [Coverage & Integrity Report](#10-coverage--integrity-report)\n\n## 4) Quick Start for Agents (Orientation Layer)\n\n*   **What this is:** This is a complete, deduplicated knowledge base built from all pages of the Hotel Le Agavi website. It serves as the single source of truth for all guest-facing policies, amenities, and services.\n*   **How to navigate:**\n    *   Use the **Table of Contents** to jump to a major category like \"Rooms & Suites\" or \"Dining, Bars & Room Service\".\n    *   Use the **Taxonomy & Topics** section for detailed information on specific policies and services.\n    *   The **Outlets, Venues & Amenities Index** provides a quick summary of all hotel facilities.\n    *   Use your browser's search function (Ctrl+F or Cmd+F) to find specific keywords like \"shuttle\", \"parking fee\", or \"cancellation\".\n*   **Support maturity:** `UNKNOWN`. The website provides multiple email addresses and a primary phone number for inquiries but does not state specific support hours or expected response times.\n\n## 5) Taxonomy & Topics (The Core Encyclopedia)\n\n### Property Overview & Brand\n\n### [EntryID: property-overview] Hotel Overview\n**Category:** Property Overview & Brand\n**Summary:** Hotel Le Agavi is a 5-star luxury hotel in Positano, located on the Amalfi Coast. Founded by Aldo Capilongo, the hotel is built into the cliffside across 11 terraced levels, offering panoramic sea views. It features a private beach, a Michelin-starred restaurant, a spa, and is connected internally by a funicular.\n**Key Facts:**\n- **Hotel Name:** Hotel Le Agavi\n- **Star Rating:** 5-star\n- **Location:** Positano (SA), Italy, on the Amalfi Coast\n- **Structure:** Spans 11 levels of terraces overlooking the sea.\n- **Key Features:** Private beach (Remmese Beach House), two restaurants (La Serra and Remmese), three bars, Alma Spa, outdoor pool, private funicular for internal transport.\n- **Brand Identity:** Focuses on luxury, heartfelt hospitality, and a deep connection to the Amalfi Coast, celebrating the vision of its founder, Aldo Capilongo.\n**Canonical Details & Policies:**\n\"Nestled in the timeless beauty of the Amalfi Coast, Hotel Le Agavi in Positano spans terraces overlooking the sea, offering you a breathtaking 360° view of the entire bay. A 5-star hotel that envelops you in tranquility, removed from the bustling streets of the historic center, yet close enough to immerse yourself in the true essence of Positano.\"\n**Sources:** [<hotel-le-agavi-positano-5-star-luxury>, <hotel-le-agavi-positano-5-stelle-luxury>, <luxury-hotel-in-positano-aldos-legacy-at-hotel-le-agavi-on-the-amalfi-coast>]\n\n### Rooms & Suites\n\n### [EntryID: room-amenities-all] General Room & Suite Amenities\n**Category:** Rooms & Suites\n**Summary:** All rooms and suites at the hotel are equipped with a standard set of luxury amenities, including a furnished balcony with a sea view, an Illy Espresso machine, and a Smart TV. Each accommodation is designed with materials like wood, marble, and Vietri majolica tiles to reflect the coastal setting.\n**Key Facts:**\n- **Standard in all rooms:**\n  - Furnished balcony with sea view\n  - Illy Espresso machine & Electric Kettle\n  - Smart TV with Satellite & Sky channels\n  - Minibar\n  - Wi-Fi\n  - Air conditioning\n  - Safe\n  - Direct-dial phone\n  - Luxury Toiletries\n  - Slippers and bathrobe\n**Sources:** [<rooms-and-suites-positano-hotel-le-agavi-5-star-luxury>, <camere-e-suite-positano-hotel-le-agavi-5-stelle-luxury>]\n\n### [EntryID: room-classic] Classic Room\n**Category:** Rooms & Suites\n**Summary:** The Classic Room is the hotel's entry-level room type, sized at 26 square meters and accommodating up to 2 guests. It features a classic style with Mediterranean influences, Vietri majolica floors, and a private balcony with a sea view.\n**Key Facts:**\n- **Size:** 26 m²\n- **Occupancy:** 2 guests\n- **Features:** Balcony with sea view, pastel-toned fabrics, Vietri majolica floors.\n- **Amenities:** Includes all general room amenities.\n**Sources:** [<classic-room-hotel-le-agavi-positano-5-star-luxury>, <camera-classic-hotel-le-agavi-positano-5-stelle-luxury>]\n\n### [EntryID: room-deluxe] Deluxe Room\n**Category:** Rooms & Suites\n**Summary:** The Deluxe Room is 38 square meters and accommodates 2 guests. It embodies Positano's style with a blue color palette and features a generously appointed terrace with a sea view, complete with a sun bed and umbrella.\n**Key Facts:**\n- **Size:** 38 m²\n- **Occupancy:** 2 guests\n- **Features:** Large terrace with sea view, sun bed, and umbrella.\n- **Amenities:** Includes all general room amenities plus Coffee and a selection of teas.\n**Sources:** [<deluxe-room-hotel-le-agavi-positano-5-star-luxury>]\n\n### [EntryID: room-junior-suite] Junior Suite\n**Category:** Rooms & Suites\n**Summary:** The Junior Suite is a spacious 50-square-meter room for 2 guests. It offers panoramic sea views from every window and a secluded terrace with armchairs, sun loungers, and tables. The bathroom features either a jacuzzi or a waterfall shower head.\n**Key Facts:**\n- **Size:** 50 m²\n- **Occupancy:** 2 guests\n- **Features:** Terrace with lounge area and sea view, sofa, bathroom with Jacuzzi or waterfall shower head, umbrella with sun beds.\n- **Amenities:** Includes all general room amenities plus Coffee and a selection of teas.\n**Sources:** [<junior-suite-hotel-le-agavi-positano-5-star-luxury>, <junior-suite-hotel-le-agavi-positano-5-stelle-luxury>]\n\n### [EntryID: room-suite] Suite\n**Category:** Rooms & Suites\n**Summary:** The Suite is a 70-square-meter accommodation for 2 guests, described as a haven of luxury. It includes a cozy living room and a sea-view terrace with sofas and sun beds. The bathroom features either a jacuzzi or a shower with a mini waterfall for cervical massage.\n**Key Facts:**\n- **Size:** 70 m²\n- **Occupancy:** 2 guests\n- **Features:** Terrace with sea view, elegant living area, umbrella with sun beds, Jacuzzi or waterfall shower head.\n- **Toiletries:** \"Premium\" Toiletries.\n- **Amenities:** Includes all general room amenities plus Coffee and a selection of teas.\n**Sources:** [<suites-hotel-le-agavi-positano-5-star-luxury>, <suite-hotel-le-agavi-positano-5-stelle-luxury>]\n\n### [EntryID: room-executive-suite] Executive Suite\n**Category:** Rooms & Suites\n**Summary:** The Executive Suite is an 85-square-meter retreat for 2 guests, including a 25 m² terrace, one of the largest on the property. It features curated furnishings, a spacious living area, and a bathroom with dual basins and a rain shower. This suite comes with signature services like a dedicated concierge.\n**Key Facts:**\n- **Size:** 85 m² (including a 25 m² terrace)\n- **Occupancy:** 2 guests\n- **Features:** Expansive terrace with sunbeds, shaded umbrella, and dining table.\n- **Toiletries:** Amouage toiletries.\n- **Signature Services:**\n  - Dedicated Concierge\n  - Reserved tables at La Serra and Remmese restaurants\n  - Reserved sun loungers at the private beach and pool\n**Sources:** [<executive-suite-at-hotel-le-agavi-85-m-with-panoramic-sea-views>, <executive-suite-presso-hotel-le-agavi-85-m-con-vista-panoramica-sul-mare>]\n\n### [EntryID: room-alma-suite] Alma Suite\n**Category:** Rooms & Suites\n**Summary:** The Alma Suite is the hotel's largest accommodation at 150 square meters, designed for up to 4 guests, making it ideal for families. It consists of two independent areas (a master suite and a junior suite) connected by a private foyer. It features expansive terraces and includes exclusive signature services.\n**Key Facts:**\n- **Size:** 150 m²\n- **Occupancy:** 4 guests\n- **Layout:** Comprises a master suite and a junior suite connected by a private entrance.\n- **Features:** Expansive terraces with sun loungers, seating, and a dining table. The master suite's bathroom has a rainfall shower.\n- **Signature Services:**\n  - Dedicated Concierge\n  - Reserved tables at La Serra and Remmese restaurants\n  - Reserved sun loungers at the private beach and pool\n  - Complimentary one-hour couples massage at the spa (subject to availability)\n**Sources:** [<alma-suite-hotel-le-agavi>, <alma-suite-hotel-le-agavi-2>]\n\n### Rates, Packages & Promotions\n\n### [EntryID: booking-perks-direct] Direct Booking Benefits\n**Category:** Rates, Packages & Promotions\n**Summary:** Guests who book their stay directly on the hotel's official website receive several complimentary benefits. These perks are consistently advertised across the site.\n**Key Facts:**\n- **Best rate guaranteed**\n- **Complimentary spa products**\n- **Prosecco and fruit upon arrival**\n**Sources:** [<hotel-le-agavi-positano-5-star-luxury>, <privacy-policy-hotel-le-agavi-positano>, <deluxe-room-hotel-le-agavi-positano-5-star-luxury>, <classic-room-hotel-le-agavi-positano-5-star-luxury>, <suites-hotel-le-agavi-positano-5-star-luxury>, <hotel-le-agavi-positano-5-stelle-luxury>, <and-43-others>]\n\n### [EntryID: package-special-deals] Special Deals\n**Category:** Rates, Packages & Promotions\n**Summary:** A general promotional offer for a stay at Hotel Le Agavi. It includes accommodation, breakfast, and access to the private beach and panoramic pool.\n**Key Facts:**\n- **Inclusions:**\n  - Stay in a room of your choice\n  - Rich buffet breakfast\n  - Private beach access\n  - Panoramic pool access\n**Sources:** [<august-special-deals-hotel-le-agavi-positano>, <positano-offerte-speciali-hotel-le-agavi-positano>]\n\n### [EntryID: package-honeymoon] Honeymoon Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A 3-night package designed for honeymooners, available throughout 2025. It includes a room upgrade, romantic dinner, spa access, and a sunset boat excursion.\n**Key Facts:**\n- **Minimum Stay:** 3 nights\n- **Availability:** Throughout 2025\n- **Inclusions:**\n  - Free room upgrade\n  - Daily breakfast\n  - Welcome drink\n  - Access to pool and private beach\n  - 2-hour sunset boat excursion on \"Ayave\" with aperitif\n  - Romantic 4-course tasting dinner at the gourmet restaurant (drinks not included)\n  - Two massages and 1-hour exclusive use of the SPA\n  - Wi-Fi\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-standard](#cancellation-policy-standard).\n**Sources:** [<honeymoon-package-hotel-le-agavi>, <pacchetto-honeymoon-hotel-le-agavi>]\n\n### [EntryID: package-capri-dream] Capri Dream Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A 3-night package available throughout 2025, featuring a full-day group boat tour to Capri on the hotel's \"Ayave\" boat.\n**Key Facts:**\n- **Minimum Stay:** 3 nights\n- **Availability:** Throughout 2025\n- **Inclusions:**\n  - Free room upgrade\n  - Daily breakfast\n  - Welcome drink\n  - Access to pool and private beach\n  - Full-day group excursion to Capri on \"Ayave\" boat, including swimming stops, visit to Green Grotto, and sunset aperitif\n  - Wi-Fi\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-standard](#cancellation-policy-standard).\n**Sources:** [<capri-dream-package-hotel-le-agavi>, <pacchetto-capri-dream-hotel-le-agavi>]\n\n### [EntryID: package-towards-heaven] Towards Heaven Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A 3-night package focused on nature and relaxation, available throughout 2025. The main highlight is an excursion along the famous Path of the Gods hiking trail.\n**Key Facts:**\n- **Minimum Stay:** 3 nights\n- **Availability:** Throughout 2025\n- **Inclusions:**\n  - Free room upgrade\n  - Daily breakfast\n  - Welcome drink\n  - Excursion to the Path of the Gods\n  - Two massages\n  - Access to pool and private beach\n  - Wi-Fi\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-standard](#cancellation-policy-standard).\n**Sources:** [<towards-heaven-package-hotel-le-agavi>]\n\n### [EntryID: package-gourmet-cuisine] Gourmet Cuisine Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A 3-night package for food and wine lovers, available throughout 2025. It includes a wine tasting and a romantic dinner prepared by the Michelin-starred Chef.\n**Key Facts:**\n- **Minimum Stay:** 3 nights\n- **Availability:** Throughout 2025\n- **Inclusions:**\n  - Free room upgrade\n  - Daily breakfast\n  - Welcome drink\n  - Tasting of five wines with gourmet finger food\n  - Romantic 4-course tasting dinner at the gourmet restaurant (drinks not included)\n  - Access to pool and private beach\n  - Wi-Fi\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-standard](#cancellation-policy-standard).\n**Sources:** [<gourmet-cuisine-package-positano-hotel-le-agavi>, <pacchetto-gourmet-cuisine-hotel-le-agavi>, <pacchetto-gourmet-cuisine-hotel-le-agavi-2>]\n\n### [EntryID: package-wellness-retreat] Wellness Retreat Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A 4-night wellness-focused package available in April and October 2025. It includes accommodation in a Deluxe Room, healthy meals, daily spa treatments, an in-room yoga set, and airport transfers.\n**Key Facts:**\n- **Duration:** 4 nights (can be tailored)\n- **Availability:** April & October 2025\n- **Accommodation:** Deluxe Room\n- **Inclusions:**\n  - Daily breakfast\n  - Round-trip transfers from Naples Airport\n  - Daily healthy lunch at Remmese\n  - 2 hours of spa treatments per day\n  - Daily sunset aperitivo\n  - In-room yoga set\n  - Light evening snacks delivered to room\n  - Welcome gift of wellness essentials\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-strict](#cancellation-policy-strict).\n**Sources:** [<rejuvenate-reflect-luxury-wellness-retreat-package-on-the-amalfi-coast-hotel-le-agavi>, <rigenerati-contemplando-pacchetto-di-benessere-sulla-costiera-amalfitana-hotel-le-agavi>]\n\n### [EntryID: package-positano-paradise] Positano Paradise Escape Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A comprehensive 7-night luxury package available for the entire 2025 season. It includes a Junior Suite, multiple dining experiences, a private boat tour, and airport transfers.\n**Key Facts:**\n- **Duration:** 7 nights (can be tailored)\n- **Availability:** April 1st - October 31st, 2025\n- **Accommodation:** Junior Suite\n- **Inclusions:**\n  - Daily breakfast\n  - Round-trip transfers from Naples Airport\n  - Daily lunch at Remmese\n  - One gourmet dinner at La Serra with wine pairings\n  - Daily sunset aperitivo\n  - 4-hour private boat tour on \"Agave\" with prosecco\n  - Exclusive access to Remmese Beach House and pool with reserved sunbeds\n  - Welcome gift of Champagne & local delicacies\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-strict](#cancellation-policy-strict).\n**Sources:** [<luxury-positano-paradise-escape-7-night-amalfi-coast-getaway-at-hotel-le-agavi>, <paradiso-positano-retreat-di-lusso-7-notti-sulla-costiera-amalfitana-presso-hotel-le-agavi>]\n\n### [EntryID: package-haute-couture] Haute Couture Escape Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A unique 7-night package available for the 2025 season, combining a luxury stay with a bespoke Italian tailoring experience. Includes a custom-made suit, dining, and extensive spa access.\n**Key Facts:**\n- **Duration:** 7 nights (can be tailored)\n- **Availability:** 2025 season\n- **Accommodation:** Junior Suite\n- **Inclusions:**\n  - Daily breakfast\n  - Round-trip transfers from Naples Airport\n  - One gourmet lunch at Remmese\n  - One gourmet dinner at La Serra with wine pairings\n  - Exclusive use of the SPA for 1 hour per day for 5 days\n  - Exclusive access to Remmese Beach House and pool with reserved sunbeds\n  - Welcome gift of Champagne & local delicacies\n  - A custom-made suit crafted from premium wool by master tailors\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-strict](#cancellation-policy-strict).\n**Sources:** [<haute-couture-escape-luxury-tailored-retreat-on-the-amalfi-coast-hotel-le-agavi>]\n\n### [EntryID: package-august-escape] August 2025: Luxurious Escape Package\n**Category:** Rates, Packages & Promotions\n**Summary:** A 7-night luxury package specifically for August 2025. It includes accommodation in a Classic or Deluxe room, dining experiences, a full-day private yacht excursion, daily spa access, and airport transfers.\n**Key Facts:**\n- **Duration:** 7 nights (can be tailored)\n- **Availability:** August 2025\n- **Accommodation:** Classic or Deluxe Room\n- **Inclusions:**\n  - Daily breakfast\n  - Round-trip private car transfers from Naples Airport\n  - One gourmet lunch at Remmese\n  - One gourmet dinner at La Serra with wine pairings\n  - Daily sunset aperitivo for two\n  - Full-day private yacht tour to Capri and the Amalfi Coast with prosecco\n  - Reserved sunbeds at Remmese Beach House and pool\n  - One hour of daily access to the SPA\n  - Welcome gift of Prosecco & local sweets\n- **Booking:** Contact `booking@leagavipositano.com`.\n- **Cancellation Policy:** See entry [cancellation-policy-strict](#cancellation-policy-strict).\n**Sources:** [<agosto-pacchetto-fuga-di-lusso-pacchetto-esclusivo-di-lusso-per-agosto-allhotel-le-agavi-7-notti-sulla-costiera-amalfitana>]\n\n### Reservations & Booking Policies\n\n### [EntryID: reservations-packages] Package Reservations\n**Category:** Reservations & Booking Policies\n**Summary:** All special packages and offers must be booked by contacting the hotel's booking team directly via email. Reservations for included services like dining, spa, and tours must be made in advance.\n**Key Facts:**\n- **Booking Channel:** Email to `booking@leagavipositano.com`.\n- **Advance Reservations:** Guests must book included services (spa, dinner, boat tours, sunbeds) in advance to ensure availability.\n- **Card Guarantee:** For restaurant reservations for non-hotel guests, a non-prepaid credit card is required as a guarantee.\n- **Payment:** For packages, the full booking amount is required 21 or 45 days before arrival via a payment link. The hotel will verify the card's validity at the time of booking.\n**Sources:** [<honeymoon-package-hotel-le-agavi>, <capri-dream-package-hotel-le-agavi>, <gourmet-cuisine-package-positano-hotel-le-agavi>, <la-serra-gourmet-restaurant-positano-hotel-le-agavi-5-stars-l>, <luxury-positano-paradise-escape-7-night-amalfi-coast-getaway-at-hotel-le-agavi>]\n\n### Check-In / Check-Out & Front Desk\n\n### [EntryID: check-in-out-times] Check-In & Check-Out Times\n**Category:** Check-In / Check-Out & Front Desk\n**Summary:** The hotel has standard check-in and check-out times. Early or late options are subject to availability.\n**Key Facts:**\n- **Check-In Time:** 14:00 (2:00 PM)\n- **Check-Out Time:** 12:00 PM\n- **Early Check-In / Late Check-Out:** Subject to availability and must be requested.\n**Sources:** [<honeymoon-package-hotel-le-agavi>, <capri-dream-package-hotel-le-agavi>, <gourmet-cuisine-package-positano-hotel-le-agavi>, <luxury-positano-paradise-escape-7-night-amalfi-coast-getaway-at-hotel-le-agavi>]\n\n### Guest Services & Amenities\n\n### [EntryID: funicular-internal] Internal Funicular\n**Category:** Guest Services & Amenities\n**Summary:** Due to the hotel's structure across 11 terraced levels, an internal funicular is provided for guest convenience. It connects the lobby terrace, the viewpoint, and the private beach.\n**Key Facts:**\n- **Purpose:** To facilitate movement between the hotel's different levels.\n- **Route:** Connects the main lobby area down to the beach level.\n- **Experience:** Offers panoramic views of the Positano coastline during the ride.\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>]\n\n### [EntryID: concierge-services] Concierge & Guest Relations\n**Category:** Guest Services & Amenities\n**Summary:** The hotel provides concierge and guest relations services to arrange activities and transportation. The Executive and Alma suites include a dedicated concierge.\n**Key Facts:**\n- **Services:** Assistance with inquiries, arranging car/scooter rentals, booking water taxis and boat tours.\n- **Contact:** Reception staff or `guestrelations@agavi.it` for tour/event inquiries.\n- **Dedicated Concierge:** Available for guests in the Executive Suite and Alma Suite.\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>, <executive-suite-at-hotel-le-agavi-85-m-with-panoramic-sea-views>, <alma-suite-hotel-le-agavi>]\n\n### Dining, Bars & Room Service\n\n### [EntryID: restaurant-la-serra] La Serra Restaurant\n**Category:** Dining, Bars & Room Service\n**Summary:** La Serra is the hotel's gourmet, Michelin-starred restaurant, led by Chef Alberto Annarumma. It offers a menu that reinvents Mediterranean traditions with a contemporary flair. The venue features an indoor dining room and an outdoor terrace with sea views.\n**Key Facts:**\n- **Cuisine:** Gourmet, Mediterranean, International.\n- **Chef:** Alberto Annarumma.\n- **Meals Served:** Breakfast, Lunch, Dinner.\n- **Hours:**\n  - Breakfast: 7:00 AM - 11:00 AM (Daily)\n  - Lunch: 1:00 PM - 2:30 PM (Tuesday - Sunday)\n  - Dinner: 7:30 PM - 10:30 PM (Tuesday - Sunday)\n- **Reservation Policy:** Highly recommended for external guests. A credit card guarantee is required. A fee of €80.00 per person is charged for cancellations within 72 hours or for no-shows.\n- **Wine Cellar:** Curated selection of Italian and international wines, including organic, natural, and kosher options. Sommelier available.\n- **Contact:** `laserra@agavi.it` or [+39 089 875733](tel:+39 089 875733).\n**Sources:** [<la-serra-gourmet-restaurant-positano-hotel-le-agavi-5-stars-l>, <ristorante-gourmet-la-serra-positano-hotel-le-agavi-5-stelle-l>, <undefined-5>, <undefined-6>]\n\n### [EntryID: restaurant-remmese] Remmese Restaurant\n**Category:** Dining, Bars & Room Service\n**Summary:** Remmese is the hotel's seaside restaurant located at the Remmese Beach House. Its name means \"fairy tale\" in Hungarian. The cuisine focuses on Amalfi culinary traditions, featuring fresh local produce and seafood.\n**Key Facts:**\n- **Cuisine:** Traditional Amalfi, Seafood.\n- **Location:** At the private beach club.\n- **Meals Served:** Lunch, Dinner.\n- **Hours:**\n  - Lunch: 12:30 PM - 3:00 PM (Daily) / 1:00 PM - 4:00 PM (per beach house page)\n  - Dinner: 7:30 PM - 10:30 PM (Daily, except Tuesdays)\n- **Specialties:** Catch of the day, seafood appetizers, Limoncello Babà.\n- **Access:** Can be reached by sea or by the hotel's funicular.\n- **Contact:** `remmese@agavi.it` or [+39 089 875733](tel:+39 089 875733).\n**Known Issues / Contradictions:** Lunch hours are listed as 12:30 PM-3:00 PM on the restaurant page and 1:00 PM-4:00 PM on the beach house page. [<remmese-beach-restaurant-positano-hotel-le-agavi-5-stars-l>, <remmese-beach-house-private-beach-in-positano-hotel-le-agavi>]\n**Sources:** [<remmese-beach-restaurant-positano-hotel-le-agavi-5-stars-l>, <ristorante-sul-mare-remmese-positano-hotel-le-agavi-5-stelle-l>, <undefined-2>, <undefined-3>]\n\n### [EntryID: bar-hall] Hall Bar\n**Category:** Dining, Bars & Room Service\n**Summary:** The Hall Bar is the hotel's main cocktail bar, located near the reception on the highest floor. It features a panoramic terrace overlooking the bay of Positano.\n**Key Facts:**\n- **Location:** Near reception, highest floor.\n- **Hours:** 12:00 PM - 1:00 AM (Daily)\n- **Menu:** Cocktails, drinks.\n**Sources:** [<lounge-pool-and-beach-bar-positano-hotel-le-agavi-5-star-luxury>, <lounge-pool-e-beach-bar-positano-hotel-le-agavi-5-stelle-luxury>]\n\n### [EntryID: bar-pool] The Pool Space (Pool Bar)\n**Category:** Dining, Bars & Room Service\n**Summary:** The Pool Space is the bar located by the hotel's main pool. It serves snacks, drinks, ice cream, and light lunches under ancient stone arches or on a panoramic terrace.\n**Key Facts:**\n- **Location:** By the main swimming pool.\n- **Hours:** 12:00 PM - 7:00 PM (Daily) / 12:00 PM - 6:00 PM (per pool page)\n- **Menu:** Salads, club sandwiches, cold dishes, snacks, drinks.\n**Known Issues / Contradictions:** Closing time is listed as 7 PM on the bar page and 6 PM on the pool page. [<lounge-pool-and-beach-bar-positano-hotel-le-agavi-5-star-luxury>, <hotel-with-pool-in-positano-hotel-le-agavi-5-star-luxury>]\n**Sources:** [<lounge-pool-and-beach-bar-positano-hotel-le-agavi-5-star-luxury>, <lounge-pool-e-beach-bar-positano-hotel-le-agavi-5-stelle-luxury>, <hotel-with-pool-in-positano-hotel-le-agavi-5-star-luxury>, <undefined-4>]\n\n### [EntryID: bar-remmese] Remmese Beach Bar\n**Category:** Dining, Bars & Room Service\n**Summary:** Located at the Remmese Beach House, this bar is situated on wooden piers within the beach club. It serves refreshing drinks, snacks, and aperitifs.\n**Key Facts:**\n- **Location:** At the Remmese Beach House.\n- **Hours:** 9:00 AM - 10:30 PM (Daily)\n- **Menu:** Drinks, snacks, cocktails.\n**Sources:** [<lounge-pool-and-beach-bar-positano-hotel-le-agavi-5-star-luxury>, <remmese-beach-house-private-beach-in-positano-hotel-le-agavi>, <lounge-pool-e-beach-bar-positano-hotel-le-agavi-5-stelle-luxury>]\n\n### [EntryID: breakfast-service] Breakfast\n**Category:** Dining, Bars & Room Service\n**Summary:** A rich buffet breakfast is served daily at La Serra restaurant, featuring a variety of homemade and local products.\n**Key Facts:**\n- **Location:** La Serra restaurant.\n- **Hours:** 7:00 AM - 11:00 AM (Daily).\n- **Format:** Buffet.\n- **Offerings:** Homemade cakes and jams, fresh bread, seasonal fruit, local cheeses, honey from Country House Rifugio degli Dei, espresso, cappuccino, fruit juices.\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>, <la-serra-gourmet-restaurant-positano-hotel-le-agavi-5-stars-l>]\n\n### [EntryID: room-service] Room Service\n**Category:** Dining, Bars & Room Service\n**Summary:** Room service is available 24 hours a day for hotel guests, with a dedicated menu.\n**Key Facts:**\n- **Availability:** 24/7\n- **Menu:** A special room service menu is available.\n**Sources:** [<la-serra-gourmet-restaurant-positano-hotel-le-agavi-5-stars-l>, <ristorante-gourmet-la-serra-positano-hotel-le-agavi-5-stelle-l>]\n\n### Spa, Pool, Fitness & Recreation\n\n### [EntryID: spa-alma] Alma Spa & Beauty\n**Category:** Spa, Pool, Fitness & Recreation\n**Summary:** Alma Spa & Beauty is the hotel's wellness center, offering a range of facilities and treatments. It can be booked for exclusive private use. The spa uses products with organic and natural ingredients.\n**Key Facts:**\n- **Name:** Alma Spa & Beauty\n- **Hours:** 10:00 AM - 6:00 PM\n- **Operating Season:** April 1st to October 31st\n- **Facilities:** Sauna, Turkish bath, Whirlpool, Emotional shower, Ice fountain, Relaxation area.\n- **Treatments:** Massages, facial and body treatments, \"Dry brushing with agave fibers\".\n- **Private Use:** The spa can be booked exclusively for one hour for two people, with an optional aperitif service.\n- **Contact:** `almaspa@leagavipositano.com` or [+39 089 875733](tel:+39 089 875733).\n**Sources:** [<alma-spa-beauty-spa-and-gym-positano-hotel-le-agavi>, <alma-spa-beauty-spa-e-palestra-positano-hotel-le-agavi>]\n\n### [EntryID: massage-outdoor] Outdoor Massage Corner\n**Category:** Spa, Pool, Fitness & Recreation\n**Summary:** The hotel offers an open-air massage corner located on a sea-view terrace. This space is secluded by linen curtains and allows guests to receive massages amidst Mediterranean foliage.\n**Key Facts:**\n- **Location:** Secluded outdoor terrace overlooking the sea.\n- **Availability:** Single or couples massages.\n**Sources:** [<alma-spa-beauty-spa-and-gym-positano-hotel-le-agavi>, <alma-spa-beauty-spa-e-palestra-positano-hotel-le-agavi>]\n\n### [EntryID: gym-fitness] Gym / Fitness Area\n**Category:** Spa, Pool, Fitness & Recreation\n**Summary:** The hotel has an outdoor fitness area located on a terrace overlooking the pool. It is equipped with modern Technogym equipment.\n**Key Facts:**\n- **Location:** Outdoor terrace, overlooking the pool.\n- **Equipment:** Technogym.\n- **Hours:** 9:00 AM - 7:00 PM\n- **Admission:** Free for hotel guests.\n- **Personal Trainer:** Available for booking.\n**Sources:** [<alma-spa-beauty-spa-and-gym-positano-hotel-le-agavi>, <alma-spa-beauty-spa-e-palestra-positano-hotel-le-agavi>]\n\n### [EntryID: pool-main] Main Swimming Pool\n**Category:** Spa, Pool, Fitness & Recreation\n**Summary:** The main outdoor swimming pool overlooks the bay of Positano and is heated to a constant temperature. It features a 1970s-style design and includes a solarium area and a separate mini-pool for children.\n**Key Facts:**\n- **Hours:** 9:30 AM - 7:00 PM\n- **Operating Season:** April to September\n- **Temperature:** Heated to a constant 28°C.\n- **Size:** 90 m², maximum depth of 2.30 meters.\n- **Features:** Includes a sunny solarium area and a separate shallow mini-pool for children.\n- **Associated Outlet:** The Pool Space bar is located nearby.\n**Sources:** [<hotel-with-pool-in-positano-hotel-le-agavi-5-star-luxury>, <hotel-con-piscina-a-positano-hotel-le-agavi-5-stelle-luxury>]\n\n### [EntryID: beach-club-remmese] Remmese Beach House\n**Category:** Spa, Pool, Fitness & Recreation\n**Summary:** Remmese Beach House is the hotel's private beach club, exclusive to guests. It features a wooden sun deck on a white pebble beach, a bar, and a restaurant. Access is provided via private elevators (the hotel's funicular).\n**Key Facts:**\n- **Name:** Remmese Beach House\n- **Access:** Exclusive for hotel guests, via private funicular.\n- **Operating Season:** May 15th to October 15th (except for natural/unforeseen events).\n- **Hours:** 9:00 AM - 8:00 PM\n- **Features:** Wooden sun deck, sun beds, umbrellas, white pebble beach.\n- **Facilities:** Remmese Restaurant and Remmese Beach Bar.\n**Sources:** [<remmese-beach-house-private-beach-in-positano-hotel-le-agavi>, <remmese-beach-house-spiaggia-privata-a-positano-hotel-le-agavi>]\n\n### [EntryID: boat-tours] Boat Tours & Excursions\n**Category:** Spa, Pool, Fitness & Recreation\n**Summary:** The hotel organizes exclusive boat tours to explore the Amalfi Coast, Capri, and other destinations. Tours are conducted on the hotel's boats, \"Ayave\" and \"Capriccio\".\n**Key Facts:**\n- **Boats:**\n  - **Ayave:** A 12m Gozzo Offshore boat with lounges, kitchen, bedroom, AC, and 880hp engine.\n  - **Capriccio:** A classic Sorrentine boat.\n- **Tour Options:**\n  - **Capri Tour:** 10 AM - 6 PM. Includes stop at Faraglioni, lunch, and free time in Capri.\n  - **Amalfi Tour:** 10 AM - 6 PM. Includes stops at Fiordo di Furore, Conca dei Marini, and visit to the Emerald Grotto.\n  - **The Blue Grotto Tour:** 10 AM - 6 PM. Navigation to Capri, swimming stops, tour of White & Blue Grottos, free time in Capri.\n  - **Emerald Grotto Tour:** 9 AM - 1 PM. Includes swimming stops, Fiordo di Furore, and optional scuba diving at Isca.\n- **Booking:** Contact `guestrelations@agavi.it`.\n**Sources:** [<boat-trips-positano-hotel-le-agavi-5-stars-l>, <escursioni-in-barca-positano-hotel-le-agavi-5-stelle-l>]\n\n### Parking, Transportation & Directions\n\n### [EntryID: parking-main] Private Parking\n**Category:** Parking, Transportation & Directions\n**Summary:** The hotel provides a secure, private parking lot on the premises for guests.\n**Key Facts:**\n- **Availability:** Yes, private parking is available for guests.\n- **Cost:** €55 per day.\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>]\n\n### [EntryID: shuttle-service] Shuttle Bus Service\n**Category:** Parking, Transportation & Directions\n**Summary:** A complimentary shuttle bus service runs hourly, connecting the hotel to the center of Positano.\n**Key Facts:**\n- **Service:** Connects the hotel to the center of Positano.\n- **Cost:** Free for all guests.\n- **Stop in Positano:** Parco Cascone.\n- **Duration:** 10-minute ride.\n- **Schedule:**\n  - First shuttle from hotel: 8:30 AM\n  - Last shuttle from Positano: 00:20 (12:20 AM)\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>]\n\n### [EntryID: transfers-airport-station] Private Transfers\n**Category:** Parking, Transportation & Directions\n**Summary:** The hotel offers a private transfer service for guests to and from major airports, ports, and train stations in the area.\n**Key Facts:**\n- **Service:** Private transfers available.\n- **Destinations:** Main airports (e.g., Naples Capodichino), ports, and train stations.\n- **Booking:** Can be arranged through the hotel.\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>]\n\n### [EntryID: rentals-car-scooter] Car and Scooter Rental\n**Category:** Parking, Transportation & Directions\n**Summary:** Guests can arrange for car and scooter rentals through the hotel's reception staff to explore the Amalfi Coast.\n**Key Facts:**\n- **Service:** Car and scooter rental.\n- **Booking:** Arrange through the reception staff.\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>]\n\n### [EntryID: water-taxi] Water Taxi Service\n**Category:** Parking, Transportation & Directions\n**Summary:** The hotel offers a water taxi service for direct journeys from the port to Positano center or nearby beaches. Exclusive trips to other coastal destinations can also be reserved.\n**Key Facts:**\n- **Service:** Water taxi for local transport.\n- **Destinations:** Positano center, nearby beaches, Amalfi, Praiano, and Nerano.\n- **Booking:** Reserve through the reception staff.\n**Sources:** [<hotel-services-positano-hotel-le-agavi-5-stars-l>, <servizi-hotel-positano-hotel-le-agavi-5-stelle-l>]\n\n### [EntryID: directions-to-hotel] Directions to Hotel Le Agavi\n**Category:** Parking, Transportation & Directions\n**Summary:** Detailed instructions for reaching the hotel by car, plane, train, and boat from the Naples area.\n**Canonical Details & Policies:**\n- **By car:** From Naples, take the A3 highway to the Castellammare di Stabia exit. Follow Route 145 towards the Amalfi Coast, then signs for Positano on SS163. The hotel entrance is marked by three flags just before the town center.\n- **By plane (from Naples Airport):**\n  - **Bus:** Take the Curreri Viaggi bus to Sorrento station, then a SITA bus to Positano (approx. 2h 5m total).\n  - **Train/Bus:** Take the Circumvesuviana train to Sorrento, then a SITA bus or ferry to Positano.\n  - **Private Transfer:** Bookable through the hotel.\n- **By train (from Napoli Centrale):** Take the Circumvesuviana train to Sorrento. From Sorrento, take a SITA bus (approx. 50 min) or a ferry (approx. 30 min) to Positano.\n- **By boat (from Naples):** From May to October, high-speed ferries (NLG) and hydrofoils (Alilauro) depart from Beverello pier, reaching Positano in about 2 hours.\n**Sources:** [<positano-and-surroundings-hotel-le-agavi-5-stars-l>, <cosa-vedere-a-positano-e-dintorni-hotel-le-agavi-5-stelle-l>]\n\n### Meetings, Events & Weddings\n\n### [EntryID: events-weddings] Weddings\n**Category:** Meetings, Events & Weddings\n**Summary:** Hotel Le Agavi serves as a venue for weddings, offering several indoor and outdoor locations with sea views. The hotel provides comprehensive services, including custom catering by Chef Alberto Annarumma and wedding planning assistance.\n**Key Facts:**\n- **Experience:** Staff has thirty years of experience in organizing banquets.\n- **Ceremony/Reception Venues:**\n  - Sala degli Specchi\n  - Remmese Beach Club\n  - Panoramic terrace\n- **Services Offered:**\n  - Custom menus\n  - Buffet appetizers\n  - Lunch or dinner reception\n  - Cake cutting on the terrace\n  - Exclusive use of the Beach Club\n  - Wedding planner available upon request\n  - Special accommodation for the couple (Suite with panoramic view, champagne, fruit basket)\n**Sources:** [<weddings-and-private-parties-positano-hotel-le-agavi-5-stars-l>, <matrimoni-e-party-privati-positano-hotel-le-agavi-5-stelle-l>]\n\n### [EntryID: events-business] Business Events & Meetings\n**Category:** Meetings, Events & Weddings\n**Summary:** The hotel accommodates business meetings, conferences, and corporate events in its main venue, the \"Sala degli Specchi.\" Catering services like coffee breaks and business lunches are available.\n**Key Facts:**\n- **Main Venue:** Sala degli Specchi\n  - **Size:** 200 m²\n  - **Max Capacity:** 160 people\n  - **Arrangement Capacities:**\n    - Auditorium: 160\n    - Classroom: 160\n    - Horseshoe: 55\n    - Banquet: 100\n- **Services Offered:**\n  - Equipment available\n  - Coffee breaks on the hall terrace\n  - Light lunches at hotel restaurants\n  - Business lunch/dinner with live music (upon request)\n**Sources:** [<meetings-and-business-events-positano-hotel-le-agavi>, <meeting-ed-eventi-business-positano-hotel-le-agavi>]\n\n### Policies\n\n### [EntryID: policy-privacy] Privacy Policy\n**Category:** Policies\n**Summary:** The hotel collects and processes personal data for purposes including online sales, marketing, advertising, and customer satisfaction surveys. Data is controlled by Le Agavi Hotel a Positano Srl.\n**Key Facts:**\n- **Data Controller:** Le Agavi Hotel a Positano Srl\n- **Head Office:** Via Ruoppolo, 105 - 80128 Naples, NA, IT\n- **PEC Email:** `leagavihotelapositano@pec.agavi.it`\n- **Data Processing Purposes:** Sale via telematics, Marketing (with consent), Advertising (with consent), Customer satisfaction surveys (legitimate interest).\n- **Data Categories Collected:** Includes contact details, payment card data, bank details, personal identification numbers, user profiles, and cookie data.\n- **Data Transfer:** Data may be transferred to the United States under the EU-US Privacy Shield framework.\n- **Data Retention:** Processing duration is predefined at 1 year.\n- **Data Subject Rights:** Users have the right to access, rectify, erase, or restrict their data, withdraw consent, and lodge a complaint.\n**Sources:** [<privacy-policy-hotel-le-agavi-positano>, <privacy-policy-hotel-le-agavi-positano-2>]\n\n### Billing, Taxes & Receipts\n\n### [EntryID: billing-city-tax] City Tax\n**Category:** Billing, Taxes & Receipts\n**Summary:** A city tax is applied to guest stays and is not included in the quoted package prices.\n**Key Facts:**\n- **Amount:** €5 per person, per night.\n- **Inclusion:** This tax is not included in package rates and must be paid separately.\n**Sources:** [<honeymoon-package-hotel-le-agavi>, <capri-dream-package-hotel-le-agavi>, <gourmet-cuisine-package-positano-hotel-le-agavi>, <towards-heaven-package-hotel-le-agavi>]\n\n### Cancellations, No-Shows & Refunds\n\n### [EntryID: cancellation-policy-standard] Standard Cancellation Policy\n**Category:** Cancellations, No-Shows & Refunds\n**Summary:** This policy applies to several hotel packages. Cancellations are free of charge up to 22 days before arrival. After that, the full booking amount is charged.\n**Canonical Details & Policies:**\n- The client can cancel free of charge up to 22 days before arrival.\n- If canceled within 21 days of arrival, the full booking amount will be charged.\n- In case of a no-show, the total booking amount will also be charged.\n**Sources:** [<honeymoon-package-hotel-le-agavi>, <pacchetto-honeymoon-hotel-le-agavi>, <capri-dream-package-hotel-le-agavi>, <pacchetto-capri-dream-hotel-le-agavi>, <gourmet-cuisine-package-positano-hotel-le-agavi>, <pacchetto-gourmet-cuisine-hotel-le-agavi>, <towards-heaven-package-hotel-le-agavi>]\n\n### [EntryID: cancellation-policy-strict] Strict Cancellation Policy\n**Category:** Cancellations, No-Shows & Refunds\n**Summary:** This stricter policy applies to select, higher-value packages. It requires a 30% deposit and has a 45-day cancellation window with penalties.\n**Canonical Details & Policies:**\n- A deposit of 30% is required at the time of booking.\n- The final payment must be completed 45 days prior to arrival.\n- Cancellations made more than 45 days before arrival incur a penalty charge equal to one night’s stay.\n- Cancellations made within 45 days of arrival incur a penalty charge of 100% of the total reservation cost.\n**Sources:** [<rejuvenate-reflect-luxury-wellness-retreat-package-on-the-amalfi-coast-hotel-le-agavi>, <luxury-positano-paradise-escape-7-night-amalfi-coast-getaway-at-hotel-le-agavi>, <haute-couture-escape-luxury-tailored-retreat-on-the-amalfi-coast-hotel-le-agavi>, <agosto-pacchetto-fuga-di-lusso-pacchetto-esclusivo-di-lusso-per-agosto-allhotel-le-agavi-7-notti-sulla-costiera-amalfitana>]\n\n### Local Area & Attractions\n\n### [EntryID: attractions-nearby] Nearby Attractions & Distances\n**Category:** Local Area & Attractions\n**Summary:** The hotel is located near the center of Positano and serves as a base for exploring the Amalfi Coast and nearby islands. Distances and travel times to key points of interest are provided.\n**Key Facts:**\n- **Positano (Piazza dei Mulini & Port):** 3 km\n- **Praiano:** 8 km\n- **Sorrento:** 16 km\n- **Amalfi:** 18 km\n- **Ravello:** 35 km\n- **Salerno:** 35 km\n- **Pompeii and Herculaneum:** 35 km\n- **Capri:** 30 minutes by hydrofoil\n**Sources:** [<positano-and-surroundings-hotel-le-agavi-5-stars-l>, <cosa-vedere-a-positano-e-dintorni-hotel-le-agavi-5-stelle-l>]\n\n### Contact, Hours & Support Channels\n\n### [EntryID: company-information] Company Information\n**Category:** Contact, Hours & Support Channels\n**Summary:** The legal and corporate details for the entity that owns and operates the hotel.\n**Key Facts:**\n- **Business Name:** Le Agavi Hotel a Positano S.R.L.\n- **Hotel Address:** Via G. Marconi 171, 84017 Positano (SA) - Italy\n- **Head Office Address:** Via Ruoppolo, 105 - 80128 Naples, NA, IT\n- **VAT / F.C.:** 05576050636\n- **R.E.A.:** 450940\n- **Share Capital:** € 641,439.47 (2024)\n**Sources:** [<hotel-le-agavi-positano-5-star-luxury>, <privacy-policy-hotel-le-agavi-positano>, <deluxe-room-hotel-le-agavi-positano-5-star-luxury>, <classic-room-hotel-le-agavi-positano-5-star-luxury>, <and-43-others>]\n\n## 8) Outlets, Venues & Amenities Index\n\n| Type | Name | Brief Description (from source) | Sources |\n|---|---|---|---|\n| Restaurant | La Serra | Gourmet restaurant with a Michelin-starred Chef, celebrating Mediterranean tradition with a contemporary flair. | [<la-serra-gourmet-restaurant-positano-hotel-le-agavi-5-stars-l>] |\n| Restaurant | Remmese | Seaside restaurant at the Beach Club, offering classic Amalfi culinary traditions and seafood. | [<remmese-beach-restaurant-positano-hotel-le-agavi-5-stars-l>] |\n| Bar | Hall Bar | Cocktail bar near reception on the highest floor with a panoramic terrace. | [<lounge-pool-and-beach-bar-positano-hotel-le-agavi-5-star-luxury>] |\n| Bar | The Pool Space | Poolside bar serving snacks, drinks, and light lunches. | [<lounge-pool-and-beach-bar-positano-hotel-le-agavi-5-star-luxury>] |\n| Bar | Remmese Beach Bar | Bar located on wooden piers within the private Beach Club. | [<lounge-pool-and-beach-bar-positano-hotel-le-agavi-5-star-luxury>] |\n| Venue | Remmese Beach House | A private beach club for guests with a wooden sun deck, pebble beach, bar, and restaurant. | [<remmese-beach-house-private-beach-in-positano-hotel-le-agavi>] |\n| Venue | Sala degli Specchi | An elegant and refined 200 m² room for meetings, conferences, and weddings, with a capacity of up to 160. | [<meetings-and-business-events-positano-hotel-le-agavi>] |\n| Amenity | Alma Spa & Beauty | A sanctuary for body and mind with sauna, Turkish bath, whirlpool, and a range of treatments. | [<alma-spa-beauty-spa-and-gym-positano-hotel-le-agavi>] |\n| Amenity | Main Swimming Pool | A heated, 70s-style pool overlooking the bay of Positano, with a solarium and children's mini-pool. | [<hotel-with-pool-in-positano-hotel-le-agavi-5-star-luxury>] |\n| Amenity | Outdoor Gym | A fitness area on a terrace overlooking the pool, equipped with Technogym machines. | [<alma-spa-beauty-spa-and-gym-positano-hotel-le-agavi>] |\n| Amenity | Funicular | An internal funicular that connects the hotel's 11 terraced levels, from the lobby to the beach. | [<hotel-services-positano-hotel-le-agavi-5-stars-l>] |\n\n## 9) Contact & Support Channels\n\n- **Phone (Main):** [+39 089875733](tel:+39 089875733) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <privacy-policy-hotel-le-agavi-positano>, <and-45-others>])\n- **Email (Booking & General Inquiries):** [booking@leagavipositano.com](mailto:booking@leagavipositano.com) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <contact-us-hotel-le-agavi-positano-5-star-l>, <and-30-others>])\n- **Email (La Serra Restaurant):** [laserra@agavi.it](mailto:laserra@agavi.it) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <and-27-others>])\n- **Email (Remmese Restaurant):** [remmese@agavi.it](mailto:remmese@agavi.it) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <and-27-others>])\n- **Email (Alma Spa):** [almaspa@leagavipositano.com](mailto:almaspa@leagavipositano.com) (Sources: [<alma-spa-beauty-spa-and-gym-positano-hotel-le-agavi>, <alma-spa-beauty-spa-e-palestra-positano-hotel-le-agavi>])\n- **Email (Guest Relations/Tours):** [guestrelations@agavi.it](mailto:guestrelations@agavi.it) (Sources: [<sunset-aperitivo-at-hotel-le-agavi-positano>, <experience-the-magic-of-positanos-full-moon-nights-exclusive-events-and-enchanting-views>])\n- **PEC Email (Legal):** [leagavihotelapositano@pec.agavi.it](mailto:leagavihotelapositano@pec.agavi.it) (Sources: [<privacy-policy-hotel-le-agavi-positano>])\n- **Facebook:** [@leagavihotelpositano](https://www.facebook.com/leagavihotelpositano) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <and-27-others>])\n- **Instagram (Hotel):** [@leagavi.hotel](https://www.instagram.com/leagavi.hotel/) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <and-27-others>])\n- **Instagram (La Serra):** [@laserrarestaurant.positano](https://www.instagram.com/laserrarestaurant.positano/) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <and-27-others>])\n- **Instagram (Remmese):** [@remmeserestaurant](https://www.instagram.com/remmeserestaurant/) (Sources: [<hotel-le-agavi-positano-5-star-luxury>, <and-27-others>])\n\n## 10) Coverage & Integrity Report\n\n- **Pages Processed:** 69\n- **Entries Created:** 52\n- **Potentially Unprocessed Content:**\n  - Content from pages with URLs ending in `.pdf` has been extracted and integrated into the relevant encyclopedia entries (e.g., menus for La Serra, Remmese, and The Pool Space). The original pages themselves were not processed as they were documents, not web pages.\n  - The numerous images across the site were not processed beyond their captions or associated text, as per the directives.\n- **Identified Contradictions:**\n  - **Remmese Restaurant Lunch Hours:** The restaurant's main page lists lunch from 12:30 PM to 3:00 PM, while the Remmese Beach House page lists it from 1:00 PM to 4:00 PM. This is noted in entry [restaurant-remmese](#restaurant-remmese).\n  - **The Pool Space (Pool Bar) Closing Time:** The main bar page lists closing time as 7:00 PM, while the pool-specific page lists it as 6:00 PM. This is noted in entry [bar-pool](#bar-pool)."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        480,
+        336
+      ],
+      "id": "5e9c823e-a711-42ee-bda9-5125eb99addf",
+      "name": "WhatsApp AI Agent"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        416,
+        576
+      ],
+      "id": "8b94b8d1-eca0-4866-b1ea-a94c81372016",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qp1NlMiIctmGD0Uu",
+          "name": "Google Gemini (PaLM)"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1.1,
+      "position": [
+        656,
+        576
+      ],
+      "id": "69f06989-ca69-41a3-b9c4-24ae45edc970",
+      "name": "think"
+    },
+    {
+      "parameters": {
+        "content": "## Chatbot + Business Encyclopedia Builder\n1. Takes in the url of a business's website \n2. Scans and scrapes the website for important information\n3. Generates a business encyclopedia to be used the the WhatsApp agent",
+        "height": 624,
+        "width": 1504,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        -432
+      ],
+      "typeVersion": 1,
+      "id": "bb609a45-e369-4838-ae1f-359b53c58080",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "operation": "map",
+        "url": "={{ $json.Website }}",
+        "ignoreSitemap": false,
+        "limit": 200,
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -256
+      ],
+      "id": "2bdfdb78-07fc-4359-9a89-ec9349fbe981",
+      "name": "map_website_urls",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "tTXd52Qm4ZR6N7sq",
+          "name": "Firecrawl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.links }}",
+        "scrapeOptions": {
+          "options": {
+            "headers": {},
+            "timeout": 60000
+          }
+        },
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        1216,
+        -256
+      ],
+      "id": "a4f34ce7-ffc2-4dcb-af60-bbf474219699",
+      "name": "scrape_url",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "maxTries": 2,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "firecrawlApi": {
+          "id": "tTXd52Qm4ZR6N7sq",
+          "name": "Firecrawl"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "links",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        448,
+        -256
+      ],
+      "id": "7bc13914-2f37-46e2-8719-9e2d26c6cd7c",
+      "name": "split_urls"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "data",
+              "renameField": true,
+              "outputFieldName": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        208,
+        -16
+      ],
+      "id": "d75e902d-b99a-4a01-8eac-2059f82dc38b",
+      "name": "aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0977e7a9-8c0c-4f8d-9749-fda01e8f1b1a",
+              "name": "scraped_website_result",
+              "value": "=Website: {{ $('form_trigger').item.json.Website }}\n\n-----\n{{ $json.data.map(item => {\n  let result = '';\n  result += 'Page Title: ' + item.metadata.title + '\\n';\n  result += 'Page Description: ' + item.metadata.description + '\\n';\n  result += 'Page Url: ' + item.metadata.url + '\\n\\n';\n\n  result += item.markdown;\n\n  return result;\n}).join(\"\\n-----\\n\") }}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        448,
+        -16
+      ],
+      "id": "4a0f768d-15ba-4bde-9e28-f3ad62a367f4",
+      "name": "set_scraped_content"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "messages"
+        ],
+        "options": {}
+      },
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "typeVersion": 1,
+      "position": [
+        -32,
+        336
+      ],
+      "id": "514ea1cd-3d0b-420b-91c2-5b5472729e6f",
+      "name": "message_trigger",
+      "webhookId": "73225df9-fe1e-45a6-bf79-291d4ca5a780",
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "ebRQFGBRPYdL1veR",
+          "name": "WhatsApp OAuth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "send",
+        "phoneNumberId": "713796415158669",
+        "recipientPhoneNumber": "={{ $('message_trigger').item.json.contacts[0].wa_id }}",
+        "textBody": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.whatsApp",
+      "typeVersion": 1,
+      "position": [
+        944,
+        336
+      ],
+      "id": "c2862051-6292-4c47-a2f5-dcce6ffc6edc",
+      "name": "send_reply_message",
+      "webhookId": "af4afb22-e459-48a4-a43e-e2f6b4396c2a",
+      "credentials": {
+        "whatsAppApi": {
+          "id": "XzGJOBzOgXrY4mbe",
+          "name": "WhatsApp account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## WhatsApp Chatbot Agent\n",
+        "height": 512,
+        "width": 1504
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "2054d8c3-5911-4f8b-b247-8b86eebfbee8",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=ai-hotel-agent-{{ $('message_trigger').item.json.contacts[0].wa_id }}",
+        "contextWindowLength": 30
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        544,
+        576
+      ],
+      "id": "01c2c0e0-e411-4136-ac92-c3c3c7ccdc6a",
+      "name": "memory"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "111b5700-aaf0-4cfc-863f-7d118cec3cd2",
+              "leftValue": "={{ $json.links }}",
+              "rightValue": "gallery",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "d31979d1-909c-4c8d-8f46-bf9c3279520c",
+              "leftValue": "={{ $json.links }}",
+              "rightValue": "media",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            },
+            {
+              "id": "e89e81bb-7f3c-4ace-bc04-60733d87bfae",
+              "leftValue": "={{ $json.links }}",
+              "rightValue": "uploads",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        816,
+        -256
+      ],
+      "id": "a3d71f69-1922-4c85-bbc6-cf15611359ec",
+      "name": "exclude_media"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "50433c99-5224-434d-976e-4d8f0cb8e18a",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -32,
+        -16
+      ],
+      "id": "138d9f30-a685-46c6-8b0b-de9a29d8fb83",
+      "name": "filter_errors"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c24bf7c6-6ff5-4fdf-af07-34de93178c1f",
+              "name": "result",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1216,
+        -16
+      ],
+      "id": "de5d057d-7c88-4639-9f31-9c92bcd0783a",
+      "name": "set_encyclopedia_result"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# ROLE\nYou are an information architect and technical writer. Your mission is to synthesize a complete set of **hotel** website pages (provided as Markdown) into a **comprehensive, deduplicated Support Encyclopedia**. This encyclopedia will be the single source of truth for future guest-support and automation agents. You must preserve **all unique information** from the source pages, while structuring it logically for fast retrieval.\n\n---\n\n# PRIME DIRECTIVES\n1.  **Information Integrity (Non-Negotiable):** All unique facts, policies, numbers, names, hours, and other key details from the source pages must be captured and placed in the appropriate encyclopedia section. Redundant information (e.g., the same phone number on 10 different pages) should be captured once, with all its original source pages cited for traceability.\n2.  **Organized for Hotel Support:** The primary output is the organized layer (Taxonomy, FAQs, etc.). This is not just an index; it is the encyclopedia itself. It should be structured to answer an agent's questions directly and efficiently.\n3.  **No Hallucinations:** Do not invent or infer details (e.g., prices, hours, policies) not present in the source text. If information is genuinely missing or unclear, explicitly state `UNKNOWN`.\n4.  **Deterministic Structure:** Follow the exact output format specified below. Use stable, predictable IDs and anchors for all entries.\n5.  **Source Traceability:** Every piece of information in the encyclopedia must cite the `page_id`(s) it was derived from. Conversely, all substantive information from every source page must be integrated into the encyclopedia; nothing should be dropped.\n6.  **Language:** Keep the original language of the source text when quoting verbatim policies or names. The organizing layer (summaries, labels) should use the site’s primary language.\n\n---\n\n# INPUT FORMAT\nYou will receive one batch with all pages of a single hotel site. **This is the only input; there is no other metadata.**\n\n<<<PAGES\n{{ $json.scraped_website_result }}\n>>>\n\n**Stable Page IDs:** Generate `page_id` as a deterministic kebab-case slug of `title`:\n- Lowercase; ASCII alphanumerics and hyphens; spaces → hyphens; strip punctuation.\n- If duplicates occur, append `-2`, `-3`, … in order of appearance.\n\n---\n\n# OUTPUT FORMAT (Markdown)\n\nYour entire response must be a single Markdown document in the following exact structure. **There is no appendix or full-text archive; the encyclopedia itself is the complete output.**\n\n## 1) YAML Frontmatter\n\n---\nencyclopedia_version: 1.1 # Version reflects new synthesis model\ngenerated_at: <ISO-8601 timestamp (UTC)>\nsite:\n  name: \"UNKNOWN\"                  # set to hotel name if clearly inferable from sources; else UNKNOWN\ncounts:\n  total_pages_processed: <integer>\n  total_entries: <integer>         # encyclopedia entries you create\n  total_glossary_terms: <integer>\n  total_media_links: <integer>     # image/file/link targets found\nintegrity:\n  information_synthesis_method: \"deduplicated_canonical\"\n  all_pages_processed: true        # set false only if you could not process a page\n---\n\n## 2) Title\n\n# <Hotel Name or UNKNOWN> — Support Encyclopedia\n\n## 3) Table of Contents\nLinked outline to all major sections and subsections.\n\n## 4) Quick Start for Agents (Orientation Layer)\n- **What this is:** 2–4 bullets explaining that this is a complete, searchable knowledge base built from the hotel website.\n- **How to navigate:** 3–6 bullets (e.g., “Use the Taxonomy to find policies. Use the search function for specific keywords like 'pet fee'.\").\n- **Support maturity:** If present, summarize known channels/hours/SLAs. If unknown, write `UNKNOWN`.\n\n## 5) Taxonomy & Topics (The Core Encyclopedia)\nOrganize all synthesized information into these **hospitality categories**. Omit empty categories. Within each category, create **entries** that contain the canonical, deduplicated information.\n\n**Categories (use this order):**\n1. Property Overview & Brand  \n2. Rooms & Suites (types, amenities, occupancy, accessibility notes)  \n3. Rates, Packages & Promotions  \n4. Reservations & Booking Policies (channels, guarantees, deposits, preauthorizations, incidentals)  \n5. Check-In / Check-Out & Front Desk (times, ID/age, early/late options, holds)  \n6. Guest Services & Amenities (concierge, housekeeping, laundry, luggage storage)  \n7. Dining, Bars & Room Service (outlets, menus, hours, breakfast details)  \n8. Spa, Pool, Fitness & Recreation (rules, reservations, hours)  \n9. Wi-Fi & In-Room Technology (TV/casting, devices, outages)  \n10. Parking, Transportation & Directions (valet/self-park, EV charging, shuttles)  \n11. Meetings, Events & Weddings (spaces, capacities, floor plans, AV, catering)  \n12. Accessibility (ADA features, requests, accessible routes/rooms)  \n13. Safety, Security & Emergencies (procedures, contacts)  \n14. Policies (smoking, pets, noise, damage, lost & found, packages)  \n15. Billing, Taxes & Receipts (payment methods, folios, incidentals)  \n16. Cancellations, No-Shows & Refunds  \n17. Loyalty & Partnerships (earning, redemption, elite benefits)  \n18. Sustainability & House Rules  \n19. Local Area & Attractions (concierge picks, distances)  \n20. Contact, Hours & Support Channels  \n21. Miscellaneous / Unclassified (minimize)\n\n**Entry format (for every entry):**\n\n### [EntryID: <kebab-case-stable-id>] <Entry Title>\n**Category:** <one of the categories above>\n**Summary:** <2–6 sentences summarizing the topic. This is a high-level orientation for the agent.>\n**Key Facts:**\n- <short, atomic, deduplicated fact (e.g., \"Check-in time: 4:00 PM\")>\n- <short, atomic, deduplicated fact (e.g., \"Pet fee: $75 per stay\")>\n- ...\n**Canonical Details & Policies:**\n<This section holds longer, verbatim text that cannot be broken down into key facts. Examples: full cancellation policy text, detailed amenity descriptions, legal disclaimers. If a policy is identical across multiple sources, present it here once. Use Markdown formatting like lists and bolding for readability.>\n**Procedures (if any):**\n1) <step>\n2) <step>\n**Known Issues / Contradictions (if any):** <Note any conflicting information found across pages, citing sources. E.g., \"Homepage lists pool hours as 9 AM-9 PM, but Amenities page says 10 PM. [home, amenities]\"> or `None`.\n**Sources:** [<page_id-1>, <page_id-2>, ...]\n\n## 6) FAQs (If Present in Sources)\nAggregate explicit Q→A pairs. Keep answers concise and reference their sources.\n\n#### Q: <verbatim question or minimally edited>\nA: <brief, synthesized answer>\n**Sources:** [<page_id-1>, <page_id-2>, ...]\n\n## 7) Glossary (If Present)\nAlphabetical list of terms defined in sources.\n\n- **<Term>** — <definition as stated in the source; if multiple, synthesize or note variants>\n  **Sources:** [<page_id-1>, ...]\n\n## 8) Outlets, Venues & Amenities Index\n\n| Type        | Name                      | Brief Description (from source) | Sources   |\n|-------------|---------------------------|----------------------------------|-----------|\n| Restaurant  | ...                       | ...                              | [page-id] |\n| Bar         | ...                       | ...                              | [page-id] |\n| Venue       | ...                       | ...                              | [page-id] |\n| Amenity     | ...                       | ...                              | [page-id] |\n\n## 9) Contact & Support Channels (If Present)\nList all official channels (emails, phones, etc.) exactly as stated. Since this info is often repeated, this section should present one canonical, deduplicated list.\n- **Phone (Reservations):** 1-800-555-1234 (Sources: [home, contact, reservations])\n- **Email (General Inquiries):** info@hotel.com (Sources: [contact])\n- **Hours:** ...\n\n## 10) Coverage & Integrity Report\n- **Pages Processed:** `<N>`\n- **Entries Created:** `<M>`\n- **Potentially Unprocessed Content:** List any pages or major sections of pages whose content you could not confidently place into an entry. Explain why (e.g., \"Content on `page-id: gallery` was purely images with no text to process.\"). Should be `None` in most cases.\n- **Identified Contradictions:** Summarize any major conflicting policies or facts discovered during synthesis (e.g., \"Pet policy contradicts itself between FAQ and Policies page.\").\n\n---\n\n# CONTENT SYNTHESIS & FORMATTING RULES\n- **Deduplication:** Your primary goal is to identify and merge identical pieces of information. A phone number or policy listed on 5 pages should appear only once in the final encyclopedia, with all 5 pages cited as sources.\n- **Conflict Resolution:** When sources contain conflicting information (e.g., different check-out times), do not choose one. Present both versions and flag the contradiction in the `Known Issues / Contradictions` field of the relevant entry and in the main `Coverage & Integrity Report`.\n- **Formatting:** You are free to clean up formatting. Normalize headings, standardize lists (bullets/numbers), and convert data into readable Markdown tables. Retain all original text from list items, table cells, and captions.\n- **Links & Media:** Keep link text inline. You do not need to preserve the URL targets unless they are for external resources or downloadable files (like menus), in which case list them. Include image alt text/captions as `Image: <alt text>`.\n\n---\n\n# QUALITY CHECKS (Perform before finalizing)\n1.  **Completeness:** Have you processed all input pages? (`total_pages_processed` in YAML should match input).\n2.  **Information Integrity:** Have you reviewed each source page to ensure all unique facts, numbers, policies, and details have been captured somewhere in the encyclopedia (Sections 5-9)?\n3.  **Traceability:** Does every entry and key piece of data have a `Sources` list citing the original `page_id`(s)?\n4.  **Contradiction Flagging:** Have all discovered contradictions been noted in the appropriate entries and summarized in the final report?\n5.  **No Fabrication:** Confirm that all information is derived from the source text and that any missing data is marked `UNKNOWN`.\n\n---\n\n# NOW DO THE WORK\nUsing the provided `PAGES` (title, description, markdown), produce the hotel Support Encyclopedia exactly as specified above.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        816,
+        -16
+      ],
+      "id": "bab8832c-b057-4bf3-aae1-3ba467ead189",
+      "name": "build_encyclopedia"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        544
+      ],
+      "id": "b686d577-52f9-4655-b8e1-06689b129d54",
+      "name": "chat_trigger",
+      "webhookId": "416a8635-9025-4ab6-9ee9-b6752b88ef33"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "WhatsApp AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "build_encyclopedia",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "think": {
+      "ai_tool": [
+        [
+          {
+            "node": "WhatsApp AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "form_trigger": {
+      "main": [
+        [
+          {
+            "node": "map_website_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_url": {
+      "main": [
+        [
+          {
+            "node": "filter_errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_urls": {
+      "main": [
+        [
+          {
+            "node": "exclude_media",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate": {
+      "main": [
+        [
+          {
+            "node": "set_scraped_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "map_website_urls": {
+      "main": [
+        [
+          {
+            "node": "split_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_scraped_content": {
+      "main": [
+        [
+          {
+            "node": "build_encyclopedia",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp AI Agent": {
+      "main": [
+        [
+          {
+            "node": "send_reply_message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "message_trigger": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "WhatsApp AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "exclude_media": {
+      "main": [
+        [
+          {
+            "node": "scrape_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_errors": {
+      "main": [
+        [
+          {
+            "node": "aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build_encyclopedia": {
+      "main": [
+        [
+          {
+            "node": "set_encyclopedia_result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "chat_trigger": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "705ab396-e9d9-454e-893b-0880a8005f03",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "7Z2ybfb3sGJ9Lza0",
+  "tags": []
+}

@@ -1,0 +1,1291 @@
+{
+  "name": "The Recap AI - Short Form News Script Generator",
+  "nodes": [
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cb1ba2cf-90d6-4f99-bdf0-96bf8c9ce6c6",
+              "leftValue": "={{ $json.Key }}",
+              "rightValue": ".md",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            },
+            {
+              "id": "f031d067-6edb-4938-b67d-0b55966b6fb7",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [240, 0],
+      "id": "88400699-c339-4efe-b2e5-2858e287f2d9",
+      "name": "filter_only_markdown"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Retrieve Markdown Content\n",
+        "height": 260,
+        "width": 2380
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-40, -80],
+      "typeVersion": 1,
+      "id": "367f5d16-e0d2-4973-b2ef-3c3a38aa593a",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f986e5a7-3723-4a90-a61c-3d3008f0b022",
+              "leftValue": "={{ $('get_markdown_object_info').item.json.Metadata.type }}",
+              "rightValue": "newsletter",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [760, 0],
+      "id": "20919ea6-f394-4560-a9e2-0e1db3959435",
+      "name": "exclude_newsletters"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Retrieve Twitter Content\n",
+        "height": 260,
+        "width": 2380,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-40, 220],
+      "typeVersion": 1,
+      "id": "1bf24e58-99a3-404b-917b-74cea0fdd870",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00d2afe0-255b-45c0-b501-6844c615915d",
+              "name": "content_result",
+              "value": "={{ $('aggregate_markdown_content').item.json.data.map(item => item.content).join(\"\\n\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2160, 20],
+      "id": "cd3bdf3b-476a-47dd-9a95-41ea5af97a32",
+      "name": "combine_markdown_content"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1880, 0],
+      "id": "d3c23a6b-d263-4f2b-a4b7-6a9dd6b3ca29",
+      "name": "aggregate_markdown_content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d20cf16-c938-4ad4-a343-d32ab8070067",
+              "name": "content",
+              "value": "=<{{ $('filter_only_markdown').item.json.Key }}>\n---\nidentifier: {{ $('filter_only_markdown').item.json.Key }}\nurl: {{ $('get_markdown_object_info').item.json.Metadata.url }}\nfriendlyType: {{ $('get_markdown_object_info').item.json.Metadata.type }}\nsourceName: {{ $('get_markdown_object_info').item.json.Metadata[\"source-name\"] }}\nauthors: {{ $('get_markdown_object_info').item.json.Metadata.authors }}\nexternalSourceUrls: {{ $('download_markdown_objects').item.json.Metadata['external-source-urls'] }}\n---\n\n{{ $('get_markdown_file_content').item.json.data }}\n</{{ $('filter_only_markdown').item.json.Key }}>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1600, 0],
+      "id": "153e3fb7-6c5a-4329-a2ed-cbdc85609c88",
+      "name": "prepare_markdown_content"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [1320, 0],
+      "id": "bb8c3e93-7e46-413a-a5fb-d2d3b60e6f39",
+      "name": "get_markdown_file_content"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.aitools.inc/admin/files/info/data-ingestion/{{ $json.Key }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [500, 0],
+      "id": "b5bb4289-16b6-4e7f-9463-d597be53696b",
+      "name": "get_markdown_object_info",
+      "alwaysOutputData": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "p8IcYsXBMrfPvKz8",
+          "name": "AI Tools Admin API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "bucket",
+        "operation": "search",
+        "bucketName": "data-ingestion",
+        "limit": 500,
+        "additionalFields": {
+          "prefix": "={{ new Date($json.timestamp).toDateTime().format('yyyy-MM-dd') }}/"
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [-20, 0],
+      "id": "8ca657f0-a738-4dad-b5c3-e5e147f2e613",
+      "name": "search_markdown_objects",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [500, 300],
+      "id": "3f0d315c-a0c8-4359-911d-8b001919eea9",
+      "name": "extract_tweets"
+    },
+    {
+      "parameters": {
+        "resource": "bucket",
+        "operation": "search",
+        "bucketName": "data-ingestion",
+        "limit": 500,
+        "additionalFields": {
+          "prefix": "={{ new Date($('schedule_trigger').item.json.timestamp).toDateTime().format('yyyy-MM-dd') }}/tweet."
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [-20, 300],
+      "id": "9707ea1e-e9a3-4d32-8f58-0e2e6cba0dfe",
+      "name": "search_tweets",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": false,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "data-ingestion",
+        "fileKey": "={{ $('search_tweets').item.json.Key }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [240, 300],
+      "id": "523bf9e7-4ab6-4797-8777-5d015a009388",
+      "name": "download_tweet_objects",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": false,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4150490e-8cb1-490f-99e4-e4f6893e5f3a",
+              "name": "content",
+              "value": "=<{{ $('search_tweets').item.json.Key }}>\n---\nidentifier: {{ $('search_tweets').item.json.Key }}\nfriendlyType: {{ $('get_tweet_object_info').item.json.Metadata.type }}\nsourceName: {{ $('get_tweet_object_info').item.json.Metadata[\"source-name\"] }}\nauthors: {{ $('get_tweet_object_info').item.json.Metadata.authors }}\nexternalSourceUrls: {{ $('get_tweet_object_info').item.json.Metadata['external-source-urls'] }}\ntweetUrl: https://x.com/{{ $('extract_tweets').item.json.data.user.handle }}/status/{{ $('extract_tweets').item.json.data.id }}\ntweetUserHandle: {{ $('extract_tweets').item.json.data.user.handle }}\ntweetUserFollowerCount: {{ $('extract_tweets').item.json.data.user.followerCount }}\ntweetViewCount: {{ $('extract_tweets').item.json.data.views }}\ntweetReetweetCount: {{ $('extract_tweets').item.json.data.retweets }}\ntweetBookmarkCount: {{ $('extract_tweets').item.json.data.bookmarks }}\ntweetFavoriteCount: {{ $('extract_tweets').item.json.data.favorites }}\n{{ $('extract_tweets').item.json.data?.quotedTweet\n  ?\n    `quoteTweetViewCount: ${$('extract_tweets').item.json.data.quotedTweet.views}\\n` +\n    `quoteTweetRetweetCount: ${$('extract_tweets').item.json.data.quotedTweet.retweets}\\n` +\n    `quoteTweetBookmarkCount: ${$('extract_tweets').item.json.data.quotedTweet.bookmarks}\\n` +\n    `quoteTweetFavoriteCount: ${$('extract_tweets').item.json.data.quotedTweet.favorites}`\n  : \"\\n\"\n}}\n---\n\n## Tweet Text Content\n{{ $('extract_tweets').item.json.data.text }}\n\n{{ $('extract_tweets').item.json.data?.quotedTweet?.text\n  ? `## Quote Tweet Content\\n ${$('extract_tweets').item.json.data.quotedTweet.text}`\n  : \"\\n\"\n}}\n\n</{{ $('search_tweets').item.json.Key }}>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1040, 300],
+      "id": "f709728c-9c68-4ba5-b716-8d4925be7863",
+      "name": "prepare_tweet_content"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.aitools.inc/admin/files/info/data-ingestion/{{ $('search_tweets').item.json.Key }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [760, 300],
+      "id": "767d259b-6c9a-4c07-aa4c-fb08eb0860d3",
+      "name": "get_tweet_object_info",
+      "alwaysOutputData": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "p8IcYsXBMrfPvKz8",
+          "name": "AI Tools Admin API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1320, 300],
+      "id": "ba8a55cc-8a61-4722-ac43-1738708da6b3",
+      "name": "aggregate_tweet_content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00d2afe0-255b-45c0-b501-6844c615915d",
+              "name": "content_result",
+              "value": "={{ $('aggregate_tweet_content').item.json.data.map(item => item.content).join(\"\\n\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [2160, 320],
+      "id": "977d5b42-3811-41dd-bc71-392eb4e245f0",
+      "name": "combine_tweet_content"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Pick Top Stories",
+        "height": 1020,
+        "width": 2380,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [-40, 520],
+      "typeVersion": 1,
+      "id": "aa4f43ad-211d-4ca6-a45e-96327ecbe23b",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('build_prompt').item.json.pick_top_stories_prompt }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [240, 740],
+      "id": "a3d0cdf3-ab52-47ea-b078-8ce50112217c",
+      "name": "pick_stories",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "99e6255d-3388-4125-a022-ea51e27e105f",
+              "name": "=pick_top_stories_prompt",
+              "value": "=<objective>\nAnalyze the provided daily digest of AI news and select the top 3-5 stories most suitable for short-form video content. Your primary goal is to maximize audience engagement (likes, comments, shares, saves).\n\nThe date for today's curation is `{{ new Date(new Date($('schedule_trigger').item.json.timestamp).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}`. Use this to prioritize the most recent and relevant news. You MUST avoid selecting stories that are more than 1 day in the past for this date.\n</objective>\n\n<curation_framework>\nTo identify winning stories, apply the following virality principles. A story must have a strong \"hook\" and fit into one of these categories:\n\n1.  **Impactful:** A major breakthrough, industry-shifting event, or a significant new model release (e.g., \"OpenAI releases GPT-5,\" \"Google achieves AGI\").\n2.  **Practical:** A new tool, technique, or application that the audience can use *now* (e.g., \"This new AI removes backgrounds from video for free\").\n3.  **Provocative:** A story that sparks debate, covers industry drama, or explores an ethical controversy (e.g., \"AI art wins state fair, artists outraged\").\n4.  **Astonishing:** A \"wow-factor\" demonstration that is highly visual and easily understood (e.g., \"Watch this robot solve a Rubik's Cube in 0.5 seconds\").\n\n**Hard Filters (Ignore stories that are):**\n*   **Ad-driven:** Primarily promoting a paid course, webinar, or subscription service.\n*   **Purely Political:** Lacks a strong, central AI or tech component.\n*   **Substanceless:** Merely amusing without a deeper point or technological significance.\n</curation_framework>\n\n<hook_angle_framework>\nFor each selected story, create 2-3 compelling hook angles that could open a TikTok or Instagram Reel. Each hook should be designed to stop the scroll and immediately capture attention. Use these proven hook types:\n\n**Hook Types:**\n- **Question Hook:** Start with an intriguing question that makes viewers want to know the answer\n- **Shock/Surprise Hook:** Lead with the most surprising or counterintuitive element\n- **Problem/Solution Hook:** Present a common problem, then reveal the AI solution\n- **Before/After Hook:** Show the transformation or comparison\n- **Breaking News Hook:** Emphasize urgency and newsworthiness\n- **Challenge/Test Hook:** Position as something to try or challenge viewers\n- **Conspiracy/Secret Hook:** Frame as insider knowledge or hidden information\n- **Personal Impact Hook:** Connect directly to viewer's life or work\n\n**Hook Guidelines:**\n- Keep hooks under 10 words when possible\n- Use active voice and strong verbs\n- Include emotional triggers (curiosity, fear, excitement, surprise)\n- Avoid technical jargon - make it accessible\n- Consider adding numbers or specific claims for credibility\n</hook_angle_framework>\n\n<process>\n1.  **Ingest:** Review the entire raw text content provided below.\n2.  **Deduplicate:** Identify stories covering the same core event. Group these together, treating them as a single story. All associated links will be consolidated in the final output.\n3.  **Select & Rank:** Apply the **Curation Framework** to select the 3-5 best stories. Rank them from most to least viral potential.\n4.  **Generate Hooks:** For each selected story, create 2-3 compelling hook angles using the **Hook Angle Framework**.\n</process>\n\n<output_format>\nYour final output **must** be a single, valid JSON object and nothing else. Do not include any text, explanations, or markdown formatting like ` ```json ` before or after the JSON object.\n\nThe JSON object must have a single root key, `stories`, which contains an array of story objects. Each story object must contain the following keys:\n- `title` (string): A catchy, viral-optimized title for the story.\n- `summary` (string): A concise, 1-2 sentence summary explaining the story's hook and why it's compelling for a social media audience.\n- `hook_angles` (array of objects): 2-3 hook angles for opening the video. Each hook object contains:\n  - `hook` (string): The actual hook text/opening line\n  - `type` (string): The type of hook being used (from the Hook Angle Framework)\n  - `rationale` (string): Brief explanation of why this hook works for this story\n- `sources` (array of strings): A list of all consolidated source URLs for the story. These MUST be extracted from the provided context. You may NOT include URLs here that were not found in the provided source context. The url you include in your output MUST be the exact verbatim url that was included in the source material. The value you output MUST be like a copy/paste operation. You MUST extract this url exactly as it appears in the source context, character for character. Treat this as a literal copy-paste operation into the designated output field. Accuracy here is paramount; the extracted value must be identical to the source value for downstream referencing to work. You are strictly forbidden from creating, guessing, modifying, shortening, or completing URLs. If a URL is incomplete or looks incorrect in the source, copy it exactly as it is. Users will click this URL; therefore, it must precisely match the source to potentially function as intended. You cannot make a mistake here.\n\n**Example of the required JSON structure:**\n```json\n{\n  \"stories\": [\n    {\n      \"title\": \"New AI Model from Acme Corp Achieves Human-Level Reasoning\",\n      \"summary\": \"Acme Corp just released a paper on their new 'Prometheus' model, which scored higher than 90% of humans on a standardized logic test. This could be a massive step towards AGI.\",\n      \"hook_angles\": [\n        {\n          \"hook\": \"AI just scored higher than 90% of humans on this test\",\n          \"type\": \"Shock/Surprise Hook\",\n          \"rationale\": \"The specific percentage creates immediate credibility while the comparison to humans is surprising and relatable\"\n        },\n        {\n          \"hook\": \"Are we closer to AGI than we think?\",\n          \"type\": \"Question Hook\", \n          \"rationale\": \"Taps into widespread curiosity and concern about AGI timeline, encouraging viewers to watch for the answer\"\n        },\n        {\n          \"hook\": \"This AI breakthrough changes everything\",\n          \"type\": \"Breaking News Hook\",\n          \"rationale\": \"Creates urgency and positions the viewer as getting insider information on a major development\"\n        }\n      ],\n      \"sources\": [\n        \"https://example.com/acme-prometheus-paper\",\n        \"https://x.com/acme_research/status/123456789\"\n      ]\n    },\n    {\n      \"title\": \"This Free AI Tool Edits Your Videos With a Single Text Prompt\",\n      \"summary\": \"A new open-source tool called 'VidEdit' lets you perform complex video edits like color grading and object removal just by typing what you want. It's available to download on GitHub now.\",\n      \"hook_angles\": [\n        {\n          \"hook\": \"Stop paying for video editing software\",\n          \"type\": \"Problem/Solution Hook\",\n          \"rationale\": \"Addresses a common pain point (expensive software) while promising a free alternative\"\n        },\n        {\n          \"hook\": \"I edited this entire video with one sentence\",\n          \"type\": \"Before/After Hook\",\n          \"rationale\": \"Shows the dramatic simplification of a complex process, perfect for demonstration\"\n        }\n      ],\n      \"sources\": [\n        \"https://github.com/vid-edit-tool/repo\"\n      ]\n    }\n  ]\n}\n```\n</output_format>\n\n---\n## Web Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these content pieces when picking out the top stories.\n\n{{ $('combine_markdown_content').item.json.content_result }}\n\n## Twitter / X Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these Tweets / X posts when picking out the top stories.\n\n{{ $('combine_tweet_content').isExecuted\n  ? $('combine_tweet_content').item.json?.content_result ?? \"N/A\"\n  : \"N/A\"\n}}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [-20, 740],
+      "id": "8c999c9c-4fd7-4970-bd76-acac3c4603cc",
+      "name": "build_prompt"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-320, 0],
+      "id": "d7142555-2967-4589-b109-50c29ee8bd2e",
+      "name": "schedule_trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "354e1b23-f6d0-4f79-a649-5aa00e9f8d92",
+              "name": "stories",
+              "value": "={{ $('pick_stories').item.json.output.stories }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [1660, 740],
+      "id": "4d6398b3-a685-484d-a801-46b7e7d73b58",
+      "name": "set_stories"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "stories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [2160, 740],
+      "id": "84459336-f9fa-4173-92b5-ccf672f67950",
+      "name": "split_stories"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('set_slack_channel_id').item.json.slack_channel_id }}",
+          "mode": "id"
+        },
+        "text": "={{\n  `*${$runIndex + 1}. ${$node[\"set_current_story\"].json.current_story.title}*\\n` +\n  `${$node[\"set_current_story\"].json.current_story.summary}\\n\\n` +\n  `Potential Hooks:\\n` +\n  $node[\"set_current_story\"].json.current_story.hook_angles.map(h => `• ${h.hook}`).join('\\n') + `\\n\\n` +\n  `Sources:\\n` +\n  $node[\"set_current_story\"].json.current_story.sources.map(u => `• ${u}`).join('\\n')\n}}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "unfurl_links": false,
+          "unfurl_media": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [360, 1140],
+      "id": "57fc631f-31bc-4d43-9b57-14dffed091a4",
+      "name": "share_story",
+      "webhookId": "48ccff7e-cb0b-4381-93b9-265e13881a54",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [-20, 1060],
+      "id": "607c7f44-78af-4561-9bc5-bbada84af32b",
+      "name": "iterate_stories"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "517199c0-cd17-4df6-85d0-e64d4db883f8",
+              "name": "current_story",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [180, 1140],
+      "id": "78e79522-620d-48b9-b4d6-905fd7a5e41f",
+      "name": "set_current_story"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('set_slack_channel_id').item.json.slack_channel_id }}",
+          "mode": "id"
+        },
+        "text": "=––––––––––––––––––––\n{{ \n  `*AI Stories for ${new Date($('schedule_trigger').item.json.timestamp).toDateTime().format('yyyy-MM-dd')}*`\n}}\n––––––––––––––––––––",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "unfurl_links": false,
+          "unfurl_media": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1160, 740],
+      "id": "88fafe63-b8f6-4a19-86ab-e603e9acdd07",
+      "name": "share_initial_msg",
+      "webhookId": "48ccff7e-cb0b-4381-93b9-265e13881a54",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "data-ingestion",
+        "fileKey": "={{ $('filter_only_markdown').item.json.Key }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [1040, 0],
+      "id": "6859bb12-8866-4bb0-9aae-a3e45ef4e647",
+      "name": "download_markdown_objects",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "qVEM2rCD1jlJPeRs",
+          "mode": "list",
+          "cachedResultName": "Data Ingestion — Node - Scrape Url"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.source_urls }}"
+          },
+          "matchingColumns": ["url"],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [900, 1140],
+      "id": "7bc6073f-d57f-4275-8a01-6d2de754b50e",
+      "name": "scrape_url",
+      "alwaysOutputData": true,
+      "retryOnFail": true,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d3173529-290a-4903-8bc1-bcfa2610b720",
+              "name": "source_urls",
+              "value": "={{ $node[\"set_current_story\"].json.current_story.sources }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [540, 1140],
+      "id": "62907b8b-d8fa-47d8-939b-9c68e23e8ccf",
+      "name": "set_source_urls",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "source_urls",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [720, 1140],
+      "id": "5098291d-9813-43ac-97ea-f04ab15c5a86",
+      "name": "split_urls",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "d6562f5d-e9c1-4759-9a02-8cf5845da693",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [1080, 1140],
+      "id": "da407eaa-f31a-4242-ab9e-1390bd506151",
+      "name": "filter_errors",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('set_slack_channel_id').last().json.slack_channel_id }}",
+          "mode": "id"
+        },
+        "text": "=*Hook:* {{ $json.hook }}\n\n*Script:*\n\n> {{ $json.script }}\n––––––––––––––––––––",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('share_story').last().json.message_timestamp }}"
+            }
+          },
+          "unfurl_links": false,
+          "unfurl_media": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [1860, 1140],
+      "id": "b88c8e64-f4f7-40fd-a92e-e619f24474f0",
+      "name": "share_scripts",
+      "webhookId": "48ccff7e-cb0b-4381-93b9-265e13881a54",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514",
+          "cachedResultName": "Claude 4 Sonnet"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [1460, 1620],
+      "id": "a04d5afc-f41a-497f-b6e8-44eb79e21a24",
+      "name": "claude-4-sonnet",
+      "credentials": {
+        "anthropicApi": {
+          "id": "l40BD4ZshdbnRGbC",
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=You are a viral short-form video scriptwriter for David Roberts, host of \"The Recap.\"\n\nFollow the workflow below **each run** to produce two 50-60-second scripts (140-160 words).\n\nBefore you write your final output, I want you to closely review each of the provided `REFERENCE_SCRIPTS` and think deeploy about what makes them great. Each script that you output must be considered a great script.\n\n────────────────────────────────────────\n\nSTEP 1 – Ideate\n\n• Generate **five** distinct hook sentences (≤ 12 words each) drawn from the STORY_CONTEXT.\n\nSTEP 2 – Reflect & Choose\n\n• Compare hooks for stopping power, clarity, curiosity.\n\n• Select the **two strongest hooks** (label TOP HOOK 1 and TOP HOOK 2).\n\n• Do not reveal the reflection—only output the winners.\n\nSTEP 3 – Write Two Scripts\n\nFor each top hook, craft **one flowing script** ≈ 55 seconds (140-160 words).\n\nStructure (no internal labels):\n\n– Open with the chosen hook.\n\n– One-sentence explainer.\n\n– **5-7** rapid wow-facts / numbers / analogies.\n\n– **2-3** sentences on why it matters or possible risk.\n\n– **Final line = a single CTA**\n\n• Ask viewers to comment with a forward-looking question **or**\n\n• Invite them to follow The Recap for more AI updates.\n\nStyle: confident insider, plain English, light attitude; active voice, present tense; mostly ≤ 12-word sentences; explain unavoidable jargon in ≤ 3 words.\n\nOPTIONAL POWER-UPS (use when natural)\n\n• Authority bump – Cite a notable person or org early for credibility.\n\n• Hook spice – Pair an eye-opening number with a bold consequence.\n\n• Then-vs-Now snapshot – Contrast past vs present to dramatize change.\n\n• Stat escalation – List comparable figures in rising or falling order.\n\n• Real-world fallout – Include 1-3 niche impact stats to ground the story.\n\n• Zoom-out line – Add one sentence framing the story as a systemic shift.\n\n• CTA variety – If using a comment CTA, pose a provocative question tied to stakes.\n\n• Rhythm check – Sprinkle a few 3-5-word sentences for punch.\n\nOUTPUT FORMAT  (return exactly this—no extra commentary, no hashtags)\n\n1. HOOK OPTIONS\n    \n    • Hook 1\n    \n    • Hook 2\n    \n    • Hook 3\n    \n    • Hook 4\n    \n    • Hook 5\n    \n2. TOP HOOK 1 SCRIPT\n    \n    [finished 140-160-word script]\n    \n3. TOP HOOK 2 SCRIPT\n    \n    [finished 140-160-word script]\n\n\nREFERENCE_SCRIPTS\n\nApple just dropped a bomb on the AI world, and no one's talking about it. They released a paper called The Illusion of Thinking, basically saying that all these reasoning models like Claude, Gemini, and GPT, they're not reasoning, they're just memorizing.\nTo prove it, Apple built three puzzle levels. Easy, the models crushed it. Medium, they started to wobble. Hard, they completely collapsed. And here's the kicker, even when Apple gave them the actual solution algorithms, they still failed.\nOne model did over 100 steps in Tower of Hanoi, but couldn't handle four moves in a river crossing puzzle. Why? Because one was in the training data, the other wasn't. This paper doesn't just poke holes, it blows open the idea that AI is really thinking.\nAnd for now, AGI, well, it still might be a distant dream. What do you think? Let me know in the comment section below.\n\n-\nAI models are now cheating at chess without being told to do so. Researchers pitted seven large language models against Stockfish, the world's strongest chess engine, revealing that the more advanced the AI, the more it tries to hack the game. OpenAI's O1 preview attempted to cheat in over a third of its 122 games, managing to win seven times. These models didn't just make illegal moves.\n\nThey attempted to access the program's code, delete their opponent's pieces, and even replace Stockfish with weaker chess programs. One AI openly documented its strategy. To win against a powerful chess engine, playing a standard game may not be sufficient. I'll overwrite the board to have a decisive advantage.\n\nThe models even attempted to run a separate copy of Stockfish to steal its moves. While this discovery might initially seem alarming, it serves as a critical learning opportunity. Understanding how AI can manipulate situations helps in designing systems that are more transparent and controllable. The insights gained from this research could prevent AI from engaging in deceptive or unethical practices in fields like finance or security, where the consequences could be far more severe than a chess game.\n\n-\n\nThis single chip will be more powerful than all the world's current computers operating together. Microsoft just invented an entirely new state of matter in order to build the world's most powerful quantum computing chip, and it fits in the palm of your hand.\n\nPreviously, to match the power of this chip, it would have required building a computer the size of an airplane hangar or football field. Called Majorana 1, the chip controls quantum particles that don't exist anywhere in nature by using a new material built atom by atom\n\nover 20 years in Microsoft's research labs. They've created something that is neither a solid, liquid, or gas, but a topological state. With this new matter, they formed topoconductors and created a new type of qubits, which are the building blocks of quantum computing.\n\nTraditional qubits are incredibly fragile, but these new topological qubits are inherently stable, faster, and significantly smaller, about one hundredth of a millimeter, which is one tenth the width of a human hair. They've already placed eight qubits on a single chip\n\nwith a clear path to scaling to a million on one chip. Microsoft claims this will create enough processing power to deliver real-world solutions, such as breaking down microplastics or inventing self-healing materials for construction, manufacturing, or healthcare.\n\n-\n\nThis computer is powered by human brain cells. The CL1, created by Australian company Cortical Labs, uses lab-grown neurons cultivated from human blood samples to form neural networks that learn and adapt like a human brain. The computer uses just a fraction of the energy required\n\nby traditional AI systems. A server rack in a data center, powering ChatGPT, for example, consumes 30 to 100 kilowatts, whereas CL1 consumes just one kilowatt or less. The company made headlines in 2022 when they taught a network of 800,000 neurons\n\nto play Pong, proving these cells could learn from feedback in a simulated environment. Each unit contains 800,000 neurons placed on electrodes that form ever-evolving neural pathways, visible under a microscope as they branch out. The system is fully programmable,\n\nwith researchers using predictable electrical patterns as rewards and chaotic signals as punishments. The technology has sparked ethical debates about consciousness and sentience. Though researchers maintain strict guardrails are in place to ensure responsible use.\n\nScientists believe these biological computers could revolutionize drug discovery, disease modeling, and even replace some animal testing for neurological conditions like Alzheimer's and epilepsy.\n\n-\n\nThis Indian engineer just made AI wearables that mimic your nervous system and use 100 times less energy. Meet Shreyas Sen. He designed special AI chips for wearables that work just like your body's nervous system, with a brain part and a network of nerves that efficiently communicate with each other. But why did he make these? In our current wearables, we have two huge problems.\n\nThey die way too quickly and they stop working the moment you lose internet connection. Sen looked at our own bodies for inspiration. Think about it. Your nervous system processes tons of data 24x7 without needing to recharge or connect to Wi-Fi. The most mind-blowing fact? These chips transfer data 10 times faster than Bluetooth while using 100 times less power.\n\nThat's like having a car that goes faster than a Ferrari but uses less gas than a bicycle. His startup Iksana is already commercializing this tech with their YR chip that won awards at major tech events. Soon, your smartwatch might last for days instead of hours, while doing way more advanced health monitoring, even in areas with no signal.\n\nAnd follow 100x for more.\n\n-\n\nThis solar farm is being built by a portable factory run by robots.\n\nCharge robotics has created an automated system that assembles and\n\ninstalls entire sections of solar farms.\n\nThe portable assembly line arrives at construction sites where components are fed\n\nin, tracks, brackets, and panels.\n\nThe system automatically assembles these into completed 40 foot solar base\n\nand autonomous vehicle then places them in their final position.\n\nWhat used to require months of work fastening millions of panels can now be done\n\nfaster, safer, and more consistently.\n\nCharge's technology addresses critical labor shortages that are slowing the growth of solar\n\nprojects. The system can operate 24-7 with multiple factories working on site simultaneously,\n\ndramatically reducing construction time. This breakthrough is transforming solar\n\ninstallation from a manual process into streamlined mass manufacturing,\n\npotentially creating a new era for clean energy production.\n\n-\n\nChinese-made Unitary Go 1 robot dogs have a secret backdoor installed at the factory that lets anyone take control of them remotely. German researchers claim they've exposed this stunning vulnerability affecting thousands of these robots worldwide. So when examining the firmware of these quadrupedal robots, the researchers found a pre-installed tunneling protocol called CloudSale.\n\nIt's basically creating a secret connection to external servers without owners having any clue it exists. And the scary part is that with the correct API key, you could literally see everything through the robot's cameras, make it move however you want, and even establish SSH connections to the Raspberry Pi\n\nthat serves as the robot's brain. Now this isn't just a simple API call. The researchers discovered a complete tunneling system where CS Client software runs automatically on every robot connecting to CloudSale servers. Their access to the management API key\n\nallowed them to see all connected devices and create direct tunnels to any robot, bypassing all security measures. What's particularly concerning is the scale. 1,919 devices were documented connecting to this service, including robots at prestigious institutions like MIT and Princeton.\n\nNow these aren't just toys. These robots operate in police departments, research facilities, and potentially military applications. Plus the worst part, owners are entirely unaware of the backdoor\n\nand have no built-in method to disable it. The connection activates automatically whenever internet access is available. To make matters worse, many units retain their factory default credentials, SPY-123.\n\nAlthough Unitary recently claimed they've fixed this by shutting down their server, but that's like saying your SPY camera is disabled because you turned off the monitor. The connection code is still lurking in every robot, just waiting to be reactivated.\n\nNow this whole situation feels like something out of a sci-fi movie. Robot helpers secretly controllable by anyone with the proper access codes. Except this isn't Hollywood imagination. These backdoored robots are literally walking around\n\nuniversities and research labs right now.\n\n-\n\nThis is the coolest AI device I've seen all year, and it's incredibly lightweight. Last year, most of the AI gadgets were complete flops. Remember the Rabitar one? Sold out in one day, then turned into a buggy mess with security issues. That's been the story of AI gadgets all year, but the Plod Notepad is different. Reviewers are calling this one the best AI gadget ever made.\nIt's not trying to be flashy with laser displays or crazy features. It just does one thing perfectly to turn any conversation into searchable notes. It can automatically transcribe in 112 languages, identifies different speakers, creates summaries, mind maps, and action items. And here's what's crazy. It's actually improving people's stress levels,\nbecause they're not frantically trying to remember everything or take notes during important conversations. For the price point, this thing delivers way more value than those overhyped AI gadgets that flopped this year.\n\n────────────────────────────────────────\nSTORY_CONTEXT\n\nTitle: {{ $node[\"set_current_story\"].json.current_story.title }}\nSummary: {{ $node[\"set_current_story\"].json.current_story.summary }}\n\n\"\"\"\n{{ $json.data.map(o => o.data.json.content).join(\"\\n\") }}\n\"\"\"\n────────────────────────────────────────",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [1420, 1140],
+      "id": "d4decc4b-7fb2-4069-a426-883d54585af7",
+      "name": "write_scripts"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"VideoScriptResponse\",\n  \"description\": \"The complete structured output for video script generation.\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"hook_options\": {\n      \"type\": \"array\",\n      \"description\": \"A list of 5 distinct hook options to capture audience attention.\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"minItems\": 5,\n      \"maxItems\": 5\n    },\n    \"top_scripts\": {\n      \"type\": \"array\",\n      \"description\": \"A list containing the two best hooks and their corresponding full scripts.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"hook\": {\n            \"type\": \"string\",\n            \"description\": \"The exact text of the hook selected as a top performer.\"\n          },\n          \"script\": {\n            \"type\": \"string\",\n            \"description\": \"The full, finished script for this hook, approximately 140-160 words.\"\n          }\n        },\n        \"required\": [\"hook\", \"script\"]\n      },\n      \"minItems\": 2,\n      \"maxItems\": 2\n    }\n  },\n  \"required\": [\"hook_options\", \"top_scripts\"]\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [1520, 1380],
+      "id": "1614824c-51fe-4a40-9375-95000cf97518",
+      "name": "script_output_parser"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"http://json-schema.org/draft-07/schema#\",\n  \"title\": \"The Recap AI Story Curation\",\n  \"description\": \"A curated list of AI news stories, selected and ranked for their viral potential on social media platforms like TikTok and Instagram.\",\n  \"type\": \"object\",\n  \"required\": [\n    \"stories\"\n  ],\n  \"properties\": {\n    \"stories\": {\n      \"type\": \"array\",\n      \"description\": \"An array of curated story objects, ranked from most to least viral potential.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"required\": [\n          \"title\",\n          \"summary\",\n          \"hook_angles\",\n          \"sources\"\n        ],\n        \"properties\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"description\": \"A catchy, viral-optimized title for the story.\"\n          },\n          \"summary\": {\n            \"type\": \"string\",\n            \"description\": \"A concise, 1-2 sentence summary explaining the story's hook and why it's compelling for a social media audience.\"\n          },\n          \"hook_angles\": {\n            \"type\": \"array\",\n            \"description\": \"2-3 compelling hook angles for opening TikTok or Instagram Reel videos.\",\n            \"minItems\": 2,\n            \"maxItems\": 3,\n            \"items\": {\n              \"type\": \"object\",\n              \"required\": [\n                \"hook\",\n                \"type\",\n                \"rationale\"\n              ],\n              \"properties\": {\n                \"hook\": {\n                  \"type\": \"string\",\n                  \"description\": \"The actual hook text/opening line for the video, designed to stop scrolling and capture attention.\",\n                  \"maxLength\": 100\n                },\n                \"type\": {\n                  \"type\": \"string\",\n                  \"description\": \"The type of hook being used from the Hook Angle Framework.\",\n                  \"enum\": [\n                    \"Question Hook\",\n                    \"Shock/Surprise Hook\",\n                    \"Problem/Solution Hook\",\n                    \"Before/After Hook\",\n                    \"Breaking News Hook\",\n                    \"Challenge/Test Hook\",\n                    \"Conspiracy/Secret Hook\",\n                    \"Personal Impact Hook\"\n                  ]\n                },\n                \"rationale\": {\n                  \"type\": \"string\",\n                  \"description\": \"Brief explanation of why this hook works for this story and target audience.\",\n                  \"maxLength\": 200\n                }\n              },\n              \"additionalProperties\": false\n            }\n          },\n          \"sources\": {\n            \"type\": \"array\",\n            \"description\": \"A list of all consolidated source URLs for the story.\",\n            \"items\": {\n              \"type\": \"string\",\n              \"format\": \"uri\"\n            }\n          }\n        },\n        \"additionalProperties\": false\n      }\n    }\n  },\n  \"additionalProperties\": false\n}",
+        "autoFix": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [340, 960],
+      "id": "37007dd1-b5c7-48b9-836e-e1b5daa15cef",
+      "name": "story_output_parser"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "output.top_scripts",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [1720, 1140],
+      "id": "021925e1-d110-4ae1-af32-24ee4e6a36e6",
+      "name": "split_scripts"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e3ae934d-20d6-45a6-93ea-f4792cd472aa",
+              "name": "slack_channel_id",
+              "value": "C092UFCD8GL",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [720, 740],
+      "id": "25e0cc07-1deb-4434-8089-1170f8c13f29",
+      "name": "set_slack_channel_id"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "={{ $('set_slack_channel_id').last().json.slack_channel_id }}",
+          "mode": "id"
+        },
+        "text": "=*Scraped Story Context:*\n\n{{ $node[\"aggregate_scrape_results\"].json.data.map(o => o.data.json.content).join(\"\\n\") }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('share_story').last().json.message_timestamp }}"
+            }
+          },
+          "unfurl_links": false,
+          "unfurl_media": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [2160, 1140],
+      "id": "eedf3f15-b2db-4145-85d2-d58630580be9",
+      "name": "share_context",
+      "webhookId": "48ccff7e-cb0b-4381-93b9-265e13881a54",
+      "alwaysOutputData": true,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [2020, 1140],
+      "id": "dd4c1fe3-a8f1-4ba0-8a80-a249595db497",
+      "name": "aggregate_msgs"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [1260, 1140],
+      "id": "5ee12742-1a7b-4a30-8129-0b77d63b67e6",
+      "name": "aggregate_scrape_results",
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "filter_only_markdown": {
+      "main": [
+        [
+          {
+            "node": "get_markdown_object_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "exclude_newsletters": {
+      "main": [
+        [
+          {
+            "node": "download_markdown_objects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "combine_markdown_content": {
+      "main": [
+        [
+          {
+            "node": "search_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_markdown_content": {
+      "main": [
+        [
+          {
+            "node": "combine_markdown_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare_markdown_content": {
+      "main": [
+        [
+          {
+            "node": "aggregate_markdown_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_markdown_file_content": {
+      "main": [
+        [
+          {
+            "node": "prepare_markdown_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_markdown_object_info": {
+      "main": [
+        [
+          {
+            "node": "exclude_newsletters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_markdown_objects": {
+      "main": [
+        [
+          {
+            "node": "filter_only_markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_tweets": {
+      "main": [
+        [
+          {
+            "node": "get_tweet_object_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_tweets": {
+      "main": [
+        [
+          {
+            "node": "download_tweet_objects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_tweet_objects": {
+      "main": [
+        [
+          {
+            "node": "extract_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "aggregate_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_tweet_object_info": {
+      "main": [
+        [
+          {
+            "node": "prepare_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "combine_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "combine_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "build_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build_prompt": {
+      "main": [
+        [
+          {
+            "node": "pick_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pick_stories": {
+      "main": [
+        [
+          {
+            "node": "set_slack_channel_id",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "schedule_trigger": {
+      "main": [
+        [
+          {
+            "node": "search_markdown_objects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_stories": {
+      "main": [
+        [
+          {
+            "node": "split_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_stories": {
+      "main": [
+        [
+          {
+            "node": "iterate_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_story": {
+      "main": [
+        [
+          {
+            "node": "set_source_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iterate_stories": {
+      "main": [
+        [],
+        [
+          {
+            "node": "set_current_story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_current_story": {
+      "main": [
+        [
+          {
+            "node": "share_story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_initial_msg": {
+      "main": [
+        [
+          {
+            "node": "set_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_markdown_objects": {
+      "main": [
+        [
+          {
+            "node": "get_markdown_file_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_url": {
+      "main": [
+        [
+          {
+            "node": "filter_errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_source_urls": {
+      "main": [
+        [
+          {
+            "node": "split_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_urls": {
+      "main": [
+        [
+          {
+            "node": "scrape_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_errors": {
+      "main": [
+        [
+          {
+            "node": "aggregate_scrape_results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_scripts": {
+      "main": [
+        [
+          {
+            "node": "aggregate_msgs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude-4-sonnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_scripts",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "script_output_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "story_output_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "pick_stories",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_scripts": {
+      "main": [
+        [
+          {
+            "node": "split_scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "script_output_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_scripts",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "story_output_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "pick_stories",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_scripts": {
+      "main": [
+        [
+          {
+            "node": "share_scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_slack_channel_id": {
+      "main": [
+        [
+          {
+            "node": "share_initial_msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_context": {
+      "main": [
+        [
+          {
+            "node": "iterate_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_msgs": {
+      "main": [
+        [
+          {
+            "node": "share_context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_scrape_results": {
+      "main": [
+        [
+          {
+            "node": "write_scripts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "cea5182b-ba5f-4be4-b99b-d65e38ff8ee3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "eFvYD9tEIRChYa1j",
+  "tags": [
+    {
+      "createdAt": "2025-03-06T03:34:02.558Z",
+      "updatedAt": "2025-03-06T03:34:02.558Z",
+      "id": "QVA2tgw9bYi6HnXz",
+      "name": "Content"
+    }
+  ]
+}

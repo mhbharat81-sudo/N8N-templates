@@ -1,0 +1,380 @@
+{
+  "name": "AI Scraping Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        1020
+      ],
+      "id": "c1977bff-04f5-4449-b2c0-4b81325a628b",
+      "name": "google_news_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/AkOariu1C7YyUUMv.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        1020
+      ],
+      "id": "fc98b2d5-ad0d-443f-a805-8db5020ec710",
+      "name": "fetch_google_news_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        1020
+      ],
+      "id": "1d8f4cf1-3387-4038-98f1-146281521af7",
+      "name": "split_google_news_items"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 4
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        760
+      ],
+      "id": "b552d5a9-f820-49d1-8b83-2747a9dd0ef4",
+      "name": "blog_open_ai_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/xNVg2hbY14Z7Gpva.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        760
+      ],
+      "id": "7fc88e5a-ea8c-4089-b4f8-944f68be0642",
+      "name": "fetch_blog_open_ai_feed"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        760
+      ],
+      "id": "0615d024-d21d-4895-bc53-7fb3d3340f2e",
+      "name": "split_blog_open_ai_items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/scrape",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"formats\": [\"json\", \"markdown\", \"rawHtml\", \"links\"],\n  \"excludeTags\": [\"iframe\", \"nav\", \"header\", \"footer\"],\n  \"onlyMainContent\": true,\n  \"jsonOptions\": {\n    \"prompt\": \"Identify the main content of the text (i.e., the article or newsletter body). Provide the exact text for that main content verbatim, without summarizing or rewriting any part of it. Exclude all non-essential elements such as banners, headers, footers, calls to action, ads, or purely navigational text. Format this output as markdown using appropriate '#' characters as heading levels. Exclude any promotional or sponsored content on your output.\",\n    \"schema\": {\n      \"type\": \"string\",\n      \"description\": \"The exact verbatim main text content of the web page in markdown format.\"\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -340,
+        1020
+      ],
+      "id": "e723215a-9e96-485a-9a5d-370fda45c915",
+      "name": "scrape_url",
+      "retryOnFail": true,
+      "maxTries": 3,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "KmblzxtdLeJYgqCX",
+          "name": "Firecrawl"
+        },
+        "httpHeaderAuth": {
+          "id": "QPBLvE9DYFuLgWxd",
+          "name": "Firecrawl"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "name": "={{ $binary.data.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "13_W8MvFeaIdGNdkX8lSNV-zVFraoG6j6",
+          "mode": "list",
+          "cachedResultName": "News Scraper Automation",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/13_W8MvFeaIdGNdkX8lSNV-zVFraoG6j6"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        140,
+        1020
+      ],
+      "id": "785be305-2d46-4149-ba67-8a0ad8f22ea6",
+      "name": "upload_markdown",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "PgwI1k1VFnoEhOi6",
+          "name": "Google Drive account"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "data.markdown",
+        "options": {
+          "fileName": "=news_story_{{ $itemIndex + 1 }}.md"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        -100,
+        1020
+      ],
+      "id": "e4c254a9-0cf2-4d71-be2d-ca6f9a64a109",
+      "name": "create_markdown_file",
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1080,
+        1300
+      ],
+      "id": "bc0953da-7232-4405-9144-5ef547353699",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/sgHcE2ehHQMTWhrL.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -860,
+        1300
+      ],
+      "id": "58bf6afa-a124-4cb2-a75a-434104b3d3d9",
+      "name": "HTTP Request"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "items",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        1300
+      ],
+      "id": "bf2ed3d8-6958-4b7c-bbe7-313808bf65e5",
+      "name": "Split Out"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "google_news_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_google_news_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_google_news_feed": {
+      "main": [
+        [
+          {
+            "node": "split_google_news_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_google_news_items": {
+      "main": [
+        [
+          {
+            "node": "scrape_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "blog_open_ai_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_blog_open_ai_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_blog_open_ai_feed": {
+      "main": [
+        [
+          {
+            "node": "split_blog_open_ai_items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_blog_open_ai_items": {
+      "main": [
+        [
+          {
+            "node": "scrape_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_url": {
+      "main": [
+        [
+          {
+            "node": "create_markdown_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_markdown_file": {
+      "main": [
+        [
+          {
+            "node": "upload_markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Split Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out": {
+      "main": [
+        [
+          {
+            "node": "scrape_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2101da7f-4e3b-44b0-b4c3-35ad1cbae19f",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "IBEXAT5cHpE1kPGk",
+  "tags": []
+}

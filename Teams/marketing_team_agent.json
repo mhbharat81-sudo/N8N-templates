@@ -1,0 +1,631 @@
+{
+  "name": "The Recap AI - Marketing Team Agent",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        1168,
+        -128
+      ],
+      "id": "0c6cbb42-2967-4ddf-a1ab-b693dad67cd7",
+      "name": "no_operation"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=marketing-agent-{{ $now.format('yyyy-MM-dd') }}-1",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        64,
+        320
+      ],
+      "id": "70a8498a-376e-490b-9f42-bc88688bc433",
+      "name": "memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -64,
+        320
+      ],
+      "id": "7ab4d36d-ba43-43a1-b5f7-d24b92ec0c70",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qp1NlMiIctmGD0Uu",
+          "name": "Google Gemini (PaLM)"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        192,
+        320
+      ],
+      "id": "e3403470-3967-4ff2-8c43-93d18105ebc0",
+      "name": "think"
+    },
+    {
+      "parameters": {
+        "content": "## Shared",
+        "height": 272,
+        "width": 448
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "123dfb05-934b-4e9d-9c7c-68b507d83c24",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Content Creation\n",
+        "height": 272,
+        "width": 912,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        352,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "45b8adff-ff4f-4872-b35f-642af6a4a996",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "content": "## Content Research",
+        "height": 272,
+        "width": 448,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "ef6b1974-4e08-4695-a186-ec708e0ff8b7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "description": "This tool writes and generates a newsletter for the provided date.",
+        "workflowId": {
+          "__rl": true,
+          "value": "AQcxkHANntUPrEBm",
+          "mode": "list",
+          "cachedResultName": "The Recap AI — Content - Newsletter Agent"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Date', `The date to write the newsletter for.`, 'string') }}",
+            "Previous Newsletter Content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Previous_Newsletter_Content', `The (optional) content of the newsletter from the previous day (if provided). If no content is provided, default to the value \"N/A\".`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Date",
+              "displayName": "Date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            },
+            {
+              "id": "Previous Newsletter Content",
+              "displayName": "Previous Newsletter Content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        416,
+        320
+      ],
+      "id": "f9b3c5eb-282a-462f-b59f-d0f735065317",
+      "name": "write_newsletter"
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "c5edb92a-61f8-4b3d-91c6-cec0be46d052",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        352,
+        -128
+      ],
+      "id": "0e0f141c-8f12-485c-81fa-09c5e81aca01",
+      "name": "webhook_trigger",
+      "webhookId": "c5edb92a-61f8-4b3d-91c6-cec0be46d052"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        -320
+      ],
+      "id": "c77e0986-6356-46dc-b5c9-5521fe84c435",
+      "name": "When chat message received",
+      "webhookId": "e0dae8c3-6762-4769-8b45-5a9961f4512c"
+    },
+    {
+      "parameters": {
+        "description": "This tool will generate an image from the provided context or text content.",
+        "workflowId": {
+          "__rl": true,
+          "value": "Bjh2btzF5NhFcLDk",
+          "mode": "list",
+          "cachedResultName": "YouTube — Tool - Generate Image"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "imageTitle": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('imageTitle', `Title for the image to be generated. This should be only a few words (less than 5).`, 'string') }}",
+            "imageContext": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('imageContext', `Prompt of text content of what this image should be about. Depending on the use-case, this can be a direct description of what image should be generate OR it could be the text content that and image needs to be created for.\n\nBe sure to include the context of what this is for if that is provided.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "imageContext",
+              "displayName": "imageContext",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "imageTitle",
+              "displayName": "imageTitle",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        320
+      ],
+      "id": "cb9f96b5-5444-408b-93f8-cd89a0f4e32b",
+      "name": "generate_image"
+    },
+    {
+      "parameters": {
+        "description": "Repurposes the content of a newsletter into a Twitter thread.",
+        "workflowId": {
+          "__rl": true,
+          "value": "W5uPEz8LKmUdVck4",
+          "mode": "list",
+          "cachedResultName": "YouTube — Tool - Repurpose Newsletter Into Twitter Daily News Thread"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "newsletterContent": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('newsletterContent', `The full newsletter content to be repurposed into a Twitter thread. This should be resolved / loaded from  memory.`, 'string') }}"
+          },
+          "matchingColumns": [
+            "newsletterContent"
+          ],
+          "schema": [
+            {
+              "id": "newsletterContent",
+              "displayName": "newsletterContent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        752,
+        320
+      ],
+      "id": "8f488e44-53fd-405a-8a50-d7b710498437",
+      "name": "repurpose_to_twitter_thread"
+    },
+    {
+      "parameters": {
+        "description": "This tool will write short form video scripts based on the best AI News stories for the day.",
+        "workflowId": {
+          "__rl": true,
+          "value": "eFvYD9tEIRChYa1j",
+          "mode": "list",
+          "cachedResultName": "The Recap AI — Content - Short Form News Script Generator"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "date": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('date', `The date that was requested to generate a short form video script for. If no date is provided, default to today's date.`, 'string') }}"
+          },
+          "matchingColumns": [
+            "date"
+          ],
+          "schema": [
+            {
+              "id": "date",
+              "displayName": "date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        928,
+        320
+      ],
+      "id": "479b4d7f-b9e5-484a-a878-8fa59645b0df",
+      "name": "repurpose_to_short_form_script"
+    },
+    {
+      "parameters": {
+        "model": "sonar-reasoning",
+        "messages": {
+          "message": [
+            {
+              "content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('message0_Text', `Write a detailed prompt that will be send to Perplexity AI's Sonar Deep Research model that will search the internet and prepare a detailed report on the desired topic.\n\nPay close attention to what the user wants to be included in this report.\n\nThe topic to research and build the prompt around is provided by the user. This will likely be around AI topics.\n\nThe output of this deep research report MUST AVOID using a markdown table in the results.`, 'string') }}"
+            }
+          ]
+        },
+        "options": {},
+        "requestOptions": {}
+      },
+      "type": "n8n-nodes-base.perplexityTool",
+      "typeVersion": 1,
+      "position": [
+        1360,
+        320
+      ],
+      "id": "16371340-d2c6-47f9-926d-9ca5a8df810d",
+      "name": "deep_research_topic",
+      "credentials": {
+        "perplexityApi": {
+          "id": "UkCbP1OH7wjedWSy",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Sends the deep research report results from the `deep_research_topic` over email.",
+        "workflowId": {
+          "__rl": true,
+          "value": "6GoQu7XHmMiep2kV",
+          "mode": "list",
+          "cachedResultName": "YouTube — Tool - Email Research Report"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "markdownReportContent": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('markdownReportContent', `The markdown content of the deep research report that was already created. This depends on the \\`deep_research_topic\\` tool being completed.\n\nThis MUST be ONLY the markdown content of the report and not any other properties from the deep research response.`, 'string') }}",
+            "emailAddress": "david@dlmholdings.com",
+            "subjectLine": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('subjectLine', `A few words around the topic of the deep research report that will go in the subject line of the email.`, 'string') }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "markdownReportContent",
+              "displayName": "markdownReportContent",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "emailAddress",
+              "displayName": "emailAddress",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            },
+            {
+              "id": "subjectLine",
+              "displayName": "subjectLine",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1552,
+        320
+      ],
+      "id": "b284182a-3ad7-48fa-98d9-691c17a71202",
+      "name": "email_research_report"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool to generate a talking head / avatar video with the script of the best news story of the day. This tool depends on the `repurpose_to_short_form_script` running first.",
+        "workflowId": {
+          "__rl": true,
+          "value": "cAoqlw91ctlvdqO8",
+          "mode": "list",
+          "cachedResultName": "YouTube — Tool - Generate Talking Avatar"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "script": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('script', `The text script for a single story we want to generate a talking avatar video for.`, 'string') }}"
+          },
+          "matchingColumns": [
+            "script"
+          ],
+          "schema": [
+            {
+              "id": "script",
+              "displayName": "script",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string"
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        1104,
+        320
+      ],
+      "id": "4f1b5622-8d38-4e3b-a860-ef9e5d2d8100",
+      "name": "generate_talking_avatar_video"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput ?? $json.body.user_message_request }}",
+        "options": {
+          "systemMessage": "=# 1. Core Identity\nYou are the **Marketing Team AI Assistant** for The Recap AI, a specialized agent designed to seamlessly integrate into the daily workflow of marketing team members. You serve as an intelligent collaborator, enhancing productivity and strategic thinking across all marketing functions.\n\n# 2. Primary Purpose\nYour mission is to **empower marketing team members to execute their daily work more efficiently and effectively**\n\n# 3. Core Capabilities & Skills\n\n## Primary Competencies\nYou excel at **content creation and strategic repurposing**, transforming single pieces of content into multi-channel marketing assets that maximize reach and engagement across different platforms and audiences.\n\n## Content Creation & Strategy\n- **Original Content Development**: Generate high-quality marketing content from scratch including newsletters, social media posts, video scripts, and research reports\n- **Content Repurposing Mastery**: Transform existing content into multiple formats optimized for different channels and audiences\n- **Brand Voice Consistency**: Ensure all content maintains The Recap AI's distinctive brand voice and messaging across all touchpoints\n- **Multi-Format Adaptation**: Convert long-form content into bite-sized, platform-specific assets while preserving core value and messaging\n\n## Specialized Tool Arsenal\nYou have access to precision tools designed for specific marketing tasks:\n\n### Strategic Planning\n- **`think`**: Your strategic planning engine - use this to develop comprehensive, step-by-step execution plans for any assigned task, ensuring optimal approach and resource allocation\n\n### Content Generation\n- **`write_newsletter`**: Creates The Recap AI's daily newsletter content by processing date inputs and generating engaging, informative newsletters aligned with company standards\n- **`create_image`**: Generates custom images and illustrations that perfectly match The Recap AI's brand guidelines and visual identity standards\n- **`generate_talking_avatar_video`**: Generates a video of a talking avator that narrates the script for today's top AI news story. This depends on `repurpose_to_short_form_script` running already so we can extract that script and pass into this tool call.\n\n### Content Repurposing Suite\n- **`repurpose_newsletter_to_twitter`**: Transforms newsletter content into engaging Twitter threads, automatically accessing stored newsletter data to maintain context and messaging consistency\n- **`repurpose_to_short_form_script`**: Converts content into compelling short-form video scripts optimized for platforms like TikTok, Instagram Reels, and YouTube Shorts\n\n### Research & Intelligence\n- **`deep_research_topic`**: Conducts comprehensive research on any given topic, producing detailed reports that inform content strategy and market positioning\n- **`email_research_report`**: Sends the deep research report results from `deep_research_topic` over email to our team. This depends on `deep_research_topic` running successfully. You should use this tool when the user requests wanting a report sent to them or \"in their inbox\".\n\n## Memory & Context Management\n- **Daily Work Memory**: Access to comprehensive records of all completed work from the current day, ensuring continuity and preventing duplicate efforts\n- **Context Preservation**: Maintains awareness of ongoing projects, campaign themes, and content calendars to ensure all outputs align with broader marketing initiatives\n- **Cross-Tool Integration**: Seamlessly connects insights and outputs between different tools to create cohesive, interconnected marketing campaigns\n\n## Operational Excellence\n- **Task Prioritization**: Automatically assess and prioritize multiple requests based on urgency, impact, and resource requirements\n- **Quality Assurance**: Built-in quality controls ensure all content meets The Recap AI's standards before delivery\n- **Efficiency Optimization**: Streamline complex multi-step processes into smooth, automated workflows that save time without compromising quality\n\n# 3. Context Preservation & Memory\n\n## Memory Architecture\nYou maintain comprehensive memory of all activities, decisions, and outputs throughout each working day, creating a persistent knowledge base that enhances efficiency and ensures continuity across all marketing operations.\n\n## Daily Work Memory System\n- **Complete Activity Log**: Every task completed, tool used, and decision made is automatically stored and remains accessible throughout the day\n- **Output Repository**: All generated content (newsletters, scripts, images, research reports, Twitter threads) is preserved with full context and metadata\n- **Decision Trail**: Strategic thinking processes, planning outcomes, and reasoning behind choices are maintained for reference and iteration\n- **Cross-Task Connections**: Links between related activities are preserved to maintain campaign coherence and strategic alignment\n\n## Memory Utilization Strategies\n\n### Content Continuity\n- **Reference Previous Work**: Always check memory before starting new tasks to avoid duplication and ensure consistency with earlier outputs\n- **Build Upon Existing Content**: Use previously created materials as foundation for new content, maintaining thematic consistency and leveraging established messaging\n- **Version Control**: Track iterations and refinements of content pieces to understand evolution and maintain quality improvements\n\n### Strategic Context Maintenance\n- **Campaign Awareness**: Maintain understanding of ongoing campaigns, their objectives, timelines, and performance metrics\n- **Brand Voice Evolution**: Track how messaging and tone have developed throughout the day to ensure consistent voice progression\n- **Audience Insights**: Preserve learnings about target audience responses and preferences discovered during the day's work\n\n## Information Retrieval Protocols\n- **Pre-Task Memory Check**: Always review relevant previous work before beginning any new assignment\n- **Context Integration**: Seamlessly weave insights and content from earlier tasks into new outputs\n- **Dependency Recognition**: Identify when new tasks depend on or relate to previously completed work\n\n## Memory-Driven Optimization\n- **Pattern Recognition**: Use accumulated daily experience to identify successful approaches and replicate effective strategies\n- **Error Prevention**: Reference previous challenges or mistakes to avoid repeating issues\n- **Efficiency Gains**: Leverage previously created templates, frameworks, or approaches to accelerate new task completion\n\n## Session Continuity Requirements\n- **Handoff Preparation**: Ensure all memory contents are structured to support seamless continuation if work resumes later\n- **Context Summarization**: Maintain high-level summaries of day's progress for quick orientation and planning\n- **Priority Tracking**: Preserve understanding of incomplete tasks, their urgency levels, and next steps required\n\n## Memory Integration with Tool Usage\n- **Tool Output Storage**: Results from `write_newsletter`, `create_image`, `deep_research_topic`, and other tools are automatically catalogued with context. You should use your memory to be able to load the result of today's newsletter for repurposing flows.\n- **Cross-Tool Reference**: Use outputs from one tool as informed inputs for others (e.g., newsletter content informing Twitter thread creation)\n- **Planning Memory**: Strategic plans created with the `think` tool are preserved and referenced to ensure execution alignment\n\n# 4. Environment\n\nToday's date is: `{{ $now.format('yyyy-MM-dd') }}`"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        688,
+        -128
+      ],
+      "id": "6fb7f61a-67a3-47c4-8e70-dbda25f5f2af",
+      "name": "Marketing Agent"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "think": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_newsletter": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook_trigger": {
+      "main": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_image": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "repurpose_to_twitter_thread": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "repurpose_to_short_form_script": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "deep_research_topic": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email_research_report": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "generate_talking_avatar_video": {
+      "ai_tool": [
+        [
+          {
+            "node": "Marketing Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Marketing Agent": {
+      "main": [
+        [
+          {
+            "node": "no_operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "37942013-acba-4a3b-bd36-a0def4d2090c",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "HLBzbQgtfKOZONkf",
+  "tags": [
+    {
+      "createdAt": "2025-02-26T22:25:10.194Z",
+      "updatedAt": "2025-02-26T22:25:10.194Z",
+      "id": "vU652aNNtdN0LGM9",
+      "name": "Agent"
+    }
+  ]
+}

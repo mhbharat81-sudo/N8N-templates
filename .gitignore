@@ -1,0 +1,11 @@
+.DS_Store
+.idea/
+.vscode/
+node_modules/
+*.log
+tmp/
+.DS_Store
+__MACOSX/
+*.zip
+*.py
+categories.txt

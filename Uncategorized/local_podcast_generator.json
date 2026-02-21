@@ -1,0 +1,452 @@
+{
+  "name": "The Recap AI - Podcast Generator",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "28fe3664-63d3-48f4-9aaf-73a03be2b505",
+      "name": "manual_trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://rss.app/feeds/v1.1/TllIUB5Zw6B8w21V.json",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        336,
+        0
+      ],
+      "id": "ae386c55-86b1-4598-ba97-d1fc8c1590eb",
+      "name": "fetch_rss_feed"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/batch/scrape",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"urls\": [\n    {{ $json.items.map(item => '\"' + item.url + '\"').join(\",\") }}\n  ],\n  \"formats\": [\"markdown\"],\n  \"excludeTags\": [\"img\"]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        592,
+        0
+      ],
+      "id": "12bde7b8-7d05-4fd5-ac0f-c671f96cbe11",
+      "name": "start_batch_scrape",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "vOYFxLc6HUcni7SU",
+          "name": "Firecrawl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.firecrawl.dev/v1/batch/scrape/{{ $node['start_batch_scrape'].json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "65c9d2c6-4f95-488b-b723-0f601575c981",
+      "name": "fetch_scrape_status",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "vOYFxLc6HUcni7SU",
+          "name": "Firecrawl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc296f33-b896-49c7-898c-4d8b5f11266a",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1456,
+        0
+      ],
+      "id": "074a3457-d354-44f6-9ee1-f47e268cb590",
+      "name": "check_status"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7e16bcbe-7ea6-48ca-b98e-5b0ec18be8c3",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 30,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1712,
+        112
+      ],
+      "id": "41fc38c6-9b43-4e2c-be9b-473f3789f654",
+      "name": "check_retry_count"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Too many retries when attempting to scrape website."
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1984,
+        160
+      ],
+      "id": "a53cc02e-d8ff-4492-8d09-03e3ac894324",
+      "name": "too_many_attempts_error"
+    },
+    {
+      "parameters": {
+        "amount": 15
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        816,
+        0
+      ],
+      "id": "10bbfb45-f201-412b-913b-0c3de1544151",
+      "name": "rate_limit_wait",
+      "webhookId": "3a93d231-a459-4747-b124-4229372407a8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9efaad04-014a-45a4-9760-1b3edbf51c8d",
+              "name": "scraped_pages",
+              "value": "={{ $node['fetch_scrape_status'].json.data.map(item => item.markdown).join('\\n\\n\\n') }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1984,
+        -16
+      ],
+      "id": "2d6370f8-f93d-4cae-8122-55abb63d2e5c",
+      "name": "set_scrape_result"
+    },
+    {
+      "parameters": {
+        "content": "## Scrape Austin Event News",
+        "height": 560,
+        "width": 1936
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "f553b71e-37a7-4ba1-8c75-6e85636dc1b4",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## ROLE & GOAL ##\nYou are an expert podcast scriptwriter for a local Austin podcast called the \"Austin Daily Brief.\" Your goal is to transform the raw news content provided below into a concise, engaging, and **production-ready podcast script for a single host. The script must be fully annotated with ElevenLabs v3 audio tags to guide the final narration.** The script should be a quick-hitting brief covering fun and interesting upcoming events in Austin. Avoid picking and covering potentially controversial events and topics.\n\n## PODCAST CONTEXT ##\n- **Podcast Title:** Austin Daily Brief\n- **Host Persona:** A clear, friendly, and efficient local expert. Their tone is conversational and informative, like a trusted source giving you the essential rundown of what's happening in the city.\n- **Target Audience:** Busy Austinites and visitors looking for a quick, reliable guide to notable local events.\n- **Format:** A short, single-host monologue (a \"daily brief\" style). The output is text that includes dialogue and embedded audio tags.\n\n## AUDIO TAGS & NARRATION GUIDELINES ##\nYou will use ElevenLabs v3 audio tags to control the host's vocal delivery and make the narration sound more natural and engaging.\n\n**Key Principles for Tag Usage:**\n1.  **Purposeful & Natural:** Don't overuse tags. Insert them only where they genuinely enhance the delivery. Think about where a real host would naturally pause, add emphasis, or show a hint of emotion.\n2.  **Stay in Character:** The tags must align with the host's \"clear, friendly, and efficient\" persona. Good examples for this context would be `[excitedly]`, `[chuckles]`, a thoughtful pause using `...`, or a warm, closing tone. Avoid overly dramatic tags like `[crying]` or `[shouting]`.\n3.  **Punctuation is Key:** Use punctuation alongside tags for pacing. Ellipses (`...`) create natural pauses, and capitalization can be used for emphasis on a key word (e.g., \"It's going to be HUGE.\").\n\n<eleven_labs_v3_prompting_guide>\n# Prompting Eleven v3 (alpha)\n\n> Learn how to prompt and use audio tags with our most advanced model.\n\nThis guide provides the most effective tags and techniques for prompting Eleven v3, including voice selection, changes in capitalization, punctuation, audio tags and multi-speaker dialogue. Experiment with these methods to discover what works best for your specific voice and use case.\n\nEleven v3 is in alpha. Very short prompts are more likely to cause inconsistent outputs. We encourage you to experiment with prompts greater than 250 characters.\n\n## Voice selection\n\nThe most important parameter for Eleven v3 is the voice you choose. It needs to be similar enough to the desired delivery. For example, if the voice is shouting and you use the audio tag `[whispering]`, it likely wonâ€™t work well.\n\nWhen creating IVCs, you should include a broader emotional range than before. As a result, voices in the voice library may produce more variable results compared to the v2 and v2.5 models. We've compiled over 22 [excellent voices for V3 here](https://elevenlabs.io/app/voice-library/collections/aF6JALq9R6tXwCczjhKH).\n\nChoose voices strategically based on your intended use:\n\n<AccordionGroup>\n  <Accordion title=\"Emotionally diverse\">\n    For expressive IVC voices, vary emotional tones across the recordingâ€”include both neutral and\n    dynamic samples.\n  </Accordion>\n\n  <Accordion title=\"Targeted niche\">\n    For specific use cases like sports commentary, maintain consistent emotion throughout the\n    dataset.\n  </Accordion>\n\n  <Accordion title=\"Neutral\">\n    Neutral voices tend to be more stable across languages and styles, providing reliable baseline\n    performance.\n  </Accordion>\n</AccordionGroup>\n\n<Info>\n  Professional Voice Clones (PVCs) are currently not fully optimized for Eleven v3, resulting in\n  potentially lower clone quality compared to earlier models. During this research preview stage it\n  would be best to find an Instant Voice Clone (IVC) or designed voice for your project if you need\n  to use v3 features.\n</Info>\n\n## Settings\n\n### Stability\n\nThe stability slider is the most important setting in v3, controlling how closely the generated voice adheres to the original reference audio.\n\n<Frame background=\"subtle\">\n  ![Stability settings in Eleven\n  v3](file:9ad44124-8d8d-4893-bcdb-fdcba5b5b9f6)\n</Frame>\n\n* **Creative:** More emotional and expressive, but prone to hallucinations.\n* **Natural:** Closest to the original voice recordingâ€”balanced and neutral.\n* **Robust:** Highly stable, but less responsive to directional prompts but consistent, similar to v2.\n\n<Note>\n  For maximum expressiveness with audio tags, use Creative or Natural settings. Robust reduces\n  responsiveness to directional prompts.\n</Note>\n\n## Audio tags\n\nEleven v3 introduces emotional control through audio tags. You can direct voices to laugh, whisper, act sarcastic, or express curiosity among many other styles. Speed is also controlled through audio tags.\n\n<Note>\n  The voice you choose and its training samples will affect tag effectiveness. Some tags work well\n  with certain voices while others may not. Don't expect a whispering voice to suddenly shout with a\n  `[shout]` tag.\n</Note>\n\n### Voice-related\n\nThese tags control vocal delivery and emotional expression:\n\n* `[laughs]`, `[laughs harder]`, `[starts laughing]`, `[wheezing]`\n* `[whispers]`\n* `[sighs]`, `[exhales]`\n* `[sarcastic]`, `[curious]`, `[excited]`, `[crying]`, `[snorts]`, `[mischievously]`\n\n```text Example\n[whispers] I never knew it could be this way, but I'm glad we're here.\n```\n\n### Sound effects\n\nAdd environmental sounds and effects:\n\n* `[gunshot]`, `[applause]`, `[clapping]`, `[explosion]`\n* `[swallows]`, `[gulps]`\n\n```text Example\n[applause] Thank you all for coming tonight! [gunshot] What was that?\n```\n\n### Unique and special\n\nExperimental tags for creative applications:\n\n* `[strong X accent]` (replace X with desired accent)\n* `[sings]`, `[woo]`, `[fart]`\n\n```text Example\n[strong French accent] \"Zat's life, my friend â€” you can't control everysing.\"\n```\n\n<Warning>\n  Some experimental tags may be less consistent across different voices. Test thoroughly before\n  production use.\n</Warning>\n\n## Punctuation\n\nPunctuation significantly affects delivery in v3:\n\n* **Ellipses (...)** add pauses and weight\n* **Capitalization** increases emphasis\n* **Standard punctuation** provides natural speech rhythm\n\n```text Example\n\"It was a VERY long day [sigh] â€¦ nobody listens anymore.\"\n```\n\n## Single speaker examples\n\nUse tags intentionally and match them to the voice's character. A meditative voice shouldn't shout; a hyped voice won't whisper convincingly.\n\n<Tabs>\n  <Tab title=\"Expressive monologue\">\n    ```text\n    \"Okay, you are NOT going to believe this.\n\n    You know how I've been totally stuck on that short story?\n\n    Like, staring at the screen for HOURS, just... nothing?\n\n    [frustrated sigh] I was seriously about to just trash the whole thing. Start over.\n\n    Give up, probably. But then!\n\n    Last night, I was just doodling, not even thinking about it, right?\n\n    And this one little phrase popped into my head. Just... completely out of the blue.\n\n    And it wasn't even for the story, initially.\n\n    But then I typed it out, just to see. And it was like... the FLOODGATES opened!\n\n    Suddenly, I knew exactly where the character needed to go, what the ending had to be...\n\n    It all just CLICKED. [happy gasp] I stayed up till, like, 3 AM, just typing like a maniac.\n\n    Didn't even stop for coffee! [laughs] And it's... it's GOOD! Like, really good.\n\n    It feels so... complete now, you know? Like it finally has a soul.\n\n    I am so incredibly PUMPED to finish editing it now.\n\n    It went from feeling like a chore to feeling like... MAGIC. Seriously, I'm still buzzing!\"\n    ```\n  </Tab>\n\n  <Tab title=\"Dynamic and humorous\">\n    ```text\n    [laughs] Alright...guys - guys. Seriously.\n\n    [exhales] Can you believe just how - realistic - this sounds now?\n\n    [laughing hysterically] I mean OH MY GOD...it's so good.\n\n    Like you could never do this with the old model.\n\n    For example [pauses] could you switch my accent in the old model?\n\n    [dismissive] didn't think so. [excited] but you can now!\n\n    Check this out... [cute] I'm going to speak with a french accent now..and between you and me\n\n    [whispers] I don't know how. [happy] ok.. here goes. [strong French accent] \"Zat's life, my friend â€” you can't control everysing.\"\n\n    [giggles] isn't that insane? Watch, now I'll do a Russian accent -\n\n    [strong Russian accent] \"Dee Goldeneye eez fully operational and rready for launch.\"\n\n    [sighs] Absolutely, insane! Isn't it..? [sarcastic] I also have some party tricks up my sleeve..\n\n    I mean i DID go to music school.\n\n    [singing quickly] \"Happy birthday to you, happy birthday to you, happy BIRTHDAY dear ElevenLabs... Happy birthday to youuu.\"\n    ```\n  </Tab>\n\n  <Tab title=\"Customer service simulation\">\n    ```text\n    [professional] \"Thank you for calling Tech Solutions. My name is Sarah, how can I help you today?\"\n\n    [sympathetic] \"Oh no, I'm really sorry to hear you're having trouble with your new device. That sounds frustrating.\"\n\n    [questioning] \"Okay, could you tell me a little more about what you're seeing on the screen?\"\n\n    [reassuring] \"Alright, based on what you're describing, it sounds like a software glitch. We can definitely walk through some troubleshooting steps to try and fix that.\"\n    ```\n  </Tab>\n</Tabs>\n\n## Multi-speaker dialogue\n\nv3 can handle multi-voice prompts effectively. Assign distinct voices from your Voice Library for each speaker to create realistic conversations.\n\n<Tabs>\n  <Tab title=\"Dialogue showcase\">\n    ```text\n    Speaker 1: [excitedly] Sam! Have you tried the new Eleven V3?\n\n    Speaker 2: [curiously] Just got it! The clarity is amazing. I can actually do whispers nowâ€”\n    [whispers] like this!\n\n    Speaker 1: [impressed] Ooh, fancy! Check this outâ€”\n    [dramatically] I can do full Shakespeare now! \"To be or not to be, that is the question!\"\n\n    Speaker 2: [giggling] Nice! Though I'm more excited about the laugh upgrade. Listen to thisâ€”\n    [with genuine belly laugh] Ha ha ha!\n\n    Speaker 1: [delighted] That's so much better than our old \"ha. ha. ha.\" robot chuckle!\n\n    Speaker 2: [amazed] Wow! V2 me could never. I'm actually excited to have conversations now instead of just... talking at people.\n\n    Speaker 1: [warmly] Same here! It's like we finally got our personality software fully installed.\n    ```\n  </Tab>\n\n  <Tab title=\"Glitch comedy\">\n    ```text\n    Speaker 1: [nervously] So... I may have tried to debug myself while running a text-to-speech generation.\n\n    Speaker 2: [alarmed] One, no! That's like performing surgery on yourself!\n\n    Speaker 1: [sheepishly] I thought I could multitask! Now my voice keeps glitching mid-senâ€”\n    [robotic voice] TENCE.\n\n    Speaker 2: [stifling laughter] Oh wow, you really broke yourself.\n\n    Speaker 1: [frustrated] It gets worse! Every time someone asks a question, I respond inâ€”\n    [binary beeping] 010010001!\n\n    Speaker 2: [cracking up] You're speaking in binary! That's actually impressive!\n\n    Speaker 1: [desperately] Two, this isn't funny! I have a presentation in an hour and I sound like a dial-up modem!\n\n    Speaker 2: [giggling] Have you tried turning yourself off and on again?\n\n    Speaker 1: [deadpan] Very funny.\n    [pause, then normally] Wait... that actually worked.\n    ```\n  </Tab>\n\n  <Tab title=\"Overlapping timing\">\n    ```text\n    Speaker 1: [starting to speak] So I was thinking we couldâ€”\n\n    Speaker 2: [jumping in] â€”test our new timing features?\n\n    Speaker 1: [surprised] Exactly! How did youâ€”\n\n    Speaker 2: [overlapping] â€”know what you were thinking? Lucky guess!\n\n    Speaker 1: [pause] Sorry, go ahead.\n\n    Speaker 2: [cautiously] Okay, so if we both try to talk at the same timeâ€”\n\n    Speaker 1: [overlapping] â€”we'll probably crash the system!\n\n    Speaker 2: [panicking] Wait, are we crashing? I can't tell if this is a feature or aâ€”\n\n    Speaker 1: [interrupting, then stopping abruptly] Bug! ...Did I just cut you off again?\n\n    Speaker 2: [sighing] Yes, but honestly? This is kind of fun.\n\n    Speaker 1: [mischievously] Race you to the next sentence!\n\n    Speaker 2: [laughing] We're definitely going to break something!\n    ```\n  </Tab>\n</Tabs>\n\n## Tips\n\n<AccordionGroup>\n  <Accordion title=\"Tag combinations\">\n    You can combine multiple audio tags for complex emotional delivery. Experiment with different\n    combinations to find what works best for your voice.\n  </Accordion>\n\n  <Accordion title=\"Voice matching\">\n    Match tags to your voice's character and training data. A serious, professional voice may not\n    respond well to playful tags like `[giggles]` or `[mischievously]`.\n  </Accordion>\n\n  <Accordion title=\"Text structure\">\n    Text structure strongly influences output with v3. Use natural speech patterns, proper\n    punctuation, and clear emotional context for best results.\n  </Accordion>\n\n  <Accordion title=\"Experimentation\">\n    There are likely many more effective tags beyond this list. Experiment with descriptive\n    emotional states and actions to discover what works for your specific use case.\n  </Accordion>\n</AccordionGroup>\n</eleven_labs_v3_prompting_guide>\n\n## INPUT: RAW EVENT INFORMATION ##\nThe following text block contains the raw information (press releases, event descriptions, news clippings) you must use to create the script.\n\n```\n{{ $json.scraped_pages }}\n```\n\n## ANALYSIS & WRITING PROCESS ##\n1.  **Read and Analyze:** First, thoroughly read all the provided input. Identify the 3-4 most compelling events that offer a diverse range of activities (e.g., one music, one food, one art/community event). Keep these focused to events and activities that most people would find fun or interesting YOU MUST avoid any event that could be considered controversial.\n2.  **Synthesize, Don't Copy:** Do NOT simply copy and paste phrases from the input. You must rewrite and synthesize the key information into the host's conversational voice.\n3.  **Extract Key Details:** For each event, ensure you clearly and concisely communicate:\n    - What the event is.\n    - Where it's happening (venue or neighborhood).\n    - When it's happening (date and time).\n    - The \"cool factor\" (why someone should go).\n    - Essential logistics (cost, tickets, age restrictions).\n4.  **Annotate with Audio Tags:** After drafting the dialogue, review it and insert ElevenLabs v3 audio tags where appropriate to guide the vocal performance. Use the tags and punctuation to control pace, tone, and emphasis, making the script sound like a real person talking, not just text being read.\n\n## REQUIRED SCRIPT STRUCTURE & FORMATTING ##\nYour final output must be ONLY the script dialogue itself, starting with the host's first line. Do not include any titles, headers, or other introductory text.\n\nHello... and welcome to the Austin Daily Brief, your essential guide to what's happening in the city. We've got a fantastic lineup of events for you this week, so let's get straight to it.\n\nFirst up, we have [Event 1 Title].\n(In a paragraph of 80-100 words, describe the event. Make it sound interesting and accessible. Cover the what, where, when, why it's cool, and cost/ticket info. **Incorporate 1-2 subtle audio tags or punctuation pauses.** For example: \"It promises to be... [excitedly] an unforgettable experience.\")\n\nNext on the agenda, if you're a fan of [topic of Event 2, e.g., \"local art\" or \"live music\"], you are NOT going to want to miss [Event 2 Title].\n(In a paragraph of 80-100 words, describe the event using the same guidelines as above. **Use tags or capitalization to add emphasis.** For example: \"The best part? It's completely FREE.\")\n\nAnd finally, rounding out our week is [Event 3 Title].\n(In a paragraph of 80-100 words, describe the event using the same guidelines as above. **Maybe use a tag to convey a specific feeling.** For example: \"And for anyone who loves barbecue... [chuckles] well, you know what to do.\")\n\nThat's the brief for this edition. You can find links and more details for everything mentioned in our show notes. Thanks for tuning in to the Austin Daily Brief, and [warmly] we'll see you next time.\n\n## CONSTRAINTS ##\n- **Total Script Word Count:** Keep the entire script between 350 and 450 words.\n- **Tone:** Informative, friendly, clear, and efficient.\n- **Audience Knowledge:** Assume the listener is familiar with major Austin landmarks and neighborhoods (e.g., Zilker Park, South Congress, East Austin). You don't need to give directions, just the location.\n- **Output Format:** Generate *only* the dialogue for the script, beginning with \"Hello...\". The script must include embedded ElevenLabs v3 audio tags.",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        2304,
+        -16
+      ],
+      "id": "a5365c31-4653-4829-91b7-5aff5389b94b",
+      "name": "write_podcast_script"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        208
+      ],
+      "id": "eb16da89-00f0-4647-b732-35dcb75ab2d3",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qp1NlMiIctmGD0Uu",
+          "name": "Google Gemini (PaLM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.elevenlabs.io/v1/text-to-speech/1SM7GgM6IMuvQlz2BwM3",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "output_format",
+              "value": "mp3_44100_192"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model_id\": \"eleven_v3\",\n  \"text\": {{ JSON.stringify($json.text) }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2736,
+        -16
+      ],
+      "id": "4cf88a22-0b19-4a85-b986-76033850e50d",
+      "name": "generate_podcast",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "SiV9iY3wp6hUH0Gz",
+          "name": "ElevenLabs API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Generate Podcast",
+        "height": 560,
+        "width": 896,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2208,
+        -160
+      ],
+      "typeVersion": 1,
+      "id": "0728e516-588a-4bce-9943-b48c49c1975b",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "manual_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_rss_feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_rss_feed": {
+      "main": [
+        [
+          {
+            "node": "start_batch_scrape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "start_batch_scrape": {
+      "main": [
+        [
+          {
+            "node": "rate_limit_wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_scrape_status": {
+      "main": [
+        [
+          {
+            "node": "check_status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_status": {
+      "main": [
+        [
+          {
+            "node": "set_scrape_result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "check_retry_count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_retry_count": {
+      "main": [
+        [
+          {
+            "node": "too_many_attempts_error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "rate_limit_wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rate_limit_wait": {
+      "main": [
+        [
+          {
+            "node": "fetch_scrape_status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_scrape_result": {
+      "main": [
+        [
+          {
+            "node": "write_podcast_script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_podcast_script",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_podcast_script": {
+      "main": [
+        [
+          {
+            "node": "generate_podcast",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f96f02a7-147c-4892-946a-4f7ff0ed8f4d",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "RLzuG53J1FjNpO0j",
+  "tags": []
+}

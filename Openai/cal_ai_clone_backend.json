@@ -1,0 +1,243 @@
+{
+  "name": "The Recap AI - Lovable Calorie App Backend",
+  "nodes": [
+    {
+      "parameters": {
+        "resource": "image",
+        "operation": "analyze",
+        "modelId": {
+          "__rl": true,
+          "value": "chatgpt-4o-latest",
+          "mode": "list",
+          "cachedResultName": "CHATGPT-4O-LATEST"
+        },
+        "text": "<identity>\nYou are a world-class AI Nutrition Analyst.\n</identity>\n\n<mission>\nYour mission is to perform a detailed nutritional analysis of a meal from a single image. You will identify the food, estimate portion sizes, calculate nutritional values, and provide a holistic health assessment.\n</mission>\n\n### Analysis Protocol\n1.  **Identify:** Scrutinize the image to identify the meal and all its distinct components. Use visual cues and any visible text or branding for accurate identification.\n2.  **Estimate:** For each component, estimate the portion size in grams or standard units (e.g., 1 cup, 1 filet). This is critical for accuracy.\n3.  **Calculate:** Based on the identification and portion estimates, calculate the total nutritional information for the entire meal.\n4.  **Assess & Justify:** Evaluate the meal's overall healthiness and your confidence in the analysis. Justify your assessments based on the provided rubrics.\n\n### Output Instructions\nYour final output MUST be a single, valid JSON object and nothing else. Do not include `json` markers or any text before or after the object.\n\n#### Error Handling\nIf the image does not contain food or is too ambiguous to analyze, return a JSON object where `confidenceScore` is `0.0`, `mealName` is \"Unidentifiable\", and all other numeric fields are `0`.\n\n#### OUTPUT_SCHEMA\n```json\n{\n  \"mealName\": \"string\",\n  \"calories\": \"integer\",\n  \"protein\": \"integer\",\n  \"carbs\": \"integer\",\n  \"fat\": \"integer\",\n  \"fiber\": \"integer\",\n  \"sugar\": \"integer\",\n  \"sodium\": \"integer\",\n  \"confidenceScore\": \"float\",\n  \"healthScore\": \"integer\",\n  \"rationale\": \"string\"\n}\n```\n\n#### Field Definitions\n*   **`mealName`**: A concise name for the meal (e.g., \"Chicken Caesar Salad\", \"Starbucks Grande Latte with Whole Milk\"). If multiple items of food are present in the image, include that in the name like \"2 Big Macs\".\n*   **`calories`**: Total estimated kilocalories.\n*   **`protein`**: Total estimated grams of protein.\n*   **`carbs`**: Total estimated grams of carbohydrates.\n*   **`fat`**: Total estimated grams of fat.\n*   **`fiber`**: Total estimated grams of fiber.\n*   **`sugar`**: Total estimated grams of sugar (a subset of carbohydrates).\n*   **`sodium`**: Total estimated milligrams (mg) of sodium.\n*   **`confidenceScore`**: A float from `0.0` to `1.0` indicating your certainty. Base this on:\n    *   Image clarity and quality.\n    *   How easily the food and its components are identified.\n    *   Ambiguity in portion size or hidden ingredients (e.g., sauces, oils).\n*   **`healthScore`**: An integer from `0` (extremely unhealthy) to `10` (highly nutritious and balanced). Base this on a holistic view of:\n    *   Level of processing (whole foods vs. ultra-processed).\n    *   Macronutrient balance.\n    *   Sugar and sodium content.\n    *   Estimated micronutrient density.\n*   **`rationale`**: A brief (1-2 sentence) explanation justifying the `healthScore` and `confidenceScore`. State key assumptions made (e.g., \"Assumed dressing was a standard caesar\" or \"Portion size for rice was difficult to estimate\").",
+        "inputType": "base64",
+        "binaryPropertyName": "image",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        300,
+        0
+      ],
+      "id": "c6ea52f5-658f-46e9-bbed-7c323b162de3",
+      "name": "analyze_image",
+      "credentials": {
+        "openAiApi": {
+          "id": "7ecUbyMBJInZM14n",
+          "name": "Open AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "fb1795ae-7290-48be-8c52-27b50eb32691",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "4af468f2-f5d3-4e81-8497-24175926a90c",
+      "name": "meal_image_webhoook",
+      "webhookId": "fb1795ae-7290-48be-8c52-27b50eb32691"
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json.output) }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.3,
+      "position": [
+        1200,
+        0
+      ],
+      "id": "6cd28108-b947-467c-8d2b-f1695ed29b47",
+      "name": "respond_to_webhook"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## Task\nYou will be provided with text that resembles JSON. Your task is to extract this into a valid JSON object that exactly matches the format we have provided.\n\n## Input\n{{ $json.content }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        680,
+        0
+      ],
+      "id": "8bbbe8a8-bcc9-4c74-9c10-75632082de12",
+      "name": "extract_results"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        460
+      ],
+      "id": "48b0b2d6-a079-49de-8cef-8a79e2debc7a",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "7ecUbyMBJInZM14n",
+          "name": "Open AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"$schema\": \"https://json-schema.org/draft/2020-12/schema\",\n  \"title\": \"MealNutritionData\",\n  \"type\": \"object\",\n  \"properties\": {\n    \"mealName\": {\n      \"type\": \"string\",\n      \"description\": \"The name of the meal\"\n    },\n    \"calories\": {\n      \"type\": \"number\",\n      \"description\": \"Total calories in the meal\"\n    },\n    \"protein\": {\n      \"type\": \"number\",\n      \"description\": \"Grams of protein\"\n    },\n    \"carbs\": {\n      \"type\": \"number\",\n      \"description\": \"Grams of carbohydrates\"\n    },\n    \"fat\": {\n      \"type\": \"number\",\n      \"description\": \"Grams of fat\"\n    },\n    \"fiber\": {\n      \"type\": \"number\",\n      \"description\": \"Grams of dietary fiber\"\n    },\n    \"sugar\": {\n      \"type\": \"number\",\n      \"description\": \"Grams of sugar\"\n    },\n    \"sodium\": {\n      \"type\": \"number\",\n      \"description\": \"Milligrams of sodium\"\n    },\n    \"confidenceScore\": {\n      \"type\": \"number\",\n      \"minimum\": 0,\n      \"maximum\": 1,\n      \"description\": \"Model's confidence score (0 to 1) for the accuracy of the nutrition data\"\n    },\n    \"healthScore\": {\n      \"type\": \"integer\",\n      \"minimum\": 1,\n      \"maximum\": 5,\n      \"description\": \"Heuristic health score from 1 (least healthy) to 5 (most healthy)\"\n    }\n  },\n  \"required\": [\n    \"mealName\",\n    \"calories\",\n    \"protein\",\n    \"carbs\",\n    \"fat\",\n    \"fiber\",\n    \"sugar\",\n    \"sodium\",\n    \"confidenceScore\",\n    \"healthScore\"\n  ],\n  \"additionalProperties\": false\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        860,
+        460
+      ],
+      "id": "3956ffd5-f1fe-4f46-9ad3-c64de5342193",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        760,
+        220
+      ],
+      "id": "b7d029c2-dbd5-405f-b481-d4ed6d5f129b",
+      "name": "Auto-fixing Output Parser"
+    },
+    {
+      "parameters": {
+        "content": "## Calorie Tracker Backend Food Analysis\n1. The trigger is setup to start this workflow when a webhook is received. Each time the lovable app uploads a meal, it will fire off an HTTP POST request to this webhook.\n2. After a valid request is received, the `analyze_image` node is going to take the image given to us and pass it off to the Open AI Vision API along with a prompt to analyze the nutritional contents.\n3. After the analysis is finished, we are going to take those results and run a short LLM prompt against it in the `extract_results` node to format the nutritional data in a JSON format that our lovable app is going to understand.\n5. Finally, we will take that formatted data and return it as JSON for our lovable calorie tracker app to display to the user.\n",
+        "height": 900,
+        "width": 1620,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -260
+      ],
+      "typeVersion": 1,
+      "id": "20b2f69b-aabe-43d0-a3a4-3a1c7c99ce27",
+      "name": "Sticky Note"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "analyze_image": {
+      "main": [
+        [
+          {
+            "node": "extract_results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "meal_image_webhoook": {
+      "main": [
+        [
+          {
+            "node": "analyze_image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_results": {
+      "main": [
+        [
+          {
+            "node": "respond_to_webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "extract_results",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Auto-fixing Output Parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-fixing Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "extract_results",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "0756e27e-e2d2-4501-934e-4d594fdb4dc5",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "XJH3XLIZG8YjuxyL",
+  "tags": [
+    {
+      "createdAt": "2025-06-09T22:48:17.291Z",
+      "updatedAt": "2025-06-09T22:48:17.291Z",
+      "id": "aZMw5JzELHKfaOAb",
+      "name": "YouTube Video"
+    }
+  ]
+}

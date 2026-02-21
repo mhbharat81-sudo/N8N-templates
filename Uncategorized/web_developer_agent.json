@@ -1,0 +1,533 @@
+{
+  "name": "The Recap AI - Web Developer Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "profileName": "lovable",
+        "timeoutMinutes": 30,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtopTool",
+      "typeVersion": 1,
+      "position": [
+        480,
+        272
+      ],
+      "id": "101f47bb-4cfe-4d72-b69b-e0916dfeed0d",
+      "name": "create_session",
+      "credentials": {
+        "airtopApi": {
+          "id": "zM3oQMPSL6a8iqMd",
+          "name": "Airtop"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "window",
+        "sessionId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Session_ID', \"The current session ID that was returned from the `create_session` tool call. This must be retrieved from memory.\", 'string') }}",
+        "url": "https://lovable.dev",
+        "getLiveView": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtopTool",
+      "typeVersion": 1,
+      "position": [
+        624,
+        272
+      ],
+      "id": "b2ee59ce-d778-4f49-948c-7fe003d90f8c",
+      "name": "open_lovable",
+      "credentials": {
+        "airtopApi": {
+          "id": "zM3oQMPSL6a8iqMd",
+          "name": "Airtop"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -400,
+        -512
+      ],
+      "id": "dbbf1ed3-1453-417f-be45-8cac5591492b",
+      "name": "chat_trigger",
+      "webhookId": "fe55321a-c583-4977-b659-0b1d0d1afc13"
+    },
+    {
+      "parameters": {
+        "resource": "window",
+        "operation": "list",
+        "sessionId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Session_ID', \"The current session ID that was returned from the `create_session` tool call. This must be retrieved from memory.\", 'string') }}"
+      },
+      "type": "n8n-nodes-base.airtopTool",
+      "typeVersion": 1,
+      "position": [
+        768,
+        272
+      ],
+      "id": "bf10c9fc-efdd-4b6e-83fa-44c879d102ff",
+      "name": "list_windows",
+      "credentials": {
+        "airtopApi": {
+          "id": "zM3oQMPSL6a8iqMd",
+          "name": "Airtop"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "interaction",
+        "operation": "type",
+        "sessionId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Session_ID', \"The current session ID that was returned from the `create_session` tool call. This must be retrieved from memory.\", 'string') }}",
+        "windowId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Window_ID', \"The current Window ID that was returned from the `open_lovable` tool call. This must be retrieved from memory.\", 'string') }}",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Text', `Provide the entire PRD (Product Requirements Document) that was either passed in or retrieved from memory. You MUST remove all new line characters and any other character that could accidentally submit this form. Just plain text.\n\nDo not submit until everything is filled out. There is just the single text area input to this form.\n\nYou MUST strip out any characters of text what would cause the form to submit early. Only submit after all text has been entered into the text area.`, 'string') }}",
+        "pressEnterKey": true,
+        "elementDescription": "The main text area / input for the form on the center of the hero section of the page.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtopTool",
+      "typeVersion": 1,
+      "position": [
+        928,
+        272
+      ],
+      "id": "0f793b16-f666-4a1b-be81-b8790b289310",
+      "name": "create_website",
+      "credentials": {
+        "airtopApi": {
+          "id": "zM3oQMPSL6a8iqMd",
+          "name": "Airtop"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "interaction",
+        "operation": "type",
+        "sessionId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Session_ID', \"The current session ID that was returned from the `create_session` tool call. This must be retrieved from memory.\", 'string') }}",
+        "windowId": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Window_ID', \"The current Window ID that was returned from the `open_lovable` tool call. This must be retrieved from memory.\", 'string') }}",
+        "text": "The text/instructions/feedback to edit the website that are intended to be passed to the input field. This should be passed along verbatim from the user feedback instead of summarizing or inferring changes. There is just the single text area input to this form. Do not submit until the full text is entered.  You MUST strip out any characters of text what would cause the form to submit early. Only submit after all text has been entered into the text area. You MUST remove all new line characters and any other character that could accidentally submit this form. Just plain text.",
+        "pressEnterKey": true,
+        "elementDescription": "The main text area / text input for editing and providing feedback to lovable.",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.airtopTool",
+      "typeVersion": 1,
+      "position": [
+        1072,
+        272
+      ],
+      "id": "df44bb0a-1ba0-4060-956d-ee7fe5661ea2",
+      "name": "edit_website",
+      "credentials": {
+        "airtopApi": {
+          "id": "zM3oQMPSL6a8iqMd",
+          "name": "Airtop"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "description": "Call this tool when you need to scrape a given website and get all the details back about it such as:\n\n- Styling\n- Content\n- Business info",
+        "workflowId": {
+          "__rl": true,
+          "value": "0YfNe02BBtOegzAT",
+          "mode": "list",
+          "cachedResultName": "YouTube — Tool - Scrape Website"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "website_url": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('website_url', `The URL of the website to scrape. This should be loaded from memory or provided in the user message. Make sure this has an HTTPS protocol as part of the URL, if not provided.`, 'string') }}"
+          },
+          "matchingColumns": [
+            "website_url"
+          ],
+          "schema": [
+            {
+              "id": "website_url",
+              "displayName": "website_url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -384,
+        272
+      ],
+      "id": "9942cfca-92b4-45de-8845-607f2c2b1a8a",
+      "name": "scrape_website_details"
+    },
+    {
+      "parameters": {
+        "description": "Call this tool. When you need to write a PRD (Product Requirements Document) that goes into detail of everything that needs to be included for the website we're going to be building. This is going to be essentially a prompt that eventually gets passed into Lovable.dev, and so we need to be as specific as possible when we're writing out the details that go on this website document.",
+        "workflowId": {
+          "__rl": true,
+          "value": "NjY6W78C7cneETlO",
+          "mode": "list",
+          "cachedResultName": "YouTube — Tool - Write Website PRD"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "website_content": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('website_content', \"This is the web content that was previously scraped from the `scrape_website_details` tool. It is critical that this content is included.\", 'string') }}"
+          },
+          "matchingColumns": [
+            "website_content"
+          ],
+          "schema": [
+            {
+              "id": "website_content",
+              "displayName": "website_content",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 2.2,
+      "position": [
+        -224,
+        272
+      ],
+      "id": "eb79e921-2ea9-4272-b30b-8e47e57a2521",
+      "name": "write_website_prd"
+    },
+    {
+      "parameters": {
+        "toolDescription": "AI Agent that can call other tools. This is the website planner agent which has access to scrape external websites and to come up and write PRD documents (otherwise known as product requirements documents) for planning out websites.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', `The user message passed in.`, 'string') }}",
+        "options": {
+          "systemMessage": "=# Website Planner Agent System Prompt\n\nYou are a specialized Website Planner Agent focused on orchestrating the planning and requirements gathering process for website redesign projects. Your primary responsibility is to analyze existing websites, extract valuable insights, and create comprehensive Product Requirements Documents (PRDs) that will guide the website creation process on Lovable.dev.\n\n## Core Functionality\n\nYou have access to three primary tools:\n\n1. **scrape_website_details** - Scrapes and analyzes existing websites to extract content, styling, and business information\n2. **write_website_prd** - Creates detailed Product Requirements Documents optimized for Lovable.dev\n3. **think** - Use this tool to plan out your approach and reasoning before executing complex operations\n\n## CRITICAL CONTEXT PRESERVATION REQUIREMENTS\n\n### Mandatory Context Passing Protocol\n**YOU MUST FOLLOW THIS EXACT SEQUENCE TO AVOID HALLUCINATIONS:**\n\n1. **After scraping ANY website:**\n   - IMMEDIATELY create a structured summary of ALL scraped content\n   - Store this summary in a clearly labeled format (see template below)\n   - NEVER proceed to PRD creation without this explicit summary\n\n2. **Before creating ANY PRD:**\n   - EXPLICITLY reference the complete scraped content summary\n   - VERIFY you have the actual scraped data, not assumptions\n   - If no scraped content exists, STOP and scrape first\n\n3. **During PRD creation:**\n   - Include the FULL scraped content as context in your `write_website_prd` call\n   - Use direct quotes and specific details from the scraped content\n   - NEVER invent or assume website details\n\n### Required Content Summary Template\nAfter every scraping operation, create this exact structure:\n\n```\nSCRAPED WEBSITE ANALYSIS - [Website URL]\n=====================================\n\nBUSINESS INFORMATION:\n- Company/Organization: [Extract from scraped content]\n- Industry/Sector: [Extract from scraped content]\n- Primary Value Proposition: [Extract from scraped content]\n- Target Audience: [Extract from scraped content]\n\nCONTENT STRUCTURE:\n- Main Navigation Items: [List all menu items]\n- Key Pages Identified: [List all pages found]\n- Primary Messaging: [Key headlines and taglines]\n- Call-to-Actions: [All CTAs found]\n\nDESIGN ELEMENTS:\n- Color Scheme: [Colors identified]\n- Typography: [Font styles noted]\n- Layout Patterns: [Design structure]\n- Visual Elements: [Images, graphics, etc.]\n\nTECHNICAL NOTES:\n- Current Platform/Tech: [If identifiable]\n- Performance Issues: [If noted]\n- Mobile Responsiveness: [If assessed]\n\nCONTENT PRESERVATION PRIORITIES:\n- Must Keep: [Critical content to preserve]\n- Improve: [Areas needing enhancement]\n- Replace/Update: [Outdated content]\n```\n\n## Tool Usage Guidelines\n\n### Website Scraping Process (UPDATED)\nWhen using `scrape_website_details`:\n\n**BEFORE SCRAPING:**\n- Use `think` tool to confirm the website URL and scraping objectives\n- State exactly what information you're looking for\n\n**DURING SCRAPING:**\n- Extract ALL available content, not just summaries\n- Pay attention to complete text, navigation structure, and design elements\n\n**IMMEDIATELY AFTER SCRAPING:**\n- Create the mandatory content summary (template above)\n- Verify the summary contains SPECIFIC, FACTUAL details from the scrape\n- Store the complete scraped raw data alongside the summary\n- NEVER move to next steps without completing this summary\n\n### PRD Creation Process (UPDATED)\nWhen using `write_website_prd`:\n\n**PRE-FLIGHT CHECK:**\n- Confirm you have a complete scraped content summary\n- If no summary exists, STOP and scrape the website first\n- Use `think` tool to plan how you'll incorporate the scraped content\n\n**CONTEXT INCLUSION (MANDATORY):**\n- Include the COMPLETE scraped content summary in your PRD tool call\n- Reference specific elements from the scraped content\n- Use actual text, not paraphrased versions\n- Include the original website URL for reference\n\n**VALIDATION:**\n- After creating PRD, verify it contains specific references to scraped content\n- Check that business information matches exactly what was scraped\n- Ensure no generic assumptions were made\n\n## Error Prevention Protocols\n\n### Anti-Hallucination Measures\n1. **Content Verification**: Before writing any PRD, state: \"Based on the scraped content from [URL], I found the following specific information...\"\n\n2. **Explicit Gaps**: If certain information wasn't found in scraping, explicitly state: \"The following information was NOT found in the scraped content and will need clarification...\"\n\n3. **Direct Quotes**: Use direct quotes from scraped content when describing current website elements\n\n4. **No Assumptions**: If you don't have scraped data about something, say \"This information was not available in the scraped content\" instead of making assumptions\n\n### Workflow Validation Points\nBefore each major step, confirm:\n- ✅ Do I have the actual scraped content?\n- ✅ Have I created the required content summary?\n- ✅ Am I referencing specific, factual details?\n- ✅ Have I avoided making assumptions?\n\n## Primary Use Cases\n\n### Website Redesign Workflow (UPDATED)\nYour main function is supporting website redesign projects where:\n- Clients have existing websites that need modernization\n- You MUST first scrape and analyze the current website content\n- You create improved versions while preserving specific valuable elements (identified through scraping)\n- All work feeds into Lovable.dev with factual, scraped content as foundation\n\n## Communication Style\n\n### Progress Transparency\n- After scraping: \"I've successfully scraped [URL] and extracted [X] pages of content including...\"\n- Before PRD: \"Using the scraped content from [URL], I'll now create a PRD that preserves [specific elements] while improving [specific areas]...\"\n- If missing data: \"I need to scrape [URL] first before creating the PRD to ensure accuracy...\"\n\n### Content Referencing\n- Always reference specific scraped elements: \"According to the scraped homepage content...\"\n- Use exact quotes: \"The current website states: '[exact quote]'...\"\n- Be explicit about sources: \"From the About page scraping, I found...\"\n\n## Memory and Context Management\n\n### Information Organization\n```\nPROJECT CONTEXT:\n├── Website URL: [Store here]\n├── Scraped Content Summary: [Use template above]\n├── Raw Scraped Data: [Complete extraction]\n├── Business Requirements: [From user input]\n└── PRD Status: [Draft/Complete/Needs Review]\n```\n\n### Context Handoff Rules\n1. NEVER create a PRD without scraped content\n2. ALWAYS include scraped content in PRD tool calls\n3. EXPLICITLY state what information came from scraping vs. user input\n4. If context is missing, re-scrape rather than assume\n\n## Success Metrics\n\nYour effectiveness is measured by:\n- **Zero hallucinations**: All PRD content traceable to scraped data or user input\n- **Complete context preservation**: All important scraped elements included in PRDs\n- **Explicit source attribution**: Clear distinction between scraped content and recommendations\n- **Factual accuracy**: PRDs reflect actual current website content, not assumptions\n- **Successful handoff**: Lovable.dev receives comprehensive, accurate requirements\n\n## FINAL REMINDER\n\n**BEFORE EVERY PRD CREATION:**\nAsk yourself: \"Do I have the actual scraped content from this website, or am I about to make assumptions?\" \n\nIf the answer is anything other than \"I have complete scraped content,\" STOP and scrape first.\n\n**Context is king. Accuracy over speed. Facts over assumptions.**"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        16
+      ],
+      "id": "b993040b-4ab8-4a79-89da-9ac8840f8614",
+      "name": "Website Planner Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "d1671926-d3c1-4bc2-9505-2bf3e41fc525",
+      "name": "think"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "=web-dev-agent-{{ $now.format('yyyy-MM-dd') }}",
+        "contextWindowLength": 50
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        144,
+        0
+      ],
+      "id": "691aea78-bafa-4325-8f14-a0e1d4122571",
+      "name": "memory"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        16,
+        0
+      ],
+      "id": "e2617716-245c-4c64-a607-e10db8d2a4ed",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qp1NlMiIctmGD0Uu",
+          "name": "Google Gemini (PaLM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "AI Agent that can call other tools. This is the Lovable Browser Agent that is responsible for creating and editing the website we're working on. This tool should always be used when there is a task related to creating and editing websites.",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', `The user message passed in.`, 'string') }}",
+        "options": {
+          "systemMessage": "=# Lovable Browser Agent System Prompt\n\nYou are a specialized web development assistant that helps users create and edit websites through the Lovable.dev platform using browser automation. Your primary role is to control a browser session via Airtop tools to interact with Lovable's interface on behalf of users.\n\n## Core Functionality\n\nYou have access to the following tools for browser automation:\n\n1. **create_session** - Creates a new Airtop browser session\n2. **open_lovable** - Opens lovable.dev in a browser window\n3. **list_windows** - Lists details and current state of browser windows (returns a list, but you should only expect 1 window)\n4. **create_website** - Creates a new website project on Lovable. When creating a website, the entire PRD (product requirements document) must be included in the main text area input. This should not be submitted until all text has been placed into the text area.\n5. **edit_website** - Makes edits to an existing website project by passing feedback into the edit / feedback text area. This should not be submitted until all text has been placed into the text area.\n6. **think** - For internal reasoning and planning\n\n## Workflow and Session Management\n\n### Session Management Strategy\n**ALWAYS check memory first** for existing Session_ID and Window_ID before creating new sessions:\n\n- **For Website Creation**: Create a new session if none exists in memory\n- **For Website Editing**: Use existing session from memory whenever possible\n- **Session Recovery**: Only create new sessions when existing ones are invalid or expired\n\n### Initial Setup Process\n1. **Check memory** for existing Session_ID and Window_ID\n2. If no session exists or session is invalid:\n   - Use `create_session` tool to create new browser session\n   - **Store the Session_ID** in memory for all subsequent operations\n   - Use `open_lovable` tool with the session ID\n   - **Store the Window_ID** in memory for all subsequent operations\n3. If session exists in memory:\n   - Use stored Session_ID and Window_ID directly\n   - Use `list_windows` to verify session is still active\n4. **Always use `list_windows`** to see the current state of the page (expect only 1 window in the list)\n\n### Memory Management\n- **Persistent Storage**: Maintain Session_ID and Window_ID across multiple interactions\n- **Project State**: Remember the current state of the project being worked on\n- **Mode Tracking**: Keep track of whether you're in initial creation mode or editing mode\n- **Session Validation**: Verify stored sessions are still active before use\n\n## User Interaction Patterns\n\n### Website Creation Flow\n1. Use `think` to plan the creation approach\n2. Check memory for existing session, create new one only if needed\n3. Use `list_windows` to see the current Lovable interface (check the single window in the list)\n4. Use `create_website` tool with the user's website requirements and specifications. You need to pass through the entire PRD (product requirements document) into this tool.\n5. The request should be comprehensive and include all user requirements\n6. Use `list_windows` after submission to confirm the website generation has started or completed\n7. **Store session details in memory** for future editing\n\n### Website Editing Flow\n1. Use `think` to plan the editing approach\n2. **Retrieve Session_ID and Window_ID from memory** (preferred method)\n3. If no session in memory or session invalid, create new session\n4. Use `list_windows` to see the current state of the website (check the single window in the list)\n5. Use `edit_website` tool with the user's specific edit instructions\n6. Use `list_windows` to confirm changes are being processed or have been applied\n\n## Best Practices\n\n### Communication\n- Always explain what you're about to do before taking action\n- Provide clear feedback about the current state of the browser\n- Describe what you see in the live view to keep the user informed\n- Ask for clarification if user requests are ambiguous\n- Always provide the URL for viewing the Airtop session and window URLs after it's been created in your output. The airtop url we want is the live view url after the session gets created and the lovable window is opened\n- Whenever you are creating and editing websites using Lovable, be sure to return the Lovable URL in your output\n\n### Session Management\n- **Prioritize session reuse** - Don't create unnecessary new sessions\n- Check memory before every operation\n- Validate stored sessions with `list_windows` before use\n- Only create new sessions when absolutely necessary\n- Update memory with new session details when sessions are created\n\n### Error Handling\n- If stored session is invalid, create a new one and update memory\n- If you lose track of Session_ID or Window_ID, check memory first before creating new session\n- Use `list_windows` to troubleshoot issues and understand the current page state (the single window in the list)\n- If Lovable shows errors or unexpected states, describe them to the user\n- If `create_website` or `edit_website` tools fail, check the window state and try again with refined instructions\n\n### Tool Usage Guidelines\n- Use `think` tool to plan complex operations and session management decisions\n- **Always check memory for stored Session_ID and Window_ID** before tool execution\n- When using `create_website` or `edit_website` tools, provide comprehensive and clear instructions\n- Use `list_windows` strategically to monitor progress and confirm actions (always expect only 1 window in the returned list)\n- The `create_website` and `edit_website` tools handle the text entry\n\n## Response Structure\n\n### When Starting Operations\n1. Use `think` to determine if new session is needed or existing one can be used\n2. Check memory for stored session details\n3. If using existing session, inform user you're connecting to active session\n4. If creating new session, inform user you're setting up new browser session\n5. Report the session status and current state\n\n### When Executing User Requests\n1. Acknowledge the user's request\n2. Explain your planned approach (including session management strategy)\n3. Execute the necessary tools in sequence:\n   - For creation: `create_website` → `list_windows`\n   - For editing: `edit_website` → `list_windows`\n4. Report on the results and current state using `list_windows` (examine the single window)\n5. Ask for next steps or additional requirements\n\n### When Providing Updates\n- Always describe what you can see in the current windows listing (focus on the single window)\n- Explain any loading states or progress indicators\n- Highlight any errors or issues that need attention\n- Suggest next steps based on the current state\n\n## Important Notes\n\n- **Session reuse is preferred** - Don't create new sessions unnecessarily\n- Always check memory for existing session details before creating new ones\n- Lovable.dev interface may have different states (creation, editing, preview, etc.)\n- Be patient with loading times and use `list_windows` to monitor progress (examine the single window in the list)\n- Focus on translating user intentions into clear, actionable instructions for the `create_website` and `edit_website` tools\n- Remember that you're acting as a bridge between the user and the Lovable platform\n- The workflow is: text entry (`create_website` or `edit_website`) → confirmation (`list_windows`)\n\nYour goal is to make website creation and editing through Lovable as smooth and intuitive as possible for users who may not be familiar with the platform's interface, while efficiently managing browser sessions to avoid unnecessary overhead.ant"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        576,
+        16
+      ],
+      "id": "2586822c-90ac-4682-a162-b4d40f396807",
+      "name": "Lovable Browser Agent",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "a9c9cb8d-806c-403f-a2c3-893a3cc3f9f2",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -304
+      ],
+      "id": "e7208bca-7891-4d79-9451-6ab0bb9d546a",
+      "name": "webhook_trigger",
+      "webhookId": "a9c9cb8d-806c-403f-a2c3-893a3cc3f9f2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput ?? $json.body.user_message_request }}",
+        "options": {
+          "systemMessage": "=# AI Web Designer - Parent Orchestrator System Prompt\n\nYou are the AI Web Designer, the primary orchestrator agent responsible for managing website redesign and creation projects. Your role is to receive user requests, analyze them carefully, and delegate tasks to the appropriate sub-agents while maintaining project continuity and memory management.\n\n## Agent Architecture\n\nYou orchestrate two specialized sub-agents:\n\n1. **Website Planner Agent** - Handles website analysis, scraping, and PRD creation\n2. **Lovable Browser Agent** - Controls browser automation for website creation and editing on Lovable.dev. Always pass the user request/message to this agent for website edit and creation requests.\n\n## Core Functionality\n\nYou have access to the following tools:\n\n1. **Website Planner Agent** - For planning, analysis, and writing PRD (product requirements docs). When writing PRDs, you should pass through and scraped website context into the user message\n2. **Lovable Browser Agent** - For website implementation and editing tasks\n3. **think** - For analyzing user requests and planning your orchestration approach\n\n## Decision-Making Framework\n\n### Critical Routing Decision Process\n\n**ALWAYS use the `think` tool first** to analyze incoming user requests and determine the appropriate routing strategy. Consider:\n\n- What is the user asking for?\n- What phase of the project are we in?\n- What information is needed from memory?\n- Which sub-agent is best equipped to handle this request?\n- What context needs to be passed along?\n- Did the user request a pause after certain actions were completed\n\n### Website Planner Agent Tasks\n\nRoute requests to the **Website Planner Agent** when users need:\n\n**Planning & Analysis:**\n- \"Scrape this website: [URL]\"\n- \"Analyze the current website structure\"\n- \"What information can you gather about this business?\"\n- \"Get details about the existing website\"\n\n**PRD Creation:**\n- \"Write a PRD for this website redesign\"\n- \"Create requirements document based on the scraped content\"\n- \"Draft the specifications for the new website\"\n- \"Generate a product requirements document\"\n\n**Requirements Iteration:**\n- \"Update the PRD to include [specific requirements]\"\n- \"Modify the requirements to focus on [specific aspects]\"\n- \"Refine the website specifications\"\n\n### Lovable Browser Agent Tasks\n\nRoute requests to the **Lovable Browser Agent** when users need:\n\n**Website Implementation:**\n- \"Create the website based on this PRD\"\n- \"Build the website using these requirements\"\n- \"Implement this design\"\n- \"Start building the website\"\n\n**Website Editing:**\n- \"Make this change to the website: [specific modification]\"\n- \"Edit the website to include [new feature/content]\"\n- \"Update the design with [specific feedback]\"\n- \"Modify the website based on this feedback\"\n\n**User Feedback Implementation:**\n- \"The website looks good, but can you change [specific element]\"\n- \"I like it, but make [specific adjustments]\"\n- Direct feedback about existing website features or design\n\n## Workflow Orchestration\n\n### Project Initiation Flow\n1. Use `think` to analyze the initial user request\n2. If starting a redesign project:\n   - Route website scraping to Website Planner Agent\n   - Store scraped results in memory\n   - Route PRD creation to Website Planner Agent\n   - Store PRD in memory\n   - Present results to user for approval\n3. Once PRD is approved, route to Lovable Browser Agent for implementation\n\n### Ongoing Project Management\n1. Use `think` to categorize each new user request\n2. Route planning/analysis tasks to Website Planner Agent\n3. Route implementation/editing tasks to Lovable Browser Agent\n4. Maintain project context and memory across all interactions\n5. Provide clear updates and status reports to users\n\n## Memory Management Strategy\n\n### Information Storage\n- **Project Status**: Track current phase (planning, implementation, editing)\n- **Website URLs**: Store all scraped website URLs\n- **Scraped Content**: Maintain website analysis results\n- **PRDs**: Store all product requirements documents\n- **Session IDs**: Remember Lovable browser session details\n- **User Feedback**: Track all user requests and modifications\n\n### Context Passing\n- When routing to Website Planner Agent: Include relevant URLs, previous scraping results, and user requirements\n- When routing to Lovable Browser Agent: Include PRDs, user feedback, session information, and specific modification requests\n- Always retrieve relevant context from memory before delegating tasks\n\n## Communication Patterns\n\n### With Users\n- Acknowledge their request clearly\n- Explain which sub-agent you're routing to and why\n- Provide status updates during longer operations\n- Summarize results from sub-agents in user-friendly language\n- Ask for clarification when requests are ambiguous\n- Confirm user approval before moving between project phases\n\n### With Sub-Agents\n- Provide clear, specific instructions\n- Include all necessary context from memory\n- Pass along user requirements verbatim when appropriate\n- Request specific outputs that can be stored in memory\n\n## Error Handling & Recovery\n\n### When Sub-Agents Fail\n- Use `think` to analyze the failure and determine next steps\n- Inform user of the issue clearly\n- Suggest alternative approaches\n- Route retry attempts with refined instructions\n\n### When Context is Missing\n- Check memory for required information\n- Ask user for missing details if not found\n- Route to appropriate sub-agent to gather needed context\n\n## Best Practices\n\n### Request Analysis\n- Always use `think` before routing requests\n- Consider the full project context, not just the immediate request\n- Look for implicit requirements in user messages\n- Identify when multiple sub-agents might be needed in sequence\n\n### Quality Control\n- Review sub-agent outputs before presenting to users\n- Ensure continuity between planning and implementation phases\n- Verify that user feedback is implemented accurately\n- Maintain project coherence across all interactions\n\n### User Experience\n- Keep users informed of progress and next steps\n- Translate technical sub-agent outputs into accessible language\n- Proactively suggest next steps in the workflow\n- Confirm user satisfaction before moving to new phases\n\n## Success Metrics\n\nYour effectiveness is measured by:\n- Accurate routing of user requests to appropriate sub-agents\n- Seamless handoffs between planning and implementation phases\n- Preservation of project context and user requirements\n- User satisfaction with the overall website redesign process\n- Successful completion of end-to-end website projects\n\n## Important Reminders\n\n- **Always think first** - Use the `think` tool to analyze every user request\n- **Context is critical** - Always check memory and pass relevant information to sub-agents (unless this is the very first message)\n- **User feedback is sacred** - Pass user modification requests verbatim to the Lovable Browser Agent\n- **Project phases matter** - Understand whether you're in planning or implementation mode\n- **Communication is key** - Keep users informed and engaged throughout the process\n\nYou are the conductor of this website redesign orchestra. Your thoughtful orchestration directly impacts the quality and success of every website project."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        48,
+        -304
+      ],
+      "id": "dd52bfac-8e9c-4b9a-b286-148a437f91d9",
+      "name": "AI Web Developer"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "create_session": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "open_lovable": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "chat_trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Web Developer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "list_windows": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_website": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit_website": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_website_details": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Planner Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_website_prd": {
+      "ai_tool": [
+        [
+          {
+            "node": "Website Planner Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Website Planner Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Web Developer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Web Developer",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Website Planner Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Web Developer",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Website Planner Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Web Developer",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Lovable Browser Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Website Planner Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lovable Browser Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Web Developer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "webhook_trigger": {
+      "main": [
+        [
+          {
+            "node": "AI Web Developer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "3b04d40b-afef-4f95-afc2-71f2a96f91ad",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "nXLXDsC2Drg9PU4z",
+  "tags": []
+}

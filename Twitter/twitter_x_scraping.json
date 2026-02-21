@@ -1,0 +1,712 @@
+{
+  "name": "The Recap AI - Twitter Scraping",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Tweets By Username",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Username",
+              "placeholder": "LucasAutomation",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Limit",
+              "fieldType": "number",
+              "placeholder": "10",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -140,
+        -40
+      ],
+      "id": "e93105b9-5ebc-43a0-bf55-8ca1969e5965",
+      "name": "tweets_by_username",
+      "webhookId": "efdb6027-2816-4003-bb15-04905f1937ca"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Scrape Tweets By Username\n\n**What it does:**\n- Takes a Twitter username and tweet limit from form input\n- Calls Apify's tweet-scraper actor to fetch latest tweets from that specific user\n- Saves results to Google Sheets with tweet data (ID, URL, text, engagement metrics)",
+        "height": 460,
+        "width": 1080,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -300
+      ],
+      "typeVersion": 1,
+      "id": "a0f11438-6951-4019-95a9-a116a416c11d",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apidojo~tweet-scraper/run-sync-get-dataset-items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"includeSearchTerms\": false,\n    \"maxItems\": {{ $json.Limit }},\n    \"onlyImage\": false,\n    \"onlyQuote\": false,\n    \"onlyTwitterBlue\": false,\n    \"onlyVerifiedUsers\": false,\n    \"onlyVideo\": false,\n    \"sort\": \"Latest\",\n    \"tweetLanguage\": \"en\",\n    \"twitterHandles\": [\n        \"{{ $json.Username }}\"\n    ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        -40
+      ],
+      "id": "379f170a-f0ac-4e52-8151-143da0ed2581",
+      "name": "scrape_username_tweets",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "JUNCpa8hxAmgMQQS",
+          "name": "Apify API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk",
+          "mode": "list",
+          "cachedResultName": "Twitter Scraping",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Username Tweets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk/edit#gid=0"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $json.id }}",
+            "Url": "={{ $json.url }}",
+            "Text": "={{ $json.text }}",
+            "Timestamp": "={{ $json.createdAt }}",
+            "Retweet Count": "={{ $json.retweetCount }}",
+            "Reply Count": "={{ $json.replyCount }}",
+            "Like Count": "={{ $json.likeCount }}",
+            "View Count": "={{ $json.viewCount }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Url",
+              "displayName": "Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Text",
+              "displayName": "Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Retweet Count",
+              "displayName": "Retweet Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reply Count",
+              "displayName": "Reply Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Like Count",
+              "displayName": "Like Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "View Count",
+              "displayName": "View Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        520,
+        -40
+      ],
+      "id": "44f7d912-cb21-42de-9aab-0b10272b7473",
+      "name": "append_username_tweets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "C8jshnaDinQz6p7c",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 2. Scrape Tweets By Search Query\n\n**What it does:**\n- Takes a search query and limit from form input\n- Calls Apify's tweet-scraper actor to find tweets matching the search terms\n- Filters for verified users and Twitter Blue accounts only\n- Sorts results by \"Top\" tweets (most engaging)\n- Saves results to Google Sheets with tweet data and metrics",
+        "height": 460,
+        "width": 1080,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        180
+      ],
+      "typeVersion": 1,
+      "id": "91befb0e-a4fe-42dd-a0a5-88969700f3af",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apidojo~tweet-scraper/run-sync-get-dataset-items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"includeSearchTerms\": false,\n    \"maxItems\": 10,\n    \"onlyImage\": false,\n    \"onlyQuote\": false,\n    \"onlyTwitterBlue\": true,\n    \"onlyVerifiedUsers\": true,\n    \"onlyVideo\": false,\n    \"searchTerms\": [\n        \"released ai research paper\"\n    ],\n    \"sort\": \"Latest\",\n    \"tweetLanguage\": \"en\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        440
+      ],
+      "id": "d32952f4-e798-4a9b-85c7-2df1969d0a0c",
+      "name": "scrape_search_tweets",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "JUNCpa8hxAmgMQQS",
+          "name": "Apify API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk",
+          "mode": "list",
+          "cachedResultName": "Twitter Scraping",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 523826698,
+          "mode": "list",
+          "cachedResultName": "Search Query Tweets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk/edit#gid=523826698"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $json.id }}",
+            "Url": "={{ $json.url }}",
+            "Text": "={{ $json.text }}",
+            "Timestamp": "={{ $json.createdAt }}",
+            "Retweet Count": "={{ $json.retweetCount }}",
+            "Reply Count": "={{ $json.replyCount }}",
+            "Like Count": "={{ $json.likeCount }}",
+            "View Count": "={{ $json.viewCount }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Url",
+              "displayName": "Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Text",
+              "displayName": "Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Retweet Count",
+              "displayName": "Retweet Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reply Count",
+              "displayName": "Reply Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Like Count",
+              "displayName": "Like Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "View Count",
+              "displayName": "View Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        520,
+        440
+      ],
+      "id": "901c0191-9283-494f-85af-c509b4c96e3e",
+      "name": "append_search_tweets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "C8jshnaDinQz6p7c",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "formTitle": "Tweets By Username",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Search Query",
+              "placeholder": "released ai research paper",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Limit",
+              "fieldType": "number",
+              "placeholder": "10",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -140,
+        440
+      ],
+      "id": "6b7195c1-b42a-4085-a220-ec6d978a7648",
+      "name": "tweets_by_search_query",
+      "webhookId": "3af66c27-b180-47dc-9447-aa7df23f1f4a"
+    },
+    {
+      "parameters": {
+        "content": "## 3. Scrape Tweets By Twitter List\n\n- Takes a Twitter list URL and tweet limit from form input\n- Calls Apify's tweet-scraper actor to fetch latest tweets from all users in that list\n- Returns tweets in English, sorted by most recent\n- Saves results to Google Sheets with tweet data and engagement metrics",
+        "height": 460,
+        "width": 1080,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        660
+      ],
+      "typeVersion": 1,
+      "id": "967776a9-4f82-40df-8b08-9a638ed6efe7",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "formTitle": "Tweets By List",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Twitter List Url",
+              "placeholder": "https://x.com/i/lists/1888303252758004106",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Limit",
+              "fieldType": "number",
+              "placeholder": "10",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -140,
+        920
+      ],
+      "id": "8836e7b1-2701-4ba1-aff4-3d3b479775d0",
+      "name": "tweets_by_list",
+      "webhookId": "d0fdb2c4-f1a3-4256-b99a-a1bbf22000cc"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.apify.com/v2/acts/apidojo~tweet-scraper/run-sync-get-dataset-items",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"includeSearchTerms\": false,\n  \"maxItems\": 10,\n  \"onlyImage\": false,\n  \"onlyQuote\": false,\n  \"onlyTwitterBlue\": true,\n  \"onlyVerifiedUsers\": true,\n  \"onlyVideo\": false,\n  \"sort\": \"Latest\",\n  \"startUrls\": [\n    \"{{ $json['Twitter List Url'] }}\"\n  ],\n  \"tweetLanguage\": \"en\"\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        200,
+        920
+      ],
+      "id": "f960ebfd-06aa-4259-94e6-59c6224f1c05",
+      "name": "scrape_list_tweets",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "JUNCpa8hxAmgMQQS",
+          "name": "Apify API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk",
+          "mode": "list",
+          "cachedResultName": "Twitter Scraping",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 1483385346,
+          "mode": "list",
+          "cachedResultName": "Twitter List Tweets",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/16YDimQ1u1Zsl4k7dE2z8uD3R86ZHEjB7t19v1ZCkmJk/edit#gid=1483385346"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Id": "={{ $json.id }}",
+            "Url": "={{ $json.url }}",
+            "Text": "={{ $json.text }}",
+            "Timestamp": "={{ $json.createdAt }}",
+            "Retweet Count": "={{ $json.retweetCount }}",
+            "Reply Count": "={{ $json.replyCount }}",
+            "Like Count": "={{ $json.likeCount }}",
+            "View Count": "={{ $json.viewCount }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Id",
+              "displayName": "Id",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Url",
+              "displayName": "Url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Text",
+              "displayName": "Text",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Retweet Count",
+              "displayName": "Retweet Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Reply Count",
+              "displayName": "Reply Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Like Count",
+              "displayName": "Like Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "View Count",
+              "displayName": "View Count",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        520,
+        920
+      ],
+      "id": "3edc64ae-d0d8-4d64-a933-76dcf35e0d35",
+      "name": "append_list_tweets",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "C8jshnaDinQz6p7c",
+          "name": "Google Sheets"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "# Twitter Scraper - Customization Guide\n\nApify Actor: https://console.apify.com/actors/61RPP7dywgiy0JPD0/information/latest/readme\n\n## Basic Parameters You Can Modify (To Filter Tweets)\n\n### Content Filters\n```json\n\"onlyVerifiedUsers\": true,     // Only verified accounts\n\"onlyTwitterBlue\": true,       // Only Twitter Blue subscribers  \n\"onlyImage\": true,             // Only tweets with images\n\"onlyVideo\": true,             // Only tweets with videos\n\"onlyQuote\": true,             // Only quote tweets\n```\n\n### Language & Sorting\n```json\n\"tweetLanguage\": \"en\",         // Language code (en, es, fr, etc.)\n\"sort\": \"Latest\",              // \"Latest\" or \"Top\"\n\"maxItems\": 100,               // Number of tweets to fetch\n```\n\n### Engagement Filters\n```json\n\"minimumRetweets\": 10,         // Min retweet count\n\"minimumFavorites\": 50,        // Min like count  \n\"minimumReplies\": 5,           // Min reply count\n```\n\n## Advanced Search Queries\n\nInstead of basic usernames/keywords, use `searchTerms` with Twitter's advanced syntax:\nhttps://developer.x.com/en/docs/x-api/v1/rules-and-filtering/search-operators\n\n### Time-Based Searches\n```json\n\"searchTerms\": [\"from:NASA since:2024-01-01 until:2024-06-01\"]\n```\n\n### Complex Queries\n```json\n\"searchTerms\": [\n  \"(AI OR artificial intelligence) min_faves:100\",\n  \"from:elonmusk filter:media -filter:retweets\",\n  \"#crypto (bitcoin OR ethereum) min_retweets:50\"\n]\n```\n\n## Tips for Your N8N Workflow\n\n1. **Test queries on Twitter web first** - paste your search terms in Twitter's search\n2. **Start small** - use low `maxItems` for testing\n3. **Use date ranges** for large profiles to avoid hitting limits\n4. **Combine filters** - e.g., verified users + minimum engagement for quality content",
+        "height": 1420,
+        "width": 780
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        -300
+      ],
+      "typeVersion": 1,
+      "id": "ad3f7c01-6797-41bd-9394-e6737241a772",
+      "name": "Sticky Note3"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "tweets_by_username": {
+      "main": [
+        [
+          {
+            "node": "scrape_username_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_username_tweets": {
+      "main": [
+        [
+          {
+            "node": "append_username_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_search_tweets": {
+      "main": [
+        [
+          {
+            "node": "append_search_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tweets_by_search_query": {
+      "main": [
+        [
+          {
+            "node": "scrape_search_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tweets_by_list": {
+      "main": [
+        [
+          {
+            "node": "scrape_list_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_list_tweets": {
+      "main": [
+        [
+          {
+            "node": "append_list_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9137dded-e1f9-428c-869a-17241ae1c513",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "rZQIKYrpbY5bS8KC",
+  "tags": []
+}

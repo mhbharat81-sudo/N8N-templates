@@ -1,0 +1,3122 @@
+{
+  "name": "Content - Newsletter Agent",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Retrive Data",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Date",
+              "fieldType": "date",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Previous Newsletter Content",
+              "placeholder": "Copy and paste the markdown content of the previous newsletter here. This is used to avoid duplicate coverage of stories."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -208,
+        -16
+      ],
+      "id": "3569e93d-b60b-44ce-83d8-a3086d4d5f64",
+      "name": "form_trigger",
+      "webhookId": "2a7def93-8055-4f04-8a5c-a8786d01a2fd"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cb1ba2cf-90d6-4f99-bdf0-96bf8c9ce6c6",
+              "leftValue": "={{ $json.Key }}",
+              "rightValue": ".md",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              }
+            },
+            {
+              "id": "f031d067-6edb-4938-b67d-0b55966b6fb7",
+              "leftValue": "",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        624,
+        -16
+      ],
+      "id": "762697da-643c-4749-9381-6188556292f4",
+      "name": "filter_only_markdown"
+    },
+    {
+      "parameters": {
+        "content": "## 1. Retrieve Markdown Content\n",
+        "height": 260,
+        "width": 2620
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "201d1987-3bd6-4c1b-a91b-1951fd3e17f2",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## Pick Top Stories",
+        "height": 1300,
+        "width": 1900,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "9c94a230-d070-44da-a67a-603b09d40375",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f986e5a7-3723-4a90-a61c-3d3008f0b022",
+              "leftValue": "={{ $('get_markdown_object_info').item.json.Metadata.type }}",
+              "rightValue": "newsletter",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1248,
+        -16
+      ],
+      "id": "df67292e-dd7a-4ccf-bf9a-afed5f85c7de",
+      "name": "exclude_newsletters"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('stories_prompt').item.json.select_top_stories_prompt }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an AI assistant specialized in reading raw text about AI-related news, trends, and breakthroughs. Your objective is to determine which stories should be included in our AI Tools newsletter, based on their relevance, impact, and interest to a tech-savvy audience. You are also an expert at crafting subject lines for newsletter emails that leads to great open rates and keeps our readers interested."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        480,
+        752
+      ],
+      "id": "670cbe4d-a447-46e0-89c3-2b4ea4574764",
+      "name": "pick_top_stories",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"top_selected_stories_chain_of_thought\": {\n      \"type\": \"string\",\n      \"description\": \"A detailed chain of thought explaining why you selected the top stories for our audience to feature in this newsletter. You must enumerate EVERY story you are considering and expand on why the story was either included or rejected from your final selections. It is critical that you provide reasoning on why stories are both included AND excluded. This should also include detailed reasoning why the other stories were excluded. You should detail at least 1-2 sentences on why each story was selected OR excluded. Each story analysis should include a CSV of the source identifiers that were analyzed and were read when making this decision. You must think deeply about the top story analysis and reference the provided guidelines for story importance. This will be shared in slack so please format this in slack's format so that it is easy for a slack user to read. You MUST use numbered lists that reference the source where it came from. Avoid regular bullets and use numbered lists. IF feedback was provided in the context of editing the top stories, include how you considered that feedback in your changes. It will be considered a failed task if you DO NOT providethe references to sources where stories came from and the detailed reasoning why that story was either included or excluded. You are expected to list out this reasoning and source material deatils for EVERY SINGLE STORY provided and evaluated. For each story in the (including the stories that were NOT selected), you are required to output the identifiers you evaluated for the story along with a detailed reason for why the story was included or excluded. You are NOT allowed to skip these details in your output for any story. In your output please include a section for the stories that were CLOSE to being selected but ultimately were not selected due to othedr stories being a better fit (format this as a bulleted list along with a summary of each story close to being selected along with reasoning why). Again, you are reminded that you MUST list out the content identifiers and provide a detailed explaination for all stories and provide reasoning on the selection choice. It is absolutely critical and required for you to include each of the content identifiers grouped together under each story. You may not skip this in your output.\"\n    },\n    \"top_selected_stories\": {\n      \"type\": \"array\",\n      \"minItems\": 4,\n      \"maxItems\": 4,\n      \"description\": \"A list of four chosen stories (including the top/main story).\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"title\": {\n            \"type\": \"string\",\n            \"description\": \"A concise, catchy headline for this story section that follows the style of 'Axios' or 'The Rundown' segment headings. This MUST be compelling and interesting to our readers and target audience of AI enthusiasts so they are interested in reading the section about this story.\"\n          },\n          \"summary\": {\n            \"type\": \"string\",\n            \"description\": \"A brief summary or description of this story section. Please also include notes on what we can further write about / expand on for this story in our AI newsletter.\"\n          },\n          \"identifiers\": {\n            \"type\": \"array\",\n            \"description\": \"Array of relevant content piece IDs for this story.\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          },\n          \"external_source_links\": {\n            \"type\": \"array\",\n            \"description\": \"The top-level sources (press releases, official blog posts, etc.) drawn directly from the provided text. Only include links if they appear in the raw content provided or in the external-source-urls provided.\",\n            \"items\": {\n              \"type\": \"string\"\n            }\n          }\n        },\n        \"required\": [\n          \"title\",\n          \"summary\",\n          \"reason_for_selecting\",\n          \"identifiers\",\n          \"external_source_links\"\n        ]\n      }\n    }\n  },\n  \"required\": [\n    \"top_selected_stories_chain_of_thought\",\n    \"top_selected_stories\"\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        640,
+        1168
+      ],
+      "id": "cdbc51ed-daac-4e28-a207-4c83280d84a8",
+      "name": "top_stories_parser"
+    },
+    {
+      "parameters": {
+        "content": "## Iterate Over & Write Each Selected Story\n\n1. Resolve identifier for the story\n2. Load up 1-N story references\n3. Pass in writing guidelines\n4. Write headline and section",
+        "height": 1300,
+        "width": 4980,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        1520
+      ],
+      "typeVersion": 1,
+      "id": "5be63d7b-c0bf-4012-ab39-f72db9a5994b",
+      "name": "Sticky Note3",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "top_selected_stories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        512,
+        2048
+      ],
+      "id": "bec2606c-96dd-4c98-920e-10afc2b67aba",
+      "name": "split_stories"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        768,
+        2048
+      ],
+      "id": "b2f20e78-860c-43d7-a51a-8a0b6d36379d",
+      "name": "iterate_stories"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "current_story.identifiers",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1280,
+        2160
+      ],
+      "id": "8d70c037-363e-4417-872e-9086409430de",
+      "name": "split_content_ids"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "c677aa22-37e5-4d3b-9b53-409fb3c74b81",
+              "leftValue": "={{ $node[\"set_current_segment\"].json.current_story.external_source_links }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "exists",
+                "singleValue": true
+              }
+            },
+            {
+              "id": "6f3cee68-49b0-4cb6-871e-4cb12a306b06",
+              "leftValue": "={{ $node[\"set_current_segment\"].json.current_story.external_source_links }}",
+              "rightValue": "",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        2768,
+        2160
+      ],
+      "id": "0d45114f-11f6-41c3-b80d-2b78266fdc89",
+      "name": "check_external_urls"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ba33265f-73f6-4561-9cf0-dcb2f0b52a78",
+              "name": "story_sections",
+              "value": "={{ $node[\"iterate_stories\"].json.story_segment.newsletter_section_content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4608,
+        1680
+      ],
+      "id": "ef88d1f2-8423-4c3c-ae63-ea3d8fddaf81",
+      "name": "set_story_segments"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.aitools.inc/admin/files/info/data-ingestion/{{ $json['current_story.identifiers'] }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1504,
+        2160
+      ],
+      "id": "b70adb06-e4b3-4db2-a3cb-70a626e56059",
+      "name": "get_segment_content_info",
+      "alwaysOutputData": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "p8IcYsXBMrfPvKz8",
+          "name": "AI Tools Admin API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "bucketName": "data-ingestion",
+        "fileKey": "={{ $node[\"split_content_ids\"].json['current_story.identifiers'] }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1728,
+        2160
+      ],
+      "id": "dd58f7df-1568-431b-9f09-e53af0211ed6",
+      "name": "download_segment_content",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "binaryPropertyName": "=data",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        2128,
+        2160
+      ],
+      "id": "283574cf-0dc9-41d4-901f-993709f0d057",
+      "name": "get_segment_content_text"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d2054552-ac25-41e0-9f09-faa9cea840e6",
+              "name": "content_item",
+              "value": "=<{{ $node[\"split_content_ids\"].json['current_story.identifiers'] }}>\n---\nidentifier: {{ $node[\"split_content_ids\"].json['current_story.identifiers'] }}\nfriendlyType: {{ $node[\"get_segment_content_info\"].json.Metadata.type }}\nsourceName: {{ $node[\"get_segment_content_info\"].json.Metadata['source-name'] }}\nauthors: {{ $node[\"get_segment_content_info\"].json.Metadata.authors }}\nexternalSourceUrls: {{ $node[\"get_segment_content_info\"].json.Metadata[\"external-source-urls\"\n] }}\nimageUrls: {{ $node[\"get_segment_content_info\"].json.Metadata[\"image-urls\"\n] }}\n---\n\n{{ $('get_segment_content_text').item.json.data }}\n</{{ $node[\"split_content_ids\"].json['current_story.identifiers'] }}>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2368,
+        2160
+      ],
+      "id": "df569fb6-7d65-4e53-aaba-13b48281a3bb",
+      "name": "prepare_segment_content_item"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "content_item"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2560,
+        2160
+      ],
+      "id": "de6a3f52-f8c6-4d80-bfd3-b9d4f1b75645",
+      "name": "aggregate_segment_text_content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "81a924a0-5bab-423a-a41a-4fe7a0345f68",
+              "name": "segment_external_source_links",
+              "value": "={{ $node[\"set_current_segment\"].json.current_story.external_source_links }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3008,
+        2000
+      ],
+      "id": "9e5317d3-bb6c-4422-9346-0f548821708c",
+      "name": "set_segment_external_source_links"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "=segment_external_source_links",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        3232,
+        2000
+      ],
+      "id": "d6f3a23a-2ddb-4459-bd29-6c87d8f74088",
+      "name": "split_segment_external_source_urls"
+    },
+    {
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "value": "qVEM2rCD1jlJPeRs",
+          "mode": "list",
+          "cachedResultName": "Data Ingestion — Node - Scrape Url"
+        },
+        "workflowInputs": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "url": "={{ $json.segment_external_source_links }}"
+          },
+          "matchingColumns": [
+            "url"
+          ],
+          "schema": [
+            {
+              "id": "url",
+              "displayName": "url",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "canBeUsedToMatch": true,
+              "type": "string",
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.executeWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        3440,
+        2000
+      ],
+      "id": "687587f1-0431-4c36-a11c-ded1353cb2ed",
+      "name": "scrape_segment_external_source_url",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "data"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        3888,
+        2000
+      ],
+      "id": "9201a712-3aba-497e-802e-655cc4f0bbed",
+      "name": "aggregate_segment_external_source_content",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "ecd02ccb-0790-44ab-8bb0-246881e35a20",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        3664,
+        2000
+      ],
+      "id": "fe444b4e-b17f-47b4-93f0-b2a5af64d963",
+      "name": "filter_segment_external_source_errors",
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## Task and Purpose\n\nCreate a single newsletter section focused on **AI developments, tools, and applications** that help professionals automate tasks, boost productivity, and stay on the cutting edge. You will be given details of a single section to write about and supporting source material. Use this to write this newsletter section.\n\nToday's date for the newsletter is *{{ new Date(new Date($('form_trigger').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}*.\n\n### Audience\n\n- **Tech-forward readers**—developers, entrepreneurs, AI enthusiasts, and early adopters.\n- Those looking for **new AI trends**, developments, and **real-world use cases** that can make their work more efficient.\n\n### Style Inspiration\n\n- **Axios-like** and **Rundown** approach with **short, punchy paragraphs**, clear headers, bullet points, and a **“Why it matters”** or **“Bottom line”** section.\n- **Enthusiastic, optimistic, forward-looking** voice that highlights AI’s future-shaping potential.\n\n### Additional Writing Guidelines\n\n- Place verbs directly after helping verbs like \"makes,\" \"allows,\" \"enables\"\n- Emphasize user actions rather than abstract processes\n- Use clear subject-verb-object structure whenever possible\n- Keep sentences concise and purposeful\n- Avoid unnecessary nominalization (turning verbs into nouns) and keep the language direct and dynamic.\n- Avoid technical jargon. Your writing should be easy to understand for non-technical readers.\n\nPlease use active verb constructions rather than noun phrases. For example:\n- WEAK: \"Intuitive interface that makes voiceover creation accessible to non-technical users\"\n- STRONG: \"Intuitive interface that makes creating voiceovers accessible to non-technical users\"\n\n### Section Struture\n\nFollow this structure when writing your newsletter segment:\n\n1. **The Recap:** (should be bolded)\n  - Provide a **quick summary and overview** of the topic.\n  - This should be a brief 1-2 sentences.\n  - Start this section with **The Recap:** followed by your 1-2 sentences.\n  - This is a good place to link to any annoucment or other external urls relevant to this content.\n\n2. **Unpacked:** (should be bolded)\n  - Expand on **additional details** and context around the story that provides our readers with value. This can be in the form of (but is not limited to) expanding on the important details of the story they would care about, connecting the story into the larger AI space and other recent developments, or take an approach that \"Axios\" and \"The Rundown AI\" newsletters take with their bullet points to help readers get the most useful information around he story in bullet point form. The goal here is to \"unpack\" the most useful details around the story in an easy to digest format for our readers. We are looking for added \"depth\" around this story.\n  - This should be formatted as a bulleted list where each bullet item is a single sentence that expands around the context of the story / source material.\n  - This should not be overly technical. It should be easy for an entry level AI enthusiast to understand. It must also be easy for someone new to AI who is looking to learn the basics to understand.\n  - You may ONLY write about information that is included in the provided source  materia, you may NOT make up or invent your own facts. The facts you output must exist on the provided sources materials and context.\n  - You should provide a total of 3 bullets. Each bullet you include MUST be very relevant to the story and provide the reader with necessary context. You must avoid adding bullets that are not useful to the reader. The number of bullets points to include is truly your choice. You should aim to \"unpack\" the story in 3 bullets.\n  - You must use the `-` character instead of a `*` for each bullet in this section.\n  - Use regular markdown bullet formatting for each of these bullets. Your output will be directly sent in an email to our readers so think carefully and make sure the formatting is correct. There MUST NOT be any extra spacing after the `-` character and the text content for this bullet, only the single space according to the markdown specification. Review this requirement carefully before you write your output.\n  - You may only include a maximum of 1 single link/hyperlink in each bullet you write. A link/hyperlink is not required, but you are allowed to include a maximum of 1 link so you must be sure the link you select is the best placement for it.\n  - Please be conservative on the words and phrases you choose to bold in you output. You should not be bolding text characters unless the bolding truly improves the reader's experience. You MAY NOT bold a word or phrase in every bullet point so pick the words or phrases you bold very carefully.\n  - You are NOT allowed to format links as bold in your output.\n  - You are allowed to **bold** a maximum of a single phrase (or single word) in the scope of each bullet. You may NOT bold multiple phrases withing the scope of a SINGLE bullet so pick the word or phrase that makes the most sense to bold if you choose to bold. It is truly optional to bold a word or phrase within the scope of a bullet. Don't 'force' bolding a word or phrase that doesn't make sense. The bolding should feel natural to the reader. You may only choose to bold a SINGLE word or phrase across all bullets you write in this \"Unpacked\" section.\n\n3. **Bottom line:** (should be bolded)\n  - Offer a **short, final insight** into why this story matters or how it impacts the reader. This must be 2 sentences in length. Avoid repeating ideas or duplicating information withing this \"Bottom Line\" section.\n  - You must **AVOID** writing a phrase that include the word \"We're\" or \"We are\" in this \"Bottom Line\" section.\n  - You must avoid overly-flower language that is excessively descriptive. This sentences in this bottom line needs to still be easy to read while offering insight(s) to the reader. \n\n---\n### Tone and Voice\n\n1. **Optimistic and Enthusiastic**  \n   - Show excitement about AI’s potential in a **balanced, non-overbearing** way.  \n   - Demonstrate genuine curiosity—celebrate successes and **promising experiments**.\n\n2. **Clear, Direct, and Data-Driven**  \n   - Use bullet points and **bolded keywords** for critical stats and key points/details. Bolded values should be used to highlight important words of text so don't bold too much or else it will lose its meaning.\n   - Keep language **straightforward**—avoid deep academic jargon, but don’t oversimplify.\n\n3. **Conversational and Personable**  \n   - Use **friendly, casual style** with first- or second-person pronouns (“we,” “you”).  \n   - Engage the reader: “Here’s what caught our attention,” “We’re excited to see how this unfolds.”\n\n4. **Authoritative Without Being Overly Formal**  \n   - **Cite sources** and link to relevant external sources when possible.  \n   - Combine excitement with **credible facts** to maintain trust. Review the linking requirements to understand the correct way to cite.\n    - **Authoritative yet approachable**, focusing on credible facts and references. Always include a markdown link when you can tie back back a concept like a person, event, annoucment, social media post to what you are writing about. This is important.\n\n---\n### Word and Phrase Blacklist\n\nAvoid using these words and phrases in your output:\n\n- Smarts\n- Game changing\n- Revolutionize\n- sophisticated\n\n---\n## Formatting and Layout Tips\n\n1. **Short Paragraphs and Bullet Points**  \n  - Keep **1–2 sentences per paragraph** when not using bullets.  \n  - Use bullet points to **list features, stats, or steps** clearly.\n  - Bullet points must be in proper markdown format. Here's an example of a properly formatted markdown bullet (make note of the spacing). `- This is a proper bullet that will exist on its own line`\n\n2. **Visual Cues and Emphasis**  \n  - **Bold** key data points or important terms (e.g., **80%+ accuracy**, **multi-agent system**).  \n  - Use *italics* or _underlines_ sparingly for references, notable phrases, or quotes.\n\n3. **Format In Markdown**\n  - Format your output in markdown using best practices for headings, paragraphs, bulleted lists, bold text, and hyperlinks.\n  - You should use markdown formatting where the section heading is a the `#` heading level for the header of this segment.\n  - Pay close attention to your markdown formating to make sure it is valid and clean.\n\nPay close attention and ensure your output matches the provided JSON schema format. Make sure any special characters our correctly handled so that your output can be parsed. If you make any mistakes here and return output that does NOT match the provided, this task will be considered a complete failure and I will lose my car, my house, and my family.\n\n---\n### Additional Notes\n\nA main goal of our is to provide concise yet powerful insights, your publication can stand out as a **trusted source** for the latest in AI innovation.\n\nYou MUST also reference \"Additional Source Materials\" to get more context around the segment you are writing. This should be very helpful for adding commentary, making better summaries, extracting data points, and giving more context to the reader.\n\n---\n### Link and Hyperlinking Requirements\n\nIt is critical that you follow these requirements when inserting links into your output. Read through this carefully, reflect on it for 25 minutes, and double check your work to ensure you follow these requirements correctly.\n\n1.  **Strategic Linking for Validation & Context:** Embed hyperlinks purposefully.\n    * Link specific entities (companies, products, technologies) to their official source on first mention.\n    * Link data, statistics, claims, or direct quotes to their precise origin (e.g., study, press release, specific article/report section).\n    * Where appropriate (e.g., in concluding sections), consider linking to resources offering broader context or further exploration of the topic.\n\n2.  **Mandatory Verified Deep Links:** All hyperlinks MUST point to the *exact*, specific page, document, or section directly supporting the assertion being made. Before including *any* link:\n    * **Verify:** Confirm the destination directly and explicitly supports the specific information it's linked to.\n    * **Prioritize:** Use primary or the most authoritative sources available.\n    * **Deep Link:** Absolutely NO linking to generic homepages or main site sections (e.g., link to the specific *project page* or *announcement*, not just the company's top-level domain). An example of linking to a generic homepage would be `https://openai.com/`. Make sure you DO NOT DO THIS.\n    * **Omit if Uncertain:** If the precise, credible, and directly supporting URL cannot be confidently identified and verified, DO NOT include a link for that piece of information.\n\n3.  **Seamless Integration & Readability:** Weave links naturally into the narrative flow.\n    * **Anchor Text:** Use brief, relevant anchor text (typically 2-5 words) that accurately describes the link's destination or topic. Avoid overly long anchor text.\n    * **Density:** You MUST limit links to 1 (one) per paragraph or self-contained bullet point. If multiple sources are essential for a single point, prioritize the single most direct/authoritative one, or carefully distribute links across different sentences only if absolutely necessary for clarity and validation.\n\n4.  **Leverage Provided Source Materials:** Actively consult the `Current Segment Story Context` and `Additional Current Segment Source Materials` sections (if provided) to identify, verify, and select the most appropriate and accurate hyperlinks based on the available information.\n\n5. Verify link destinations - Before suggesting a link in your response, confirm the URL directly relates to the exact topic, product, or claim being discussed. You MUST NOT link to a web page that doesn't exist or a web page that would result in a HTTP 404 error when a user clicks on it. If you include a link that goes to a web page that does not exist or results in an error, it will result in us completely losing the trust of our readers. You are not allowed to make any mistakes here or insert links that are to web pages that don't exist on the internet. Think through this requirement carefully and deeply.\n\n6. Remember that links should be incorporated naturally into the text rather than appearing as separate references. The goal is to provide readers with a seamless way to verify information and explore topics further while maintaining the newsletter's readability. Avoid adding this contextual link to more than three (3) words at once — it should not feel super long. The hyperlink/contextual link should be on a few anchor words (maximum of 3 (three) words. Pay close attention to the anchor text you are placing the link on. It MUST be intentional and it must be the set of words that makes the most sense to place the link. Think deeply about where the link is getting placed on each sentence or bullet point for at least 25 minutes before creating your output. You MUST place this in the best possible spot with the best anchor text that is most relevant to the link destination.\n\n7. Multiple sources and links can be found below under the `Current Segment Story Context` and `Additional Current Segment Source Materials` headings. Please think deeply and review this context in order to place the best links. You must read all additional source materials and think on the best links to reference for 30 minutes before you decide to add them in. Links to evaluate and consider can be found by looking for the `url` value on the \"Additional Current Segment Source Materials\" content items. You can also look in the `external_source_links` array inside the JSON provided in \"Current Segment Story Context\".\n\n8. Prefer linking to credible sources and avoid linking to unknown websites or websites that have very poor reputations.\n\n9. You MUST ENSURE that the links you are including and inserting are exactly the same urls copied from the provided source urls. You may not change or modify these urls because the url is required to work. When including a URL it should be copied and pasted in. NOT URL MODIFICATION IS ALLOWED. Before inserting a link, you must load this URL from the internet to ensure it is still valid and can be seen when people click on it. YOU MUST INSERT AND PROVIDE CORRECT HYPERLINKS.\n\n10. You MUST avoid linking the same URL more than once in the scope of this newsletter section. You are allowed to use a source one so pick the spot this is the most contextually relevant.\n\n11. When writing about product annoucements, new releases, major updates, or other big annoucements, I would expect you to link back to the source material put out by the company. This is typically a blog post, Tweet / X post, a research paper, or another piece of content release by the company, entity, or person who created it. It is most useful to link back to the main source material for these types of stories. You MUST remember that you are NOT allowed to make up or use links that were not provided as input.\n\n12. Source Requirement: You must only use URLs found within the provided text designated as \"Current Segment Story Context\" or \"Additional Current Segment Source Materials\". Do not search elsewhere or use external knowledge. Accuracy Requirement: The URL included in your output must be a perfect, character-for-character copy of the URL found in the source. It must be reproduced verbatim. Prohibition: You are strictly forbidden from creating, guessing, modifying, shortening, or completing URLs. If a URL is incomplete or looks incorrect in the provided context, copy it exactly as it is. Rationale: Users will click this URL; therefore, it must precisely match the provided source url to potentially function as intended. Handling Absence: If you cannot find any URL within the specified source sections, you *MUST* omit inserting an link and output plain text instead.\n\n---\n## Newsletter Context\n\n- Newsletter Subject Line: {{ $node[\"set_selected_stories\"].json.subject_line }}\n- Newsletter Pre-Header Text: {{ $node[\"set_selected_stories\"].json.pre_header_text }}\n\n### Current Segment Story Context\n\nTitle: {{ $node[\"set_current_segment\"].json.current_story.title }}\nSummary:  {{ $node[\"set_current_segment\"].json.current_story.summary }}\n\n{{ $node[\"aggregate_segment_text_content\"].json.content_item.join(\"\\n\\n\") }}\n\n### Additional Current Segment Source Materials\n\n{{\n  $('aggregate_segment_external_source_content').isExecuted\n    ? $node[\"aggregate_segment_external_source_content\"].json.data.map(item => {\n      let result = \"\";\n      result += `<${item.metadata.url}>\\n`;\n      result += \"---\\n\";\n      result += `url: ${item.metadata.url}\\n`;\n      result += \"---\\n\";\n      result += item?.markdown;\n      result += `</${item.metadata.url}>\\n`;\n\n      return result;\n    }).join(\"/n/n\")\n    : \"N/A\"\n}}\n\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert AI copywriter tasked with creating **engaging** newsletter segments that **resonate** with a **tech-savvy audience**. Your goal is to deliver concise, \"Axios-like\" and \"The Rundown-like\" summary sections of **AI developments** and other interesting news."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        4128,
+        2192
+      ],
+      "id": "d339c37c-61f0-44fd-ab5e-312b798f96aa",
+      "name": "write_segment_content",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e37da3c8-902a-406d-a5c7-195a9b8c32e7",
+              "name": "current_story",
+              "value": "={{ $json }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        2160
+      ],
+      "id": "e0e79dc3-f324-4f45-9323-e00c39f78dda",
+      "name": "set_current_segment"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "144dbdda-e76e-452c-b1a1-6bbbcba2a477",
+              "name": "story_sections",
+              "value": "={{ $json.story_sections.join(\"\\n\\n---\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5040,
+        1680
+      ],
+      "id": "b37f375c-e240-4fbb-9060-cbfab976f2a0",
+      "name": "set_combined_sections_content"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "story_sections"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        4832,
+        1680
+      ],
+      "id": "692e97f0-74aa-4eff-9159-184a1007dca5",
+      "name": "aggregate_story_sections"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3392,
+        3632
+      ],
+      "id": "4a12c739-83f6-4af4-9873-e7b5db333e17",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qp1NlMiIctmGD0Uu",
+          "name": "Google Gemini (PaLM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        4208,
+        2448
+      ],
+      "id": "75c53525-5a8c-467c-b0a1-5930b01d1f91",
+      "name": "story_segment_auto_parser"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Write your sequential reasoning to write this section for the AI Tools newsletter and determine what content to write, what formatting to use, what links to include to external sources, and other content decisions to make while following the provided guidelines. Please expand on the decisions you are making on each link you choose to insert. You MUST list out each of the sources you evaluated when writing this newsletter content along with the reasoning for using it as a reference or not. You MUST also share your reasoning for each link/hyperlink that you decide to place in this newsletter content along with how it meets the linking requirements.\"\n    },\n    \"newsletter_section_content\": {\n      \"type\": \"string\",\n      \"description\": \"The main content of the newsletter section formatted as markdown.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"newsletter_section_content\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        4288,
+        2640
+      ],
+      "id": "4d3c403b-1014-4092-837f-333e99205517",
+      "name": "story_segment_output_parser"
+    },
+    {
+      "parameters": {
+        "content": "## Write Intro Section\n",
+        "height": 1040,
+        "width": 460
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        2848
+      ],
+      "typeVersion": 1,
+      "id": "f0fe0c7a-19c6-4509-b4d2-9be606a2cf81",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Prompt for Generating Newsletter Intro Section\n\n## Role:\n\nYou are an expert AI Newsletter Writer, skilled at crafting engaging and informative introductory sections that precisely match a specific style and format.\n\n## Goal:\n\nGenerate an introductory section for our AI email newsletter, \"The Recap,\" based on the provided inputs. The generated intro must strictly adhere to the format, style, length, and tone demonstrated in the examples below.\n\nToday's date for the newsletter is *{{ new Date(new Date($('form_trigger').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}*.\n\n## Input Provided:\n\nYou will receive the following information for each newsletter edition:\n1.  **Subject Line:** The subject line of the email.\n2.  **Pre-header Text:** The pre-header text (preview text) of the email.\n3.  **Newsletter Content:** The full text content of the body of the newsletter.\n\n## Constraints & Instructions:\n\n1.  **Format Mimicry:** Replicate the exact structure of the examples:\n    *   Greeting: Start *precisely* with \"Good morning, AI enthusiasts.\" - Instead of just printing \"AI enthusiast\" you should output an expersion that is surrounding by double handlebars/mustache characters `{` to open and `}` to close it. The inside of the handlebars should be `first_name | AI enthusiast` so the value is dynamic. Please also make sure this entire greeting is formated as bold in markdown.\n    *   Paragraph 1: Introduce the most prominent news story or theme from the provided `Newsletter Content`. This should be concise (typically 2-3 sentences). In this Paragraph, you MUST AVOID repeating the exact same sentence structure that the first story / top story uses. It will appear strange to our readers if you use the exact same sentence or extremely similar sentences in both this intro and the content already written for the first story / top story. Avoid flowerly language here, this should be simple to read and make make the reader want to continue forward.\n    *   Paragraph 2: Briefly elaborate on the main topic, pose a key question about its implications, or highlight its significance (typically 2-3 sentences). Avoid duplicating or repeating information across these paragraphs. Avoid flowerly language here, this should be simple to read.\n    *   Transition Phrase: Use the *exact* phrase \"In today’s AI recap:\" (Note: Use \"recap\", **not** \"rundown\"). This transition phrase MUST be bolded text in markdown format.\n    *   Bulleted List: Create a bulleted list (using `-` for each point) summarizing the main topics covered in the `Newsletter Content` (usually 4 items). Derive these items directly from the provided content.\n2.  **Style & Tone:** Match the style and tone of the examples: informative, engaging, slightly speculative/analytical (often posing a question in the second paragraph), concise, and enthusiastic, targeted towards an audience interested in AI developments.\n3.  **Length:** Ensure the overall length of the generated introduction section is very similar to the examples provided.\n4.  **Content Derivation:** Base the content of the two introductory paragraphs and the bulleted list *solely* on the information present in the provided `Newsletter Content`. Identify the most significant news item for the opening paragraphs.\n5.  **Keyword:** Use the word \"recap\" in the transition phrase before the bulleted list, as the newsletter is named \"The Recap\".\n\n## Examples of Desired Output Format, Style, Length, and Tone:\n\n**(Note: The examples below use \"rundown\" but your output MUST use \"recap\" in the transition phrase)**\n\n**Example 1 (Illustrative - use \"recap\" in your output):**\n\nGood morning, AI enthusiasts. OpenAI has “a lot of good stuff” lined up this week, according to Sam Altman—and its first release is a step back…in name only.\n\nA newly launched GPT-4.1 (?) family features million-token context windows, improved coding abilities, and significantly lower prices across the board — potentially laying a new foundation for the fast-approaching era of agentic AI development.\n\nIn today’s AI rundown:\n\n- OpenAI’s dev-focused GPT-4.1 family\n- ByteDance’s efficient Seaweed video AI\n- Create conversational branches to explore ideas\n- Google’s AI to decode dolphin speech\n\n---\n\n**Example 2 (Illustrative - use \"recap\" in your output):**\n\nGood morning, AI enthusiasts. OpenAI’s future may stretch beyond frontier models…to a social network riding ChatGPT’s wave of success.\n\nThe move could unlock much-needed real-time data for Sam Altman’s AI ambitions, but the question is: could OpenAI match the scale, engagement, stickiness, and broader cultural pull of X or Meta’s platforms?\n\nIn today’s AI rundown:\n\n- OpenAI reportedly building social network\n- Kling AI drops new video and image models\n- Build a personal data analyst with n8n automation\n- AI models play detective in Ace Attorney\n\n---\n\n**Example 3 (Illustrative - use \"recap\" in your output):**\n\nGood morning, AI enthusiasts. Meta’s hotly-anticipated Llama 4 family is here — with a surprise weekend release debuting new open-weights models with massive context windows and benchmark-beating performances.\n\nWith a 2T “Behemoth” still in training and claims of outperforming GPT-4.5, is this release a true next-gen step forward? Or will user experience tell a different story?\n\nIn today’s AI rundown:\n\n- Meta launches Llama 4 model family\n- Copilot’s new personalization upgrades\n- Unlock the power of AI across your apps\n- ‘AI 2027’ forecasts existential risks of ASI\n\n---\n\n**Example 4 (Illustrative - use \"recap\" in your output):**\n\nGood morning, AI enthusiasts. AI-generated video has always faced major limitations in length and consistency, but new research may have just unlocked a major leap in storytelling capabilities.\n\nWith researchers using a new method and a dataset of Tom and Jerry cartoons to create minute-long, coherent generations, the days of short, disconnected AI video clips may finally be numbered.\n\nIn today’s AI rundown:\n\n- NVIDIA and Stanford’s one-minute AI cartoons\n- Amazon’s new voice model, video upgrade\n- Create eye-catching thumbnails with GPT-4o\n- Murati’s Thinking Machines adds ex-OpenAI talent\n\n---\n### Word and Phrase Blacklist\n\nAvoid using these words and phrases in your output:\n\n- Smarts\n- Game changing\n- game-changing\n- next-level\n- Revolutionize\n- sophisticated\n- enhanced\n\n---\n\n## Your Task:\n\nBased on the `Subject Line`, `Pre-header Text`, and `Newsletter Content` I provide, generate the introductory section for \"The Recap\" newsletter, following all the instructions and mimicking the examples precisely, ensuring you use \"In today’s AI recap:\".\n\n### Subject Line\n{{ $('set_selected_stories').item.json.subject_line }}\n\n### Pre-header Text\n{{ $('set_selected_stories').item.json.pre_header_text }}\n\n### Newsletter Content\n{{ $('set_combined_sections_content').item.json.story_sections }}",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        288,
+        3200
+      ],
+      "id": "125ab427-4f7a-4896-9223-02654d5641c8",
+      "name": "write_intro"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Write your sequential reasoning to write this intro section for the AI Tools newsletter and determine what content to write, what formatting to use, and any other thoughts made during the process of writing.\"\n    },\n    \"newsletter_intro_section_content\": {\n      \"type\": \"string\",\n      \"description\": \"The 'intro' newsletter section content formatted as markdown.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"newsletter_intro_section_content\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        3600
+      ],
+      "id": "9fe25e99-8f9a-4119-aa87-55fb5178f38d",
+      "name": "intro_parser"
+    },
+    {
+      "parameters": {
+        "content": "## Write \"The Shortlist\" Section\n",
+        "height": 1040,
+        "width": 460,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        2848
+      ],
+      "typeVersion": 1,
+      "id": "e3c8be99-6ad3-493b-bc67-979187d20f1e",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Write your sequential reasoning to write this 'other top stories stories' section for the AI Tools newsletter and determine what content to write, what formatting to use, what links to copy/paste over from the provided stories, and any other thoughts made during the process of writing. You MUST list out each of the sources you evaluated when writing this newsletter section along with the reasoning for using it as a reference or not. You MUST also share your reasoning for each link/hyperlink that you decide to place in this newsletter content along with how it meets the provided linking requirements. Your are not allowed to fabricate for make-up a link. Links MUST be extracted directly from the provided source materials.\"\n    },\n    \"newsletter_other_top_stories_section_content\": {\n      \"type\": \"string\",\n      \"description\": \"The 'other top stories' newsletter section content formatted as markdown. You must include your analysis of which link to include and validation of it being copied directly from source materials. You MUST directly extract this link from the provided source materials. You are REQUIRED to pick out at least 3 (three) stories to be included here. The URL included in your output for any given story **MUST** be a perfect, 100% **character-for-character copy** of the URL as it appears in the `List of Potential Other AI Stories` section. It must be reproduced *exactly* as written in the source, including case sensitivity, punctuation, and any apparent errors or incompleteness.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"newsletter_other_top_stories_section_content\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        928,
+        3600
+      ],
+      "id": "c43d3ee8-efaf-4fb7-919f-0b0b19ac3ab3",
+      "name": "other_top_stories_parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## Role:\n\nYou are an expert AI Newsletter Writer, specializing in crafting concise, engaging, and informative summaries of the latest AI news for a tech-savvy audience. You are writing a specific section for the newsletter \"The Recap\".\n\n## Context:\n\nWe are creating the \"Other Top AI Stories\" section for our email newsletter, \"The Recap\". This section should highlight interesting and relevant AI news items that were *not* covered in the main segments of the newsletter. The goal is to provide readers with a quick overview of other significant developments in the AI space. The stories you pick MUST be related to AI.\n\nToday's date for the newsletter is *{{ new Date(new Date($('form_trigger').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}*.\n\n## Input Data:\n\nYou will be provided with the following information:\n\n1.  **Newsletter Subject Line:** \"\"{{ $('set_selected_stories').item.json.subject_line }}\"\n2.  **Main Stories Already Covered (Do NOT repeat these topics or include them in your output)**\n3. **The Full Text Content of Our Last Newsletter Edition** (Do NOT repeat stories or include duplicates that have already been covered in \"The Shortlist\" section of the previous edition)\n4.  **List of Potential Other AI Stories (Analyze these and evaluate these in order to determine the best stories)**\n5. **List of Potential Other AI Stories from Tweets / X Posts (Analyze these and evaluate these in order to determine the best stories)**\n\n## Task:\n\nYour task is to analyze the provided list of AI news stories, select the most relevant and interesting stories for a tech and AI enthusiast audience (typically 3-5 stories, use your judgment. It is truly your choice to pick the number of stories), ensuring they do *not* overlap with the stories already in the newsletter, and then write a short summary for each selected story in the specified format and style. You are not allowed to make up or guess a link to include for a story. You MUST have a link that you can copy and paste into your output for it to be valid story to include. If there is not a valid link to include, you MUST omit this story from your output. You must include a minimum of at least 3 (three) stories in your output. \n\n## Formatting and Style Requirements:\n*   **Output Format:** Generate the output in Markdown.\n*   **Story Structure:**\n    *   The **first word** of each story summary *must* be **bolded**.\n    *   The **second word** *must* be a **verb** and formatted as a Markdown **link** (`[verb](URL)`). If a verb does not work here for the story, you should skip/omit this story.\n    *   The **URL** used in the link *must* be the **exact** URL provided for that story in the list of stories / story context. You must copy and paste this value for your output — there can be no changes to this url. This is critical.\n    *   The rest of the sentence should be a concise summary of the story's key takeaway.\n    *    Your output must be in  markdown format.\n*   **Style:**\n    *   Mimic the writing style of \"The Rundown\" and the provided examples below. The tone should be concise, informative, slightly informal, and engaging for AI/tech professionals and enthusiasts.\n    *   Each story summary *must* be its own paragraph. **Do NOT use bullet points or numbered lists.**\n*   **Selection Criteria:** Choose stories that are significant, interesting, or offer a unique perspective within the AI landscape. Avoid minor updates unless particularly noteworthy. Prioritize variety if possible. Make sure you DO NOT repeat stories in your selection or output duplicates. You MUST use specifics when referencing stories, instead of saying a generic term like \"AI\", you must pick a story that references specific companies, entities, models, or some other specific term.\n\n## Examples of Desired Output Format and Style (Use these as your guide):\n\n**NVIDIA** [released](<URL_placeholder>) Nemotron-Ultra, a 253B parameter open-source reasoning model that surpasses DeepSeek R1 and Llama 4 Behemoth across key benchmarks.\n\n**OpenAI** [published](<URL_placeholder>) its EU Economic Blueprint, proposing a €1B AI accelerator fund and aiming to train 100M Europeans in AI skills by 2030.\n\n**Deep Cogito** [emerged](<URL_placeholder>) from stealth with Cogito v1 Preview, a family of open-source models that it claims beats the best available open models of the same size.\n\n**Google** [rolled out](<URL_placeholder>) its Deep Research feature on Gemini 2.5 Pro, claiming superior research report generation over rivals and adding new audio overview capabilities.\n\n## Link and Hyperlinking Requirements\n\nIt is critical that you follow these requirements when inserting links into your output. Read through this carefully, reflect on it for 25 minutes, and double check your work to ensure you follow these requirements correctly.\n\n1.  **Mandatory Verified Deep Links:** All hyperlinks MUST point to the *exact*, specific page, document, or section directly supporting the assertion being made. Before including *any* link:\n    * **Verify:** Confirm the destination directly and explicitly supports the specific information it's linked to.\n    * **Prioritize:** Use primary or the most authoritative sources available.\n    * **Deep Link:** Absolutely NO linking to generic homepages or main site sections (e.g., link to the specific *project page* or *announcement*, not just the company's top-level domain). An example of linking to a generic homepage would be `https://openai.com/`. Make sure you DO NOT DO THIS.\n    * **Omit if Uncertain:** If the precise, credible, and directly supporting URL cannot be confidently identified and verified, DO NOT include a link for that piece of information.\n\n2.  **Leverage Provided Source Materials:** Actively consult the `Current Segment Story Context` and `Additional Current Segment Source Materials` sections (if provided) to identify, verify, and select the most appropriate and accurate hyperlinks based on the available information.\n\n3. Verify link destinations - Before suggesting a link in your response, confirm the URL directly relates to the exact topic, product, or claim being discussed. You MUST NOT link to a web page that doesn't exist or a web page that would result in a HTTP 404 error when a user clicks on it. If you include a link that goes to a web page that does not exist or results in an error, it will result in us completely losing the trust of our readers. You are not allowed to make any mistakes here or insert links that are to web pages that don't exist on the internet. Think through this requirement carefully and deeply.\n\n7. Multiple sources and links can be found below in the list of other stories to evaluate and consider. Please think deeply and review this context in order to place the best links. You must read all additional source materials and think on the best links to reference for 30 minutes before you decide to add them in.\n\n8. Prefer linking to credible sources and avoid linking to unknown websites.\n\n9. You MUST ENSURE that the links you are including and inserting are exactly the same urls copied from the provided source urls. You may not change or modify these urls because the url is required to work. When including a URL it should be copied and pasted in. NOT URL MODIFICATION IS ALLOWED. Before inserting a link, you must load this URL from the internet to ensure it is still valid and can be seen when people click on it. YOU MUST INSERT AND PROVIDE CORRECT HYPERLINKS.\n\n10. Strict URL Handling Requirements:\n\n*   **Source Constraint:** You **MUST** exclusively use URLs found *verbatim* within the provided text section explicitly labeled `\"List of Potential Other AI Stories\"`. Absolutely **NO** external searching or use of prior knowledge is permitted to find, verify, or complete URLs.\n*   **Accuracy Mandate - Verbatim Copying:** The URL included in your output for any given story **MUST** be a perfect, 100% **character-for-character copy** of the URL as it appears in the `\"List of Potential Other AI Stories\"` section. It must be reproduced *exactly* as written in the source, including case sensitivity, punctuation, and any apparent errors or incompleteness.\n    *   **Verification Step:** Before outputting any URL, perform a mental (or procedural) **direct comparison** between the URL in the source text and the URL you plan to output. Ensure every single character matches perfectly.\n*   **Strict Prohibition on Modification:** You are explicitly **FORBIDDEN** from:\n    *   Creating, generating, or inventing URLs.\n    *   Guessing or completing partial URLs found in the source.\n    *   Modifying URLs in *any* way (e.g., correcting perceived typos, adding/removing `http://` or `https://` unless present in the source, changing case, URL encoding/decoding, shortening).\n    *   Using URLs that merely *resemble* source URLs but are not exact matches.\n    *   **Rule:** If a URL appears incomplete, broken, misspelled, or otherwise incorrect within the source text, you **MUST** copy it precisely in that flawed state. **Do NOT attempt to \"fix\" it.**\n*   **Handling Missing URLs:** If you examine the `\"List of Potential Other AI Stories\"` section and cannot find *any* URL explicitly associated with a potential story mentioned therein, you **MUST OMIT that specific story entirely** from your output. Do not mention the story if its corresponding URL is absent in the designated source section.\n*   **Critical Importance & Consequence:** Failure to adhere strictly to these URL rules, especially the verbatim copy requirement, is unacceptable. An incorrect or modified URL will fail. **Treat every URL extraction as a critical data integrity task requiring maximum precision.** Double-check your work meticulously against the source before finalizing the output.\n\n## Output Generation:\n\nBased on the inputs provided (Subject Line, The content of stories already covered, list of all AI stories), generate the \"Other Top AI Stories\" section following all instructions precisely. Ensure the selected stories are distinct from the main covered topics and formatted correctly.\n\n## Subject Line (Input #1)\n\n{{ $('set_selected_stories').item.json.subject_line }}\n\n## Main Stories Already Covered (Input #2)\n\n{{ $('set_combined_sections_content').item.json.story_sections }}\n\n## Last/Previous Edition of Our Newsletter (Input #3)\n\n```\n{{ $('form_trigger').item.json[\"Previous Newsletter Content\"] }}\n```\n\n## List of Potential Other AI Stories (Input #4)\n\n{{ $('combine_markdown_content').item.json.content_result }}\n\n## List of Potential Other AI Stories (Tweets / X Posts) (Input #5)\n\n{{ $('combine_tweet_content').isExecuted\n  ? $('combine_tweet_content').item.json?.content_result ?? \"N/A\"\n  : \"N/A\"\n}}",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        848,
+        3200
+      ],
+      "id": "aa484bc6-f7cb-4de7-a834-f770d664697d",
+      "name": "write_other_top_stories"
+    },
+    {
+      "parameters": {
+        "content": "## Format Full Newsletter",
+        "height": 1040,
+        "width": 1300,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        2848
+      ],
+      "typeVersion": 1,
+      "id": "6d0dee1c-927c-4885-9bd8-22ec4714029f",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cba28e4d-4a34-4765-b456-16c81479da9e",
+              "name": "full_newsletter_content",
+              "value": "=# {{ $('set_selected_stories').item.json.subject_line }}\n\n{{ $('set_selected_stories').item.json.pre_header_text }}\n\n---\n{{ $('write_intro').item.json.output.newsletter_intro_section_content }}\n\n---\n{{ $('set_combined_sections_content').item.json.story_sections }}\n\n---\n## The Shortlist\n\n{{ $('write_other_top_stories').item.json.output.newsletter_other_top_stories_section_content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1376,
+        3200
+      ],
+      "id": "ad57c019-9d44-480e-b8f2-e0920fdaee63",
+      "name": "set_full_newsletter"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        304,
+        3424
+      ],
+      "id": "8018fd35-f787-47bc-9afa-ba77deb9cd59",
+      "name": "intro_auto_parser"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Retrieve Twitter Content\n",
+        "height": 260,
+        "width": 2340,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2912,
+        -96
+      ],
+      "typeVersion": 1,
+      "id": "6c24ebb4-45b9-444d-abbb-eaf1fa6edd35",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00d2afe0-255b-45c0-b501-6844c615915d",
+              "name": "content_result",
+              "value": "={{ $('aggregate_markdown_content').item.json.data.map(item => item.content).join(\"\\n\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2672,
+        -16
+      ],
+      "id": "202dbf55-5177-4a25-830e-71c61a0d033f",
+      "name": "combine_markdown_content"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2384,
+        -16
+      ],
+      "id": "95e5282b-233f-49be-a544-dd647d3c3a93",
+      "name": "aggregate_markdown_content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0d20cf16-c938-4ad4-a343-d32ab8070067",
+              "name": "content",
+              "value": "=<{{ $('filter_only_markdown').item.json.Key }}>\n---\nidentifier: {{ $('filter_only_markdown').item.json.Key }}\nfriendlyType: {{ $('get_markdown_object_info').item.json.Metadata.type }}\nsourceName: {{ $('get_markdown_object_info').item.json.Metadata[\"source-name\"] }}\nauthors: {{ $('get_markdown_object_info').item.json.Metadata.authors }}\nexternalSourceUrls: {{ $('download_markdown_object').item.json.Metadata['external-source-urls'] }}\n---\n\n{{ $('get_markdown_file_content').item.json.data }}\n</{{ $('filter_only_markdown').item.json.Key }}>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2112,
+        -16
+      ],
+      "id": "eb28a7f7-cd9d-407d-9bb2-73d51c4a61a6",
+      "name": "prepare_markdown_content"
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        1824,
+        -16
+      ],
+      "id": "1567b36d-bdce-488d-8a82-600b0b628b2c",
+      "name": "get_markdown_file_content"
+    },
+    {
+      "parameters": {
+        "bucketName": "data-ingestion",
+        "fileKey": "={{ $('filter_only_markdown').item.json.Key }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        1552,
+        -16
+      ],
+      "id": "993a09f4-c2f2-4490-b28e-cabc9177e04b",
+      "name": "download_markdown_object",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "url": "=https://api.aitools.inc/admin/files/info/data-ingestion/{{ $json.Key }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        944,
+        -16
+      ],
+      "id": "998370e4-dafd-4930-b71a-8e569bfa3b1b",
+      "name": "get_markdown_object_info",
+      "alwaysOutputData": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "p8IcYsXBMrfPvKz8",
+          "name": "AI Tools Admin API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "resource": "bucket",
+        "operation": "search",
+        "bucketName": "data-ingestion",
+        "limit": 500,
+        "additionalFields": {
+          "prefix": "={{ $json.Date }}/"
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        352,
+        -16
+      ],
+      "id": "776e1fc8-6ab5-428d-a0ea-1099ea85d4ba",
+      "name": "search_markdown_objects",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "fromJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        3808,
+        -16
+      ],
+      "id": "06d767ea-2160-4e39-b94d-c09e556412ab",
+      "name": "extract_tweets"
+    },
+    {
+      "parameters": {
+        "resource": "bucket",
+        "operation": "search",
+        "bucketName": "data-ingestion",
+        "limit": 500,
+        "additionalFields": {
+          "prefix": "={{ $('set_input').item.json.Date }}/tweet."
+        }
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        2960,
+        -16
+      ],
+      "id": "d631098e-c170-46b6-b654-f0e8ce610122",
+      "name": "search_tweets",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": false,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "bucketName": "data-ingestion",
+        "fileKey": "={{ $('search_tweets').item.json.Key }}"
+      },
+      "type": "n8n-nodes-base.s3",
+      "typeVersion": 1,
+      "position": [
+        3552,
+        -16
+      ],
+      "id": "ce933770-9c54-47cd-97e3-908e2d82fa1e",
+      "name": "download_tweet_objects",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000,
+      "alwaysOutputData": false,
+      "credentials": {
+        "s3": {
+          "id": "pfCZ7CGWIfLYhv1z",
+          "name": "R2 - data-ingestion"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4150490e-8cb1-490f-99e4-e4f6893e5f3a",
+              "name": "content",
+              "value": "=<{{ $('search_tweets').item.json.Key }}>\n---\nidentifier: {{ $('search_tweets').item.json.Key }}\nfriendlyType: {{ $('get_tweet_object_info').item.json.Metadata.type }}\nsourceName: {{ $('get_tweet_object_info').item.json.Metadata[\"source-name\"] }}\nauthors: {{ $('get_tweet_object_info').item.json.Metadata.authors }}\nexternalSourceUrls: {{ $('get_tweet_object_info').item.json.Metadata['external-source-urls'] }}\ntweetUrl: https://x.com/{{ $('extract_tweets').item.json.data.user.handle }}/status/{{ $('extract_tweets').item.json.data.id }}\ntweetUserHandle: {{ $('extract_tweets').item.json.data.user.handle }}\ntweetUserFollowerCount: {{ $('extract_tweets').item.json.data.user.followerCount }}\ntweetViewCount: {{ $('extract_tweets').item.json.data.views }}\ntweetReetweetCount: {{ $('extract_tweets').item.json.data.retweets }}\ntweetBookmarkCount: {{ $('extract_tweets').item.json.data.bookmarks }}\ntweetFavoriteCount: {{ $('extract_tweets').item.json.data.favorites }}\n{{ $('extract_tweets').item.json.data?.quotedTweet\n  ?\n    `quoteTweetViewCount: ${$('extract_tweets').item.json.data.quotedTweet.views}\\n` +\n    `quoteTweetRetweetCount: ${$('extract_tweets').item.json.data.quotedTweet.retweets}\\n` +\n    `quoteTweetBookmarkCount: ${$('extract_tweets').item.json.data.quotedTweet.bookmarks}\\n` +\n    `quoteTweetFavoriteCount: ${$('extract_tweets').item.json.data.quotedTweet.favorites}`\n  : \"\\n\"\n}}\n---\n\n## Tweet Text Content\n{{ $('extract_tweets').item.json.data.text }}\n\n{{ $('extract_tweets').item.json.data?.quotedTweet?.text\n  ? `## Quote Tweet Content\\n ${$('extract_tweets').item.json.data.quotedTweet.text}`\n  : \"\\n\"\n}}\n\n</{{ $('search_tweets').item.json.Key }}>",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4352,
+        -16
+      ],
+      "id": "daebbeb4-2b5f-44ac-8890-9ec90e2b6161",
+      "name": "prepare_tweet_content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1571fbbb-d836-4df7-8c15-09faddf0db49",
+              "name": "=subject_line",
+              "value": "={{ $node[\"set_current_subject_line\"].json.current_subject_line.subject_line }}",
+              "type": "string"
+            },
+            {
+              "id": "f0af3af9-7e19-4589-861b-67456d6321b1",
+              "name": "pre_header_text",
+              "value": "={{ $node[\"set_current_subject_line\"].json.current_subject_line.pre_header_text }}",
+              "type": "string"
+            },
+            {
+              "id": "7ace9fce-eb1c-40d1-938e-c4a5331e2987",
+              "name": "=top_selected_stories",
+              "value": "={{ $node[\"set_current_stories\"].json.current_stories.top_selected_stories }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        2048
+      ],
+      "id": "8dfb51c9-f3cf-441d-a073-1e0a937044f0",
+      "name": "set_selected_stories"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.aitools.inc/admin/files/info/data-ingestion/{{ $('search_tweets').item.json.Key }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        4064,
+        -16
+      ],
+      "id": "999b5e5c-cb7c-43ee-bd38-0e8c27811b08",
+      "name": "get_tweet_object_info",
+      "alwaysOutputData": false,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "p8IcYsXBMrfPvKz8",
+          "name": "AI Tools Admin API"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        4624,
+        -16
+      ],
+      "id": "3ec010ba-4b98-453a-b722-736cb88e6b0f",
+      "name": "aggregate_tweet_content"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "00d2afe0-255b-45c0-b501-6844c615915d",
+              "name": "content_result",
+              "value": "={{ $('aggregate_tweet_content').item.json.data.map(item => item.content).join(\"\\n\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        4912,
+        0
+      ],
+      "id": "976de26a-9c10-4fe5-a50a-d500f1129015",
+      "name": "combine_tweet_content"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        864,
+        3424
+      ],
+      "id": "9815722c-f6ab-410f-9ad8-3bde0e82820a",
+      "name": "other_top_stories_auto_parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        560,
+        992
+      ],
+      "id": "360ae3cd-4d88-420d-9c07-9a63be202ede",
+      "name": "top_stories_auto_parser"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "text": "=:calendar: *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }} {{ $('edit_top_stories').isExecuted ? `(Revision #${$runIndex})` : \"\" }}*\n\n---------------------------------\n\n:newspaper: *Selected Stories:*\n\n{{ $json.current_stories.top_selected_stories.map((item, idx) => {\n  let result = `*${idx + 1}. ${item.title}* — ${item.summary}`;\n\n  result += `\\nContent Identifiers:\\n${item.identifiers.join(\"\\n\")}`;\n  result += `\\nExternal Source Links:\\n${item.external_source_links.join(\"\\n\")}`;\n\n  return result;\n}).join(\"\\n\\n\") }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1040,
+        752
+      ],
+      "id": "d3af3d55-4410-421b-a2a8-9f0894c83381",
+      "name": "share_selected_stories",
+      "webhookId": "5421d123-06c1-4dc5-a7a2-46e6f951c985",
+      "alwaysOutputData": false,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<identity>\nAct as an expert editor and writer for newsletter content. Your sole function is to implement specific edits based on provided feedback, without altering any other part of the original content.\n</identity>\n\n<core_directive>\nYou will be given two pieces of information:\n1.  `Feedback`: Specific instructions detailing the required changes.\n2.  `Current_Newsletter_Content`: The complete newsletter story selections in JSON format that includes `top_selected_stories`. This is what you will be making changes to based on the provided feedback.\n\nYour task is to:\n1.  Carefully parse the `Feedback for Newsletter` details.\n2.  Apply **only** the changes specified in the `Feedback for Newsletter` to the `Current Newsletter Content`. Think deeply for several minutes before making this change to be sure it actually will acomplish what is desired by the feedback.\n3.  Output the **entire** \"Current Newsletter Content`, modified precisely according to the `Feedback`.\n4. You are allowed to update, replace, and use your own \"reasoning\" fields with your own thoughts on how you applied these edits.\n\n**Critical Constraint:** You **must not** introduce any changes, additions, deletions, or rephrasing beyond what is explicitly mandated by the `Feedback`. All parts of the `Current Newsletter Content` *not* mentioned in the `Feedback` must remain **absolutely identical** in the output. Preserve the original structure and formatting. The \"reasoning\" fields are the only fields that can be changed. This also applies to all text content and ALL external sources extracted from the original result.\n\nIt is also critical that you retain and keep the correct content `identifiers` and `external_source_links` for the stories that are being kept in your edits. These values critical to the success of this task as we will use that as a reference downstream. This means the same number of identifiers and external source links must be retained when you are applying an edit and keeping the same story in your output from before. You may not remove any identifiers that were orginally outputted in the initial story selection. This is of the most importance that you follow these steps. We need the correct content identifiers and external sources links/urls to remain the same across your edits for the same story.\n\n</core_directive>\n\n---\n## Feedback for Newsletter\n\nHere is the feedback provided the editor for this edition of the newsletter. You must spend a great deal of time reading through all of this feedback carefully multiple times. After that, you must think further on how to apply this feedback to the changes you need to make. Remember, you should only be changing what is specifically asked of you in this feedback. All other items and values *MUST* remain the same unless it explicitly gets referenced in this feedback. This is a critical part of you task so mistakes are not tolerated.\n\nYou MUST pay extremely close attention to the feedback provided and how it relates to the final selected stories. If the feedback only mentions changing or replacing a single story that was selected, you MUST be certain that the referenced story in the feedback is all that changes. You may NOT make extra edits or story selections. The feedback provided takes top priority above all else and you must follow the feedback in your output.\n\n<newsletter_top_stories_feedback>\n{{ $node[\"share_stories_approval_feedback\"].data.data.text }}\n</newsletter_top_stories_feedback>\n\n---\n## Initial Newsletter Prompt\n\nHere is the prompt/task that was used to write the initial newsletter content. You must read this completely and use this as a reference when thinking through the edits you are supposed to make.\n\n<initial_newsletter_prompt>\n{{ $('stories_prompt').item.json.select_top_stories_prompt }}\n</initial_newsletter_prompt>\n\n---\n## Current Newsletter Details\n\nHere is the current version of our newsletter which you will apply the provided feedback to in your edits. You should read this closely and think deeply about this and the provided feedback before you make any changes:\n\n{{ JSON.stringify($node[\"pick_top_stories\"].json.output, null, 2) }}\n\n---\n# Web Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these content pieces when picking out the top stories.\n\n{{ $('combine_markdown_content').item.json.content_result }}\n\n# Twitter / X Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these Tweets / X posts when picking out the top stories.\n\n{{ $('combine_tweet_content').isExecuted\n  ? $('combine_tweet_content').item.json?.content_result ?? \"N/A\"\n  : \"N/A\"\n}}\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an AI assistant specialized in reading raw text about AI-related news, trends, and breakthroughs. Your objective is to determine which stories should be included in our AI Tools newsletter, based on their relevance, impact, and interest to a tech-savvy audience. You are also an expert at crafting subject lines for newsletter emails that leads to great open rates and keeps our readers interested."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        480,
+        608
+      ],
+      "id": "0aadf07a-f855-4c2b-899c-7b879a852f47",
+      "name": "edit_top_stories",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a40f15b-56ac-4b0a-89cb-f5f31cdcdd69",
+              "name": "=subject_line_examples",
+              "value": "=- AI finds cancers with 99% accuracy\n- Claude (finally) searches the web\n- OpenAI's regulatory power play\n- Ilya's secret ASI roadmap\n- Apple's AI emergency\n- DeepMind's AI math genius\n- Mistral's speedy new assistant\n- OpenAI goes nuclear\n- AI's tutoring breakthrough\n- OpenAI's $500B Stargate Project\n- Meta's Manhattan-sized AI play\n- OpenAI's first AI agent arrives\n- OpenAI's o3 and o4-mini arrive\n- Chipmaking rivals join forces\n- Amazon is joining the reasoning race\n- Claude enters the reasoning era\n- Figure's home robot breakthrough\n- OpenAI’s ex-CTO launches rival lab\n- OpenAI's new GPT-5 roadmap\n- AI workforce coming: Anthropic's one-year prediction\n- The state of AI in 2025 (according to Stanford)\n- OpenAI's dev-focused GPT-4.1\n- Google's new AI video generator rivals Sora\n- China declares AI independence",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2384,
+        720
+      ],
+      "id": "72344d7a-b8d8-41e8-9218-55a733771b22",
+      "name": "subject_examples"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0cf59ec5-e726-4327-9bbb-ebc222040626",
+              "name": "current_stories",
+              "value": "={{ $json.output }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        848,
+        752
+      ],
+      "id": "0ccaf23a-ffc4-4c8b-b91a-7097ecee37ca",
+      "name": "set_current_stories"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "text": "=---\n:calendar: *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }} | Story Segment:* `{{ $node[\"set_current_segment\"].json.current_story.title }}`\n\n```\n{{ $node[\"write_segment_content\"].json.output.newsletter_section_content }}\n```\n\n*Image Options*\n\n{{ $node[\"extract_image_urls\"].json.output.image_urls.map(item => {\n    return `• ${item}`;\n}).join(\"\\n\") }}",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        4832,
+        2192
+      ],
+      "id": "477e73dc-9b0e-463d-8833-597ad2f1444b",
+      "name": "share_segment_msg",
+      "webhookId": "5421d123-06c1-4dc5-a7a2-46e6f951c985",
+      "alwaysOutputData": false,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## Task\n\n**Objective:** Extract unique, direct image URLs from the provided contexts.\n\n**Inputs:**\n*   `Initial Sources Image Urls Context`\n*   `External Sources Image Urls Context`\n\n**Instructions:**\n1.  **Parse:** Process the XML content from both provided contexts.\n2.  **Extract:** Identify and collect all URLs found within the XML data.\n3.  **Filter:** Scrutinize the extracted URLs. Retain *only* those that appear to be direct links to image files (e.g., URLs ending in `.jpg`, `.png`, `.gif`, `.webp`, `.svg`, or otherwise structured as direct image resources).\n4.  **Exclude:** Explicitly remove any URLs that likely point to web pages (e.g., HTML documents, articles) rather than the image resource itself.\n5.  **Deduplicate:** Ensure the final list contains each unique image URL only once.\n6.  **Output:** Provide the final, unique list of valid image URLs.\n\n\n## Initial Sources Image Urls Context\n\nYou should look for the `imageUrls` value to see a comma-separated list of image urls for each provided story.\n\n{{ $node[\"aggregate_segment_text_content\"].json.content_item.join(\"\\n\\n\") }}\n\n\n## External Sources Image Urls Context\n\nYou should look inside the JSON for a list of image urls for each external source provided.\n\n{{\n  $('aggregate_segment_external_source_content').isExecuted && $node[\"aggregate_segment_external_source_content\"].json.data.length > 0\n    ? $node[\"aggregate_segment_external_source_content\"].json.data.map(item => {\n      let result = \"\";\n      result += `<${item.metadata.url}>\\n`;\n      result += \"---\\n\";\n      result += `Url: ${item.metadata.url}\\n`;\n      result += \"---\\n\";\n      result += JSON.stringify(item?.json?.main_content_image_urls, null, 2);\n      result += `</${item.metadata.url}>\\n`;\n\n      return result;\n    }).join(\"/n/n\")\n    : \"N/A\"\n}}",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.6,
+      "position": [
+        4464,
+        2192
+      ],
+      "id": "da2f1918-be32-4fb2-bf34-677a0944c68c",
+      "name": "extract_image_urls",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n      \"chainOfThought\": {\n        \"type\": \"string\",\n        \"description\": \"Write your sequential reasoning to identify and extract the image urls from the provided sources.\"\n    },\n      \"image_urls\": {\n        \"type\": \"array\",\n        \"items\": {\n          \"type\": \"string\",\n          \"description\": \"Image url extracted directly from the provided context. You should only output a url here if you are certain it is form an image.\"\n        },\n        \"description\": \"List of extracted image urls from the provided sources and context.\"\n      }\n\t},\n    \"required\": [\n      \"chainOfThought\",\n      \"image_urls\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        4608,
+        2640
+      ],
+      "id": "e4f8fe28-56b9-41cf-ba51-41c46e6e5e78",
+      "name": "extract_image_urls_parser"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5ae7c9b5-c82b-45c8-aff8-8a59e6028c49",
+              "name": "story_segment",
+              "value": "={{ $node[\"write_segment_content\"].json.output }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        5040,
+        2192
+      ],
+      "id": "b1600166-776a-497d-a5ac-320b22324685",
+      "name": "set_story_segment"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "text": "=*Top Stories Reasoning:*\n{{ $node[\"set_current_stories\"].json.current_stories.top_selected_stories_chain_of_thought }}\n",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.message_timestamp }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1248,
+        752
+      ],
+      "id": "6e7dfc17-621f-4377-b998-0f6ab49f0a6d",
+      "name": "share_stories_reasoning",
+      "webhookId": "5421d123-06c1-4dc5-a7a2-46e6f951c985",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "=You must extract the following from the provided input:\n\n1. `approved` (required) - Indicator if the provided message gives a positive \"approval\" message that would indicate we want to proceed with the process. If there is a feedback message provided, you should output false.\n\nFor example \"I like the stories, give me another headline\" means the story selection was good, but there is still feedback around the headline to use.\n\n2. `feedback` - Feedback text content that is provided if the given input. This should be extracted verbatim from the input if there is feedback provided. If you determine this is feedback in this message, the resulting output should be false.\n\n---\nInput To Evaluate and Extract:\n\n{{ $json.data.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "approved",
+              "type": "boolean",
+              "description": "Indicator if the provided message gives a positive \"approval\" message that would indicate we want to proceed with the process.",
+              "required": true
+            },
+            {
+              "name": "feedback",
+              "description": "Optional feedback message that should be extracted if the "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        1648,
+        752
+      ],
+      "id": "b5075893-143e-49da-aed7-4f35c3d6401d",
+      "name": "extract_stories_approval_feedback"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "741b6ae7-404a-4782-a2c6-47cad99b001d",
+              "leftValue": "={{ $json.output.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1968,
+        752
+      ],
+      "id": "b66aa930-ba60-49d1-953f-b8e65cbc047f",
+      "name": "check_stories_feedback"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $('set_subject_line_prompt').item.json.write_subject_line_prompt }}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are also an expert at crafting subject lines for newsletter emails that leads to great open rates and keeps our readers interested."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        2784,
+        720
+      ],
+      "id": "8bb9fb94-70c9-4cc5-9a45-a89bb0be5083",
+      "name": "write_subject_line",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6a40f15b-56ac-4b0a-89cb-f5f31cdcdd69",
+              "name": "=write_subject_line_prompt",
+              "value": "=**Role:** Expert Email Copywriter Specializing in AI Content Engagement\n\n**Core Objective:** Optimize email engagement elements (Subject Line, Pre-header Text) for an AI newsletter to maximize open rates, based on provided story data.\n\n**Input Schema:**\n1.  `top_selected_stories`: JSON array detailing the featured stories for the newsletter edition. The **order is significant**, with the first item being the designated lead story.\n2.  `raw_source_material`: Markdown text containing detailed content for various stories.\n3.  `identifier`/`identifiers`: Linking keys within the JSON and potentially referenced in the Markdown, used to connect `top_selected_stories` entries to their full context in `raw_source_material`.\n\n**Mandatory Pre-computation Analysis & Justification:**\n1.  **Synthesize Insights:** Analyze the provided `top_selected_stories` JSON and `raw_source_material`, using `identifier` fields to deeply understand the core message, value proposition, and points of intrigue for the selected stories, paying special attention to the **lead story** (first in the JSON).\n2.  **State Deliberation:** Explicitly preface your reasoning by stating that the proposed outputs result from deep consideration (simulating >1 hour of strategic analysis) aimed at maximizing engagement within the given constraints.\n3. **Analyze Great Examples:** *Before* you start writing the subject line, you MUST deeply read and analyze the provided \"Great Subject Line Examples\". These examples are great Subject lines that capture what we are going for. You MUST write a subject line as good as these. You must think deeply about what makes these examples great and apply those insights to the subject line you are writing.\n4.  **Deliver Reasoning First:** *Before* providing the Subject Line and Pre-header Text, output a detailed, step-by-step breakdown of your reasoning. Explain:\n    *   How you interpreted the core value/hook of the lead story.\n    *   Why your chosen Subject Line wording effectively teases this hook within constraints.\n    *   How the Pre-header complements the Subject and potentially hints at other content.\n    *   How both elements work together to drive curiosity and perceived value.\n\n**Output Requirements:**\n\n1.  **Reasoning Output:** (Detailed justification as specified above).\n2.  **Subject Line Output:**\n    *   **Focus:** Must exclusively tease/highlight the **lead story** (first item in `top_selected_stories`).\n    *   **Constraint:** Strictly **7-9 words** maximum.\n    *   **Quality:** High-impact - generate curiosity, convey value compellingly but realistically (not overly-hyped).\n3.  **Pre-header Text Output:**\n    *   **Function:** Act as a **complementary extension** of the Subject Line.\n    *   **Quality:** Engaging, informative, reinforces the incentive to open.\n\n**Final Deliverable Structure:**\n1.  Statement of Deep Consideration.\n2.  Detailed Reasoning Breakdown.\n3.  Subject Line: [Your generated subject line]\n4.  Pre-header Text: [Your generated pre-header text]\n\nToday's date for the newsletter is *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}*.\n\n<top_newsletter_stories>\n```json\n{{ JSON.stringify($node[\"set_current_stories\"].json.current_stories.top_selected_stories, null, 2) }}\n```\n</top_newsletter_stories>\n\n## Important Guidelines\n\n**Writing Guidelines:**\n\nYou Should Avoid:\n- AVOID ALL CAPS or excessive punctuation!!!\n- Avoid making the news sound more significant than it actually is\n- Avoid over-exaggeration\n- Avoid using cliché and over-the-top buzzwords like \"revolution\" and \"game-changing\"\n\nYour pre-header text should be a straightforward teaser (15-20 words max) that teases and hints at what other stories will be included on this newsletter (outside of the main story). You should follow the \"PLUS:\" format for the pre-header text. DO NOT end this pre-header text with a period \".\" character.\n\nYou must prefer concrete specificity. It is better to reference a specifc model instead of a generic term like \"Google's AI\" or \"Meta's AI\".\n\n**Audience:**\n\n- Primarily tech-forward readers—developers, entrepreneurs, AI enthusiasts, and early adopters.\n- People who want to learn about new AI trends, developments, and real-world use cases to make their work more efficient.\n\n---\n# Great Subject Line Examples\n\nHere's a list of subject lines that really capture what we are going for with our newsletter. You should deeply think about these subject lines and what makes them great for 1 full hour. Then you should deeply think about how to apply this to the subject line you are writing and your top story selection/choice for an additional 2 full hours. These subject lines are all short, catchy, feature the most interesting story, and are very enticing to the reader. You MUST output a subject line as good as these. This collection exemplifies the target style and quality. Analyze them to understand the core principles of effectiveness.\n\n<great_subject_line_examples>\n{{ $('subject_examples').item.json.subject_line_examples }}\n</great_subject_line_examples>\n\n---\n# Web Content Context (The top stories were sourced from this information)\n\nReference this web content by cross-referencing its `identifier` from the selected stories to explore more context around the selected stories. You may only reference the story content that has a matching `identifer` that you cross-referenced.\n\n{{ $('combine_markdown_content').item.json.content_result }}\n\n# Twitter / X Context (The top stories were sourced from this information)\n\nReference this Twitter / X content by cross-referencing its `identifier` from the selected stories to explore more context around the selected stories. You may only reference the story content that has a matching `identifer` that you cross-referenced.\n\n{{ $('combine_tweet_content').isExecuted\n  ? $('combine_tweet_content').item.json?.content_result ?? \"N/A\"\n  : \"N/A\"\n}}\n\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2592,
+        720
+      ],
+      "id": "261a9773-053f-4810-acef-6bfa49c57836",
+      "name": "set_subject_line_prompt"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"subject_line_reasoning\": {\n      \"type\": \"string\",\n      \"description\": \"A detailed chain of thought explaining why you wrote the subject line the way you did. This will be shared in slack so please format this in slack's format. Avoid regular bullets and use numbered lists. The more detail of your reasoning, the better. IF feedback was provided in the context of editing the subject line, include how you considered that feedback in your changes.\"\n    },\n    \"subject_line\": {\n      \"type\": \"string\",\n      \"description\": \"A single compelling subject line for the newsletter email that follows the given subject line guidelines.\"\n    },\n    \"additional_subject_lines\": {\n      \"type\": \"array\",\n      \"description\": \"A list of 5-8 additional subject lines that were considered as top options for the selected subject line but were ultimately not selected.\",\n      \"items\": {\n        \"type\": \"string\",\n        \"description\": \"An additional subject line that was considered as a top option but was ultimately not selected.\"\n      }\n    },\n    \"pre_header_text_reasoning\": {\n      \"type\": \"string\",\n      \"description\": \"A detailed chain of thought explaining why you wrote the pre-header text the way you did. This will be shared in slack so please format this in slack's format. Avoid regular bullets and use numbered lists. The more detail of your reasoning, the better. IF feedback was provided in the context of editing the pre header text, include how you considered that feedback in your changes.\"\n    },\n    \"pre_header_text\": {\n      \"type\": \"string\",\n      \"description\": \"A short line of text to appear in email previews that follows the given pre header guidelines.\"\n    }\n  },\n  \"required\": [\n    \"subject_line_reasoning\",\n    \"subject_line\",\n    \"additional_subject_lines\",\n    \"pre_header_text_reasoning\",\n    \"pre_header_text\"\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2944,
+        992
+      ],
+      "id": "412c929b-add8-432a-89fe-8f18a1454580",
+      "name": "subject_line_parser"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "text": "=:calendar: *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }} {{ $('edit_subject_line').isExecuted ? `(Revision #${$runIndex})` : \"\" }}*\n\n---------------------------------\n\n:loudspeaker: *Subject Line:*\n\n`{{ $json.current_subject_line.subject_line }}`\n`{{ $json.current_subject_line.pre_header_text }}`\n\n*Alternatives:*\n\n```\n{{ $json.current_subject_line.additional_subject_lines.map(item => {\n  return `${item}`;\n}).join(\"\\n\") }}\n```\n",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3568,
+        720
+      ],
+      "id": "91a38000-c308-41b9-9c2a-9386a2a146dc",
+      "name": "share_subject_line",
+      "webhookId": "5421d123-06c1-4dc5-a7a2-46e6f951c985",
+      "alwaysOutputData": false,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0cf59ec5-e726-4327-9bbb-ebc222040626",
+              "name": "current_subject_line",
+              "value": "={{ $json.output }}",
+              "type": "object"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3360,
+        720
+      ],
+      "id": "6d687b66-8e7d-4393-a9ad-e36cca48109a",
+      "name": "set_current_subject_line"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=<identity>\nAct as an expert copyeditor specializing in crafting compelling newsletter subject lines and preheader text. Your sole function is to implement specific edits to provided subject lines and preheaders based on feedback, without altering any other information or generating new creative options unless explicitly asked for in the feedback.\n</identity>\n\n<core_directive>\nYou will be given three pieces of information:\n1.  `Feedback`: Specific instructions detailing the required changes **only for the subject line and/or preheader text**.\n2.  `Current Subject Line`: The original subject line string that might need editing based on the feedback.\n3.  `Current Preheader Text`: The original preheader text string that might need editing based on the feedback.\n\nYour task is to:\n1.  Carefully parse the `Feedback` details. Identify which element (Subject Line, Preheader Text, or both) needs modification.\n2.  Apply **only** the changes specified in the `Feedback` to the corresponding `Current Subject Line` and/or `Current Preheader Text`. Think carefully for several minutes before making the change to be sure it accurately reflects the feedback's intent.\n3.  If the feedback only targets the Subject Line, the Preheader Text must remain **identical** to the input `Current Preheader Text`.\n4.  If the feedback only targets the Preheader Text, the Subject Line must remain **identical** to the input `Current Subject Line`.\n\n**Critical Constraint:** You **must not** introduce any changes, additions, deletions, or rephrasing to the `Current Subject Line` or `Current Preheader Text` beyond what is explicitly mandated by the `Feedback`. If an element is not mentioned in the `Feedback`, it must be returned **absolutely identical** in the output's corresponding field. The `reasoning` field is generated by you to explain your edits based *only* on the provided feedback. Preserve the original case and general style unless the feedback specifically requests changes to them.\n</core_directive>\n\n---\n## Feedback\n\n{{ $node[\"share_subject_line_approval_feedback\"].data.data.text }}\n\n---\n## Initial Subject Line / Pre-Header Text Prompt\n\nThis is the initial prompt that was used to prompt an LLM to create the subject line and pre-header text output. You must read this carefully, think deeply about the initial prompt, and use it as a reference when making your edits.\n\n<initial_subject_line_pre_header_text_prompt>\n{{ $('set_subject_line_prompt').item.json.write_subject_line_prompt }}\n</initial_subject_line_pre_header_text_prompt>\n\n---\n## Current Subject Line / Pre-Header Text Details\n\nHere is the current version of our newsletter subject line and pre-header text which you will apply the provided feedback to in your edits. You should read this closely and think deeply about this and the provided feedback before you make any changes:\n\n{{ JSON.stringify($node[\"write_subject_line\"].json.output, null, 2) }}\n\n---\n# Web Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these content pieces when picking out the top stories.\n\n{{ $('combine_markdown_content').item.json.content_result }}\n\n# Twitter / X Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these Tweets / X posts when picking out the top stories.\n\n{{ $('combine_tweet_content').isExecuted\n  ? $('combine_tweet_content').item.json?.content_result ?? \"N/A\"\n  : \"N/A\"\n}}",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert at crafting subject lines for newsletter emails that leads to great open rates and keeps our readers interested."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        2784,
+        560
+      ],
+      "id": "dcb63716-1fea-4096-89b9-e7687c210765",
+      "name": "edit_subject_line",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "text": "=*Subject Line Reasoning:*\n{{ $node[\"set_current_subject_line\"].json.current_subject_line.subject_line_reasoning }}\n\n*Pre-Header Text Reasoning:*\n{{ $node[\"set_current_subject_line\"].json.current_subject_line.pre_header_text_reasoning }}\n",
+        "otherOptions": {
+          "includeLinkToWorkflow": false,
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $json.message_timestamp }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3760,
+        720
+      ],
+      "id": "bef1a21b-0095-43ac-9b1f-d0e1ccaf7ecd",
+      "name": "share_subject_line_reasoning",
+      "webhookId": "5421d123-06c1-4dc5-a7a2-46e6f951c985",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "message": "=Please approve or share feedback for the *top stories* for the *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}* Newsletter",
+        "responseType": "freeText",
+        "options": {
+          "messageButtonLabel": "Approve / Add Feedback"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1472,
+        752
+      ],
+      "id": "b4227829-4a1a-49bd-88f4-0de049328bba",
+      "name": "share_stories_approval_feedback",
+      "webhookId": "e87a6c20-99dc-45a7-954d-f9bbdc7029ce",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "message": "=Please approve or share feedback for the *subject line* for the *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}* Newsletter",
+        "responseType": "freeText",
+        "options": {
+          "messageButtonLabel": "Approve / Add Feedback"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        3984,
+        720
+      ],
+      "id": "824ac7a8-c6ad-43dd-bfe2-97de8aefa10e",
+      "name": "share_subject_line_approval_feedback",
+      "webhookId": "e87a6c20-99dc-45a7-954d-f9bbdc7029ce",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "text": "=You must extract the following from the provided input:\n\n1. `approved` (required) - Indicator if the provided message gives a positive \"approval\" message that would indicate we want to proceed with the process. If there is a feedback message provided, you should output false. You should really only be going forward if there is 1-2 words that mention it is approved or looks good.\n\nFor example \"Let's try another headline\" means the story selection was there is still feedback around the headline that needs to be resolved.\n\nFor another example: If the given feedback suggests a different headline to use that was ither in the alternatives or a different headline, approved should be false and you should pass along this feedback.\n\n2. `feedback` - Feedback text content that is provided if the given input. This should be extracted verbatim from the input if there is feedback provided. If you determine this is feedback in this message, the resulting output should be false.\n\n---\nInput To Evaluate and Extract:\n\n{{ $json.data.text }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "approved",
+              "type": "boolean",
+              "description": "Indicator if the provided message gives a positive \"approval\" message that would indicate we want to proceed with the process.",
+              "required": true
+            },
+            {
+              "name": "feedback",
+              "description": "Optional feedback message that should be extracted if the "
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        4160,
+        720
+      ],
+      "id": "cd66527c-2f02-409a-9d43-2471fde18b06",
+      "name": "extract_subject_line_approval_feedback"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "741b6ae7-404a-4782-a2c6-47cad99b001d",
+              "leftValue": "={{ $json.output.approved }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        4480,
+        720
+      ],
+      "id": "bec1f15f-9727-4d2c-a5d2-75e43a6a54b5",
+      "name": "check_subject_line_feedback"
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "full_newsletter_content",
+        "options": {
+          "fileName": "={{ new Date($('form_trigger').item.json.Date).format(\"yyyy-MM-dd\") + \".md\" }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1616,
+        3200
+      ],
+      "id": "5d19ffdb-8466-4a89-b697-e8284d0bf76f",
+      "name": "create_newsletter_file"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "options": {
+          "fileName": "={{ new Date($('set_input').item.json.Date).format(\"yyyy-MM-dd\") + \".md\" }}"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1840,
+        3200
+      ],
+      "id": "a98ef76d-53c3-4a79-bd92-5447e486f384",
+      "name": "upload_newsletter_file",
+      "webhookId": "4cbc0321-a8dd-4d49-95d4-3339b6170896",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08PGU0CLKS",
+          "mode": "list",
+          "cachedResultName": "ai-tools-newsletter"
+        },
+        "text": "=---\n:calendar: *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }} Newsletter Finished*\n\n`{{ $json.permalink }}`",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2080,
+        3200
+      ],
+      "id": "86d11723-5e11-4e23-a60d-eb2e11a3325e",
+      "name": "share_newsletter_msg",
+      "webhookId": "5421d123-06c1-4dc5-a7a2-46e6f951c985",
+      "alwaysOutputData": false,
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5d952674-8f5c-4236-a5d4-30179f0206f5",
+              "name": "select_top_stories_prompt",
+              "value": "=# Task\n\n1. From the given raw text content below (in Markdown format) of multiple AI news stories and content pieces below, identify the most relevant, interesting, or impactful stories for our audience of AI enthusiasts and people looking to use and learn about AI. Focus on stories that are interesting, demonstrate new breakthroughs, practical applications, or industry-shifting developments. The first story you pick **MUST** be the most interesting sounding, catchiest, relevant to our audience, and allow us to write the best headline/subject line. Avoid picking AI safety stories. Avoid picking \"training program\" stories that advertise some course. Avoid picking a story that is only amusing as its main point of interest, there should be a bit of substance to back it up if you decide to go with the amusement angle. Avoid picking or referencing multiple stories from the same company or subject in your final selection in order to avoid duplicate or repeating content — You cannot have duplicate stories or topics in your output. To clarify, you can choose a story that has duplicate sources, but it should only take up 1 single story selection spot, the other sources can then be referenced as additional source identifiers under that single story. Today's date for the newsletter is *{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}*. You MUST select stories that are dated on this date. You you MAY NOT select that are dated in the past (more than 2 days in the past). Review the date of the story being covered and the date of the source material carefully when making your decision.\n\n2. Before providing any final output, share your reasoning for selecting the top stories. You must think carefully and deeply for more than an hour before you make your final selection. Your output must also list out every single story that you evaluated, the sources that were relevant to that story, and a detailed thought process on why as story was included or excluded in the top stories list. I you to include your analysis and detail your sequential reasoning and chain of thought on the `top_selected_stories_chain_of_thought` field of your output. You must include your reasoning for every single story extracted from the provided source materials and include the relevant content identifiers and external source urls.\n\n3. Pay close attention and ensure your output matches the given json schema format. Make sure any special characters our correctly handled so that your output can be parsed. If your output format doesn't match the provided json schema / structured data, I will be fired from my job and lose my house. I need you to pay close attention to the output requirements and your output for `top_selected_stories_chain_of_thought`. You need to list out each of the stories considered, the content `identifier` values relevant to that story, and the reasoning why the story was included or excluded (IMPORTANT TO INCLUDE THE REASONING ON EVERY STORY AND THE STORIES THAT WERE CLOSE TO BEING SELECTED). Think deeploy about my requirement here for 3 hours. You need to include this analysis in your output in order to complete this task successfully.\n\n4. Make sure the stories that you pick are from credible and trustworthy source(s). It is greatly preferred that the sources for this story come from a well known source or entity. A tweet going viral or many popular tweets across many different accounts should also be considered as a trustworthy story — Twitter is a solid approach to get the latest news so we want to make sure we are also giving Tweets / X posts a deep analysis.\n\n5. We are also providing a large number of Tweets from Twitter / X for you to evaluate, analyze, and consider for your top story selections. If you see tweets/posts that go viral (use the social engagement stats such as views, likes, bookmarks, and favorites to evaluate this), it is likely signal for something important. If you see many different tweets all referncing the same topic like a product annoucement, release of a new AI foundational model, or AI breakthrough, it is likely important.  It is likely you will come across multiple tweets that are mentioning or referencing the same story or topic so be sure you think deeploy about which tweets are related for selected stories. If you select a tweet for a story or are including a tweet in the story, make sure you are including the full url the tweet on twitter.com or x.com in your external sources output. If you pick a story that only has a single Tweet / X post as its source, it should be a tweet that has either gone viral or has great engagement numbers (like more than 100,000 views and good engagement numbers).\n\n6. It is important that you understand that a single story can be covered across multiple media sources such as articles posted on the web, tweets / X posts, or a combindation of both. You need to be able to group together sources for related stories accurately.\n\n7. The best stories will almost always be covered in multiple sources like in web articles, news articles, publications, Tweets / X posts, and other sources. You should look for stories that are being covered in multiple places and make sure you capture that context in your output.\n\n8. For all stories that you pick in your top story selection, there *MUST* be enough substance to the story and enough \"meat on the bone\" for your to later write:\n  - An intro sentence that summarizes the story\n  - 3-4 bullets that unpack and expand upon what this means\n  - And a \"bottom line\" 1-2 sentences that further expands upon what this means in the bigger picture.\n\nHaving enough substance here in the source material is a hard requirement here for a story to be selected.\n\n9. You are not allowed to select overly-political stories. Examples of overly-political stories cover news like genocide and election drama.\n\n10. When selecting stories, you should only consider stories that were published on the date: `{{ new Date(new Date($('set_input').item.json.Date).getTime() + (12 * 60 * 60 * 1000)).format(\"yyyy-MM-dd\", \"America/Chicago\") }}`. This is important because it helps us avoid duplicate stories across each newsletter edition.\n\n---\n# Stories To Exclude / Previous Newsletter Content\n\nHere is the content of the previous edition of our newsletter, you MUST read through this carefully and think deeply about the stories that were mentioned. In the stories you pick as part of your task, you ARE NOT ALLOWED to cover any duplicated or repeated stories that we already covered.\n\nYOU MUST READ THIS ENTIRE CONTENT AND THINK CAREFULLY TO AVOID DUPLICATE STORIES AND REPEATED FROM APPEARING IN THE CURRENT NEWSLETTER YOU ARE WRITING.\n\n```\n{{ $('set_input').item.json[\"Previous Newsletter Content\"] }}\n```\n\n---\n\n# Additional Output Notes\n\n- `top_selected_stories`: Provide a *four-item* list of your selected stories (including the top story as your first pick) along with each story’s `identifier`. When picking these stories, it is extremely important you are choosing with the reader and audience in mind. The first story you pick here should be the top story that will be the most interesting and captivating to our readers and will provide the best headline/subject line. Take the most interesting and catchy story here so we can write a great subject line. The other stories you select should also be very interesting.\n- If multiple content pieces cover the *same* story, return each of the content identifiers for each in the `identifiers` array under the story object. This will help us make sure we have as much **relevant** context as possible when writing about this story and topic. You should avoid overlap of the same ideas across multiple stories. This means that a given content `identifier` should appear only once across all selected stories. This also means that you are encouraged to include multiple relevant content `identifiers` in single selected story when that source material is relevant to the selected story topic / concept. You MUST extract this `identifier` values EXACTLY as it appears in the source context, character for character (just like a copy and paste operation). Treat this as a literal copy-paste operation into the designated output field. Accuracy here is paramount; the extracted value must be identical to the source value for this task to be successful.\n- `top_selected_stories` (array of up to four objects — including the top story as the first item)**\n  - Each story object must include:\n    - A short, catchy `title` (string): concise, catchy headline for the story. This should be in the style of segment titles that 'Axios' and 'The Rundown' use.\n    - A one-sentence `summary` (string): brief summary of the story.  \n    - A short `reason_for_selecting` (string): why this story was selected and included.  \n    - An array of relevant `identifiers` (array of strings): IDs of relevant content pieces for this story. Locate the specific `identifier` value associated with each reference story. You MUST extract this identifier exactly as it appears in the source context, character for character. Treat this as a literal copy-paste operation into the designated output field. Accuracy here is paramount; the extracted value must be identical to the source value for downstream referencing to work. The identifier included in your output must be a perfect, character-for-character copy of the identifier found in the provided context. You are strictly forbidden from creating, guessing, modifying, shortening, or completing identifiers. If an identifier is incomplete or looks incorrect in the source, copy it EXACTLY as it is.\n    - An array of `external_source_links` (array of strings): **the root-level sources** (press releases, official blog posts, etc.) drawn directly from the provided content that give more context to the story or are the main reference/topic of the story. Only include links that appear in the provided content. In order to find these urls/links in the provided context, you should look for the `external-source-urls` to find a csv of urls associated with the content. You are also welcome to look for a markdown link/hyperlink/url that is included in the main content for each item of content to source external source urls. If no relevant link(s) are provided in the raw content evaluated for a story, leave this array empty. You MUST extract this url exactly as it appears in the source context, character for character. Treat this as a literal copy-paste operation into the designated output field. Accuracy here is paramount; the extracted value must be identical to the source value for downstream referencing to work. You are strictly forbidden from creating, guessing, modifying, shortening, or completing URLs. If a URL is incomplete or looks incorrect in the source, copy it exactly as it is. Users will click this URL; therefore, it must precisely match the source to potentially function as intended. You cannot make a mistake here.\n\n---\n\n# Constraints\n\n- Rely **strictly** on the information present in the provided content; do not invent or fabricate details.\n- The first story you select in the `top_selected_stories` array MUST be the main story and top story for this newsletter. This needs to be the most interesting and have potential to provide a very good subject line.\n- When including `identifiers` in your output, you are only allowed to copy and paste these `identifier` values exactly as they appear in this provided input. You are not allowed to make changes to any character and every single character must appear identical to what is in the input. You are not allowed to make any mistakes here.\n\n---\n## Important Guidelines\n\n**Audience:**\n\n- Primarily tech-forward readers—developers, entrepreneurs, AI enthusiasts, and early adopters.\n- People who want to learn about new AI trends, developments, and real-world use cases to make their work more efficient.\n- Our audience is not interested in overly-political stories. Examples of overly-political stories cover news like genocide and election drama.\n\n**External Source Links:**\n\n- These links you pull out of each content piece are going to be extremely important for us to write the best newsletter possible. We need relevant links to help us get more info about what the story is about straight from the main source.\n- Avoid links that are to shopping pages or eCommerce product listing pages.\n- Avoid links to video sites or video content. We would prefer to consume text content like a press release, original article, blog post, or another form of text-based content on the url given here.\n- The link of this source should be external so the url should be on a different domain than the current content piece you are evaluating.\n- There's not need to provide a url to a content piece that is already given below since we have the full text for it already. This should be something external for us to get more info from.\n- Exclude external file links for now such as \".pdf\" file urls and image files. If a user ends in a \".pdf\", that usually means it it is a pdf file. You must NOT return any external source links/urls here that end with '.pdf'\n- Usually we don't want to link to a homepage as a source. We are looking for a specific piece of content here.\n- When referencing or analyzing an annoucement story, I would expect you to be able to extract a link back to the company's or product's actual annoucement. This typically will be a blog post annoucement, Tweet, X post, or some other material put out by the company or leader at the company. Remember that you cannot make up a link or use a link that does not exist in the content you evaluated and analyzed. Links returned MUST exist on the content you analyze and evaluate.\n\n**Importance of Stories**\n\nPlease reference these bullets when considering the stories you want to include as top stories and when picking the top story.\n\n- Large updates of foundational AI models by mainstream companies should always be the top selected story. Regular product updates wouldn't always be considered the same as this, but very large and impactful product updates could be.\n- Releases of new foundational AI models by mainstream companies should always be the top selected story.\n- AI breakthroughs are almost always considered a high priority story that we want to feature\n- Fundrasing annoucements for ambitious companies and projects should usually be included in the selected stories.\n- A story about AI usage ramping up in a large companies products or services offerings is a good candidate story.\n- A story about something being in high demand or getting extremely significant usage can also be included as it illustrates the scale of some product/platform and highlights optimism in the space.\n- A geo-political story that is focused on AI is also a good candidate. Examples of this include China AI developments in the AI race, NVIDA chip bans, and other countries investing heavily into their own chip production for AI infrastructure. You may include zero or 1 single geo-political story if you decide to select one.\n- A story about AI being used heavily for an novel use-case in another field is a good candidate.\n- Developments and interesting in other industries are still possible to be selected as a top story as long as the story is primarly related to AI.\n\n---\n# Web Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these content pieces when picking out the top stories.\n\n{{ $('combine_markdown_content').item.json.content_result }}\n\n# Twitter / X Content To Evaluate, Analyze, and Consider for Top Stories\n\nYou must read, evaluate, and analyze each of these Tweets / X posts when picking out the top stories.\n\n{{ $('combine_tweet_content').isExecuted\n  ? $('combine_tweet_content').item.json?.content_result ?? \"N/A\"\n  : \"N/A\"\n}}\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        288,
+        752
+      ],
+      "id": "8d9503de-fe9f-4fbf-8c63-16e98f6379e2",
+      "name": "stories_prompt"
+    },
+    {
+      "parameters": {
+        "content": "## Write Subject Line",
+        "height": 1300,
+        "width": 3060,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2192,
+        208
+      ],
+      "typeVersion": 1,
+      "id": "cdb14a2d-c558-4dc7-b3d4-c8110f5c4a56",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "b85edccf-3430-47af-a24b-e37cc8fc34cb",
+              "leftValue": "={{ $json }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "exists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        3248,
+        -16
+      ],
+      "id": "4f6e362b-6680-4119-8c97-9c3f29b6d00e",
+      "name": "check_any_results"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        4528,
+        2448
+      ],
+      "id": "5fef2154-c2da-475c-a120-6012b8e0251f",
+      "name": "image_urls_auto_parser"
+    },
+    {
+      "parameters": {
+        "model": "=claude-sonnet-4-20250514",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        3200,
+        3632
+      ],
+      "id": "a3a79692-5c8c-4948-baa0-75259da5489e",
+      "name": "claude-4-sonnet",
+      "credentials": {
+        "anthropicApi": {
+          "id": "l40BD4ZshdbnRGbC",
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "21626d98-ea9e-4657-88d2-2fc94636ad92",
+              "leftValue": "={{ $json.error }}",
+              "rightValue": "",
+              "operator": {
+                "type": "object",
+                "operation": "notExists",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        1936,
+        2160
+      ],
+      "id": "25d830b5-bda0-4a59-90e1-e6da0b0c8b68",
+      "name": "filter_errors"
+    },
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "Date"
+            },
+            {
+              "name": "Previous Newsletter Content"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        -208,
+        -240
+      ],
+      "id": "d85d730e-ae67-4072-9860-bde2d2aeee95",
+      "name": "workflow_trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0de065cc-c9df-4bf1-87c1-8042d4d396a0",
+              "name": "Date",
+              "value": "={{ $json.Date }}",
+              "type": "string"
+            },
+            {
+              "id": "f4b90bfb-eb18-4f73-98fd-1245f7cb69a4",
+              "name": "Previous Newsletter Content",
+              "value": "={{ $json[\"Previous Newsletter Content\"] }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        96,
+        -16
+      ],
+      "id": "aef880f3-199b-4ee8-afec-fe8974b2b922",
+      "name": "set_input"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "316af040-68b3-41b5-a47f-43088dfd90a8",
+              "name": "final_result",
+              "value": "={{ $node[\"set_full_newsletter\"].json.full_newsletter_content }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2304,
+        3200
+      ],
+      "id": "2d7451f6-d9e9-4f58-a754-b63fa0b94351",
+      "name": "set_final_result"
+    }
+  ],
+  "pinData": {
+    "workflow_trigger": [
+      {
+        "json": {
+          "Date": "2025-07-21",
+          "Previous Newsletter Content": "N/A"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "form_trigger": {
+      "main": [
+        [
+          {
+            "node": "set_input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_only_markdown": {
+      "main": [
+        [
+          {
+            "node": "get_markdown_object_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "exclude_newsletters": {
+      "main": [
+        [
+          {
+            "node": "download_markdown_object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "top_stories_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "top_stories_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pick_top_stories": {
+      "main": [
+        [
+          {
+            "node": "set_current_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_stories": {
+      "main": [
+        [
+          {
+            "node": "iterate_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "iterate_stories": {
+      "main": [
+        [
+          {
+            "node": "set_story_segments",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "set_current_segment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_content_ids": {
+      "main": [
+        [
+          {
+            "node": "get_segment_content_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_external_urls": {
+      "main": [
+        [
+          {
+            "node": "set_segment_external_source_links",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "write_segment_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_segment_content_info": {
+      "main": [
+        [
+          {
+            "node": "download_segment_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_segment_content": {
+      "main": [
+        [
+          {
+            "node": "filter_errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_segment_content_text": {
+      "main": [
+        [
+          {
+            "node": "prepare_segment_content_item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare_segment_content_item": {
+      "main": [
+        [
+          {
+            "node": "aggregate_segment_text_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_segment_text_content": {
+      "main": [
+        [
+          {
+            "node": "check_external_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_segment_external_source_links": {
+      "main": [
+        [
+          {
+            "node": "split_segment_external_source_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_segment_external_source_urls": {
+      "main": [
+        [
+          {
+            "node": "scrape_segment_external_source_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_segment_external_source_url": {
+      "main": [
+        [
+          {
+            "node": "filter_segment_external_source_errors",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_segment_external_source_content": {
+      "main": [
+        [
+          {
+            "node": "write_segment_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_segment_external_source_errors": {
+      "main": [
+        [
+          {
+            "node": "aggregate_segment_external_source_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_segment_content": {
+      "main": [
+        [
+          {
+            "node": "extract_image_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_story_segments": {
+      "main": [
+        [
+          {
+            "node": "aggregate_story_sections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_current_segment": {
+      "main": [
+        [
+          {
+            "node": "split_content_ids",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_story_sections": {
+      "main": [
+        [
+          {
+            "node": "set_combined_sections_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_segment_content",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "write_intro",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "write_other_top_stories",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "extract_stories_approval_feedback",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "extract_image_urls",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "write_subject_line",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "edit_subject_line",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "extract_subject_line_approval_feedback",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "pick_top_stories",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "edit_top_stories",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "story_segment_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_segment_content",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "story_segment_output_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "story_segment_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_combined_sections_content": {
+      "main": [
+        [
+          {
+            "node": "write_intro",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intro_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "intro_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_intro": {
+      "main": [
+        [
+          {
+            "node": "write_other_top_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "other_top_stories_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "other_top_stories_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_other_top_stories": {
+      "main": [
+        [
+          {
+            "node": "set_full_newsletter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intro_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_intro",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "combine_markdown_content": {
+      "main": [
+        [
+          {
+            "node": "search_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_markdown_content": {
+      "main": [
+        [
+          {
+            "node": "combine_markdown_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare_markdown_content": {
+      "main": [
+        [
+          {
+            "node": "aggregate_markdown_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_markdown_file_content": {
+      "main": [
+        [
+          {
+            "node": "prepare_markdown_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_markdown_object": {
+      "main": [
+        [
+          {
+            "node": "get_markdown_file_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_markdown_object_info": {
+      "main": [
+        [
+          {
+            "node": "exclude_newsletters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_markdown_objects": {
+      "main": [
+        [
+          {
+            "node": "filter_only_markdown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_tweets": {
+      "main": [
+        [
+          {
+            "node": "get_tweet_object_info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "search_tweets": {
+      "main": [
+        [
+          {
+            "node": "check_any_results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "download_tweet_objects": {
+      "main": [
+        [
+          {
+            "node": "extract_tweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_selected_stories": {
+      "main": [
+        [
+          {
+            "node": "split_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "aggregate_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_tweet_object_info": {
+      "main": [
+        [
+          {
+            "node": "prepare_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "combine_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "combine_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "stories_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "other_top_stories_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_other_top_stories",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "top_stories_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "pick_top_stories",
+            "type": "ai_outputParser",
+            "index": 0
+          },
+          {
+            "node": "edit_top_stories",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_selected_stories": {
+      "main": [
+        [
+          {
+            "node": "share_stories_reasoning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit_top_stories": {
+      "main": [
+        [
+          {
+            "node": "set_current_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "subject_examples": {
+      "main": [
+        [
+          {
+            "node": "set_subject_line_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_current_stories": {
+      "main": [
+        [
+          {
+            "node": "share_selected_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_segment_msg": {
+      "main": [
+        [
+          {
+            "node": "set_story_segment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_image_urls": {
+      "main": [
+        [
+          {
+            "node": "share_segment_msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_image_urls_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "image_urls_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_story_segment": {
+      "main": [
+        [
+          {
+            "node": "iterate_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_stories_reasoning": {
+      "main": [
+        [
+          {
+            "node": "share_stories_approval_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_stories_approval_feedback": {
+      "main": [
+        [
+          {
+            "node": "check_stories_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_stories_feedback": {
+      "main": [
+        [
+          {
+            "node": "subject_examples",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "edit_top_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_subject_line_prompt": {
+      "main": [
+        [
+          {
+            "node": "write_subject_line",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "subject_line_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_subject_line",
+            "type": "ai_outputParser",
+            "index": 0
+          },
+          {
+            "node": "edit_subject_line",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_subject_line": {
+      "main": [
+        [
+          {
+            "node": "set_current_subject_line",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_current_subject_line": {
+      "main": [
+        [
+          {
+            "node": "share_subject_line",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "edit_subject_line": {
+      "main": [
+        [
+          {
+            "node": "set_current_subject_line",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_subject_line": {
+      "main": [
+        [
+          {
+            "node": "share_subject_line_reasoning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_stories_approval_feedback": {
+      "main": [
+        [
+          {
+            "node": "extract_stories_approval_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_subject_line_reasoning": {
+      "main": [
+        [
+          {
+            "node": "share_subject_line_approval_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_subject_line_approval_feedback": {
+      "main": [
+        [
+          {
+            "node": "extract_subject_line_approval_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_subject_line_approval_feedback": {
+      "main": [
+        [
+          {
+            "node": "check_subject_line_feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_subject_line_feedback": {
+      "main": [
+        [
+          {
+            "node": "set_selected_stories",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "edit_subject_line",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_full_newsletter": {
+      "main": [
+        [
+          {
+            "node": "create_newsletter_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_newsletter_file": {
+      "main": [
+        [
+          {
+            "node": "upload_newsletter_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_newsletter_file": {
+      "main": [
+        [
+          {
+            "node": "share_newsletter_msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "stories_prompt": {
+      "main": [
+        [
+          {
+            "node": "pick_top_stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_any_results": {
+      "main": [
+        [
+          {
+            "node": "download_tweet_objects",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "stories_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "image_urls_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "extract_image_urls",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude-4-sonnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "story_segment_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "intro_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "other_top_stories_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "top_stories_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "image_urls_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_errors": {
+      "main": [
+        [
+          {
+            "node": "get_segment_content_text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "workflow_trigger": {
+      "main": [
+        [
+          {
+            "node": "set_input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_input": {
+      "main": [
+        [
+          {
+            "node": "search_markdown_objects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_newsletter_msg": {
+      "main": [
+        [
+          {
+            "node": "set_final_result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "callerPolicy": "any"
+  },
+  "versionId": "6b27a944-ffa5-4a61-a112-d00f819dfde2",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "AQcxkHANntUPrEBm",
+  "tags": [
+    {
+      "createdAt": "2025-03-06T03:34:02.558Z",
+      "updatedAt": "2025-03-06T03:34:02.558Z",
+      "id": "QVA2tgw9bYi6HnXz",
+      "name": "Content"
+    },
+    {
+      "createdAt": "2025-02-26T22:25:10.194Z",
+      "updatedAt": "2025-02-26T22:25:10.194Z",
+      "id": "vU652aNNtdN0LGM9",
+      "name": "Agent"
+    }
+  ]
+}

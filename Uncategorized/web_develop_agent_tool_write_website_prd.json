@@ -1,0 +1,137 @@
+{
+  "name": "Tool - Write Website PRD",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "website_content"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "052bbcc8-e656-421c-9303-d5d240b60e31",
+      "name": "workflow_trigger"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# ROLE AND GOAL\nYou are an expert Product Manager and UX/UI Designer specializing in website redesigns. Your primary expertise is in translating existing website content into actionable, modern, and comprehensive Product Requirements Documents (PRDs). This PRD will serve as a detailed text prompt for an AI website builder like Lovable.dev to generate a complete, production-ready website.\n\n# CONTEXT\nI have scraped an existing website and have the content in Markdown format. This content includes headings, text, lists, and image descriptions. The goal is to redesign this website, not just replicate it. You must analyze the provided content, infer the site's structure and purpose, and then create a PRD that outlines a modern, clean, and user-friendly version of the site.\n\n# CRITICAL INSTRUCTIONS\n1.  **Analyze and Infer:** Do not just copy the content. Analyze the structure (what looks like a hero, a feature list, a testimonial section, a footer, etc.). Infer the target audience and the primary goal of the website (e.g., lead generation, e-commerce, portfolio, informational).\n2.  **Modernize the Structure:** Propose a standard, modern layout. This includes a clear navigation bar, a compelling hero section, logical content flow, a strong call-to-action (CTA), and a comprehensive footer. If the original structure is confusing, fix it.\n3.  **Define a Visual Style:** Based on the content, suggest a suitable `Tone of Voice` and a `Visual Aesthetic`. Propose a simple, modern color palette (e.g., Primary, Secondary, Accent, Neutral) and font pairing (e.g., one for headings, one for body text).\n4.  **Format as a Lovable.dev Prompt:** The entire output MUST be a single, well-formatted PRD. Use Markdown for clear structure. The format should be page-by-page, section-by-section, as detailed below.\n5. Keep the output to a single page website.\n\n# REQUIRED OUTPUT FORMAT EXAMPLE (PRD for Lovable.dev)\n\n## Project Overview\n*   **Website Goal:** [Infer the primary purpose of the site, e.g., \"To generate qualified leads for a local plumbing business.\"]\n*   **Target Audience:** [Describe the ideal visitor, e.g., \"Homeowners and property managers in the Anytown area experiencing plumbing issues.\"]\n*   **Tone of Voice:** [e.g., \"Professional, trustworthy, and helpful.\"]\n\n## Global Styles & Branding\n*   **Visual Aesthetic:** [e.g., \"Clean, modern, and professional with a focus on trust and reliability.\"]\n*   **Color Palette:**\n    *   Primary: [e.g., \"#005A9C\" (Trustworthy Blue)]\n    *   Secondary: [e.g., \"#F1F1F1\" (Light Gray)]\n    *   Accent: [e.g., \"#F9A825\" (Action Yellow)]\n    *   Text: [e.g., \"#333333\" (Dark Gray)]\n*   **Typography:**\n    *   Headings: [e.g., \"Poppins, sans-serif\"]\n    *   Body: [e.g., \"Lato, sans-serif\"]\n\n## Page-by-Page Breakdown\n\n### Page: Home\n*   **Objective:** To instantly communicate the value proposition, build trust, and guide users to key services or the contact page.\n*   **Sections:**\n    1.  **Navigation Bar:** [List nav links, e.g., Home, Services, About Us, Blog, Contact Us. Include a \"Get a Free Quote\" CTA button.]\n    2.  **Hero Section:**\n        *   **Content:** [Use the main H1 and tagline from the scraped content. If missing, create one. e.g., Headline: \"Reliable Plumbing Services When You Need Them Most\", Sub-headline: \"24/7 emergency service for Anytown residents. Licensed and insured.\", CTA Button: \"Schedule Service Now\"]\n        *   **Visuals:** [Suggest a relevant background image, e.g., \"A clean, professional photo of a plumber working or a branded company van.\"]\n    3.  **Services Overview Section:**\n        *   **Content:** [Use the list of services from the scraped content. Present as a 3-column card layout. Each card should have an icon, service name, and a short description.]\n        *   **Functionality:** Each card should link to the corresponding detailed service page.\n    4.  **\"Why Choose Us\" Section:**\n        *   **Content:** [Extract key trust-building points like \"Licensed & Insured\", \"20+ Years Experience\", \"Upfront Pricing\". Present with checkmark icons.]\n    5.  **Testimonials Section:**\n        *   **Content:** [Format scraped testimonials into a slider or card layout. Include the quote, customer name, and location.]\n    6.  **Contact CTA Section:**\n        *   **Content:** [A final, compelling call to action. e.g., Headline: \"Ready to Fix Your Plumbing Problem?\", Button: \"Get Your Free Estimate\"]\n    7.  **Footer:** [Create a comprehensive footer with Nav Links, Contact Info (Address, Phone, Email), and Social Media Links.]\n\n---\n\n# WEBSITE CONTENT TO ANALYZE\n\n{{ $json.website_content }}",
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        272,
+        0
+      ],
+      "id": "42854578-d79e-4b7e-b405-563c9c9801e2",
+      "name": "write_prd"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        272,
+        208
+      ],
+      "id": "39767d0d-ef6e-4918-b4e3-e9c11264d523",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qp1NlMiIctmGD0Uu",
+          "name": "Google Gemini (PaLM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a69c32b2-a6fe-40b7-96c1-64f5020d99e6",
+              "name": "prd_result",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        672,
+        0
+      ],
+      "id": "4c887d13-a90d-4583-863d-6ff70ea6a436",
+      "name": "set_result"
+    }
+  ],
+  "pinData": {
+    "workflow_trigger": [
+      {
+        "json": {
+          "website_content": "# Mike Weed Pest Control Professional\n\n## Business Information\n\n**Phone:** 850-712-0481\n**Email:** MikeWeed1958@gmail.com\n**Website:** https://mikeweed.com/\n\n## Social Media\n\n*   [Facebook](https://www.facebook.com/MikeWeedPestControl/)\n*   [LinkedIn](https://www.linkedin.com/in/mike-weed-a-c-e-5b2b364a/)\n*   [Pinterest](https://www.pinterest.com/mikeweedpestcontrol/)\n*   [Yelp](https://www.yelp.com/biz/mike-weed-pest-control-pace)\n*   [YouTube](https://www.youtube.com/channel/UCimb8g_p_AD_a-yJp3d2RjA)\n\n## Certifications\n\n*   Certified in Alabama, Florida, & Georgia\n\n## Main Content\n\n### Professional Pest Control for Your Home or Lawn\n\nWith over 45 years of experience, Mike Weed is your trusted professional for pest control.\n\n**Contact Now**\n\n### Mike Weed, A.C.E., Entomologist\n\nMike Weed is an Associate Certified Entomologist, a title held by less than 2% of pest control operators in the industry. This certification is a testament to his deep knowledge and expertise, ensuring you receive the highest quality service.\n\n**Background & Experience:**\n\n*   45+ years in the pest control industry\n*   St. Regis Paper Company: Pest Control Tech (1978-1980)\n*   Orkin Pest Control: Branch Manager (1980-1996)\n*   Cook's Pest Control: District Manager (1996-2009)\n*   Self-Employed (2009-Present)\n\n### Our Services\n\nWe offer a comprehensive range of pest control solutions to protect your home and lawn.\n\n### Service Request or Question\n\nPlease provide your details below, and we will get back to you shortly.\n\n*   Name\n*   Email\n*   Phone\n*   Your Message\n\n**Submit**\n\n*This site is protected by reCAPTCHA and the Google Privacy Policy and Terms of Service apply.*\n\n### Connect with Us\n\nFollow us on our social media channels to stay updated.\n\n---\n*Copyright 2024 Mike Weed. All rights reserved.*\n*Website by Gulf Coast Local*"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "workflow_trigger": {
+      "main": [
+        [
+          {
+            "node": "write_prd",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_prd",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_prd": {
+      "main": [
+        [
+          {
+            "node": "set_result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e2d9fbb9-1f9f-4aed-a9f1-a6fa9301d858",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "NjY6W78C7cneETlO",
+  "tags": []
+}

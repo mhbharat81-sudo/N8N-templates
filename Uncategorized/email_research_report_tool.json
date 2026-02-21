@@ -1,0 +1,116 @@
+{
+  "name": "Tool - Email Research Report",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "markdownReportContent"
+            },
+            {
+              "name": "emailAddress"
+            },
+            {
+              "name": "subjectLine"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "954fe9c4-92f1-451d-ac89-3acd7361122b",
+      "name": "workflow_trigger"
+    },
+    {
+      "parameters": {
+        "mode": "markdownToHtml",
+        "markdown": "={{ $json.markdownReportContent }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.markdown",
+      "typeVersion": 1,
+      "position": [
+        240,
+        0
+      ],
+      "id": "f4cae5f5-38cf-4490-bec7-47ff9365a83d",
+      "name": "convert_to_html"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.emailAddress }}",
+        "subject": "={{ $json.subjectLine }}",
+        "message": "={{ $json.data }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        496,
+        0
+      ],
+      "id": "07926ae9-d2f6-4bf6-b80d-5768f159c23b",
+      "name": "send_email",
+      "webhookId": "8be00813-de2e-4cc8-8ba8-8df9dd989e47",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "LMd4VK2OBGx5r02q",
+          "name": "Gmail - lucas@dlmholdings.com"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "workflow_trigger": [
+      {
+        "json": {
+          "markdownReportContent": "Microsoft Copilot (MCP) is an advanced AI-powered assistant integrated deeply across Microsoft's productivity ecosystem as of 2025. It leverages machine learning and natural language processing (NLP) to transform how individuals and enterprises create, collaborate, and analyze data, significantly enhancing productivity and decision-making.\n\n### Core Functionalities and Key Features\n\n1. **Seamless Integration Across Platforms**  \n   MCP is fully embedded in Microsoft 365 apps (Word, Excel, PowerPoint, Teams, Outlook), Dynamics 365, and the Power Platform. It also extends to Windows 11, offering a pervasive AI assistant experience spanning document creation, communication, data analysis, and automation[1][2][3].\n\n2. **Contextual Understanding and Real-Time Collaboration**  \n   The assistant can understand context from documents, emails, chats, and meetings to provide tailored suggestions, automated insights, and summaries. It supports real-time collaboration across teams with intelligent recommendations embedded in workflow tools[1][3].\n\n3. **Copilot Notebooks**  \n   Introduced in 2025, Copilot Notebooks are a powerful feature allowing users to synthesize data and content into actionable insights. This includes pulling information from Office files, meeting notes, chat conversations, and integrating them for analysis and decision support[2][3].\n\n4. **Create Experience & Image Generation**  \n   MCP now incorporates image generation capabilities powered by OpenAI’s GPT-4o, enabling the creation of images directly within the Copilot app and across supported platforms. These images have improved photorealism and text spelling accuracy, supporting creative workflows in presentations and documents[2][4].\n\n5. **AI Agents: Researcher and Analyst**  \n   These are specialized reasoning agents that can assist with complex data research and analysis tasks, offering enhanced insight extraction and summarization capabilities within business contexts[3].\n\n6. **Automation and Workflow Enhancement**  \n   Users can automate recurrent queries, workflows, and document generation with just a few clicks. Features like Power Automate integration further streamline repetitive tasks, reducing manual effort significantly[1][3].\n\n7. **Copilot Control System for Administrators**  \n   Comprehensive management features include data loss prevention through Microsoft Purview, Copilot usage analytics, agent management, cost controls, and safe communication integrations such as SafeLinks to ensure security, accountability, and transparency at enterprise scale[3][4].\n\n8. **Multi-Device and Cross-Platform Access**  \n   MCP is accessible not only via desktop apps but also through a dedicated Microsoft 365 Copilot app pre-installed on Windows 11 and mobile devices, allowing for productivity on the go[2][4].\n\n### Practical Applications for Various User Segments\n\n- **Knowledge Workers and Office Professionals**  \n  Generate and edit documents, presentations, and spreadsheets faster via natural language prompts, automatic summaries, citation generation, and design suggestions. These capabilities improve efficiency in creating reports, proposals, and communication materials[1][3].\n\n- **Data Analysts and Business Intelligence Professionals**  \n  Use Copilot Notebooks and Analyst AI agents to synthesize vast datasets effortlessly, generate instant insights, and prepare visualizations, supporting data-driven decision-making without deep technical expertise[2][3].\n\n- **Project Managers and Teams**  \n  Collaborate in Microsoft Teams using Copilot to summarize meetings, optimize task lists, and track project progress with intelligent notifications, enhancing team productivity and communication[1][3].\n\n- **Developers and Power Users**  \n  Leverage Copilot within the Power Platform to automate processes, build custom apps, and integrate AI into workflows, reducing development cycles and increasing innovation speed[1].\n\n- **Executives and Decision Makers**  \n  Benefit from high-level summaries, predictive analytics, and real-time data dashboards that help quickly understand business performance and trends for strategic planning[1][3].\n\n- **Creative Professionals**  \n  Employ the image generation tools and AI-assisted content creation for marketing, design, and multimedia presentations, enabling more engaging and visually compelling deliverables[2][4].\n\n### Future Outlook and Innovations\n\nMicrosoft plans to further advance Copilot’s capabilities with IoT integration, expanding multilingual support, and more personalized AI-driven experiences tuned to individual user workflows and preferences, marking a shift towards more autonomous and adaptive productivity tools[1].\n\n---\n\nThis report outlines Microsoft Copilot as a comprehensive AI assistant revolutionizing productivity by embedding intelligent automation, synthesis, and creative tools across Microsoft’s enterprise and consumer ecosystems, catering to a wide variety of user needs and roles in 2025.",
+          "emailAddress": "lucas@dlmholdings.com",
+          "subjectLine": "Deep Research Report on Microsoft Copilot (MCP)"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "workflow_trigger": {
+      "main": [
+        [
+          {
+            "node": "convert_to_html",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "convert_to_html": {
+      "main": [
+        [
+          {
+            "node": "send_email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "dec6cd1d-3083-443a-84c2-401246654a38",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "6GoQu7XHmMiep2kV",
+  "tags": []
+}

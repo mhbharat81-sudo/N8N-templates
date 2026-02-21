@@ -1,0 +1,436 @@
+{
+  "name": "Email Scraper",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Email Scraper",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Website Url",
+              "placeholder": "https://aitools.inc",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Scrape Limit",
+              "fieldType": "number",
+              "placeholder": "8",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "579a6ba6-3b53-4113-a497-f58bad82141a",
+      "name": "form_trigger",
+      "webhookId": "7507734f-cf1f-49d5-a996-0bcd1bc7bebf"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/map",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"url\": \"{{ $json['Website Url'] }}\",\n  \"search\": \"about contact company authors team\",\n  \"limit\": {{ $json['Scrape Limit'] }}\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        240,
+        0
+      ],
+      "id": "5aaea2b9-796c-4540-9a10-ef667a23df21",
+      "name": "map_website",
+      "retryOnFail": true,
+      "maxTries": 5,
+      "waitBetweenTries": 5000,
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "QPBLvE9DYFuLgWxd",
+          "name": "Firecrawl Header Auth"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.firecrawl.dev/v1/batch/scrape",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"urls\": {{ JSON.stringify($json.links) }},\n  \"formats\": [\"markdown\", \"json\"],\n  \"proxy\": \"stealth\",\n  \"jsonOptions\": {\n    \"prompt\": \"Extract every unique, fully-qualified email address found in the supplied web page. Normalize common obfuscations where “@” appears as “(at)”, “[at]”, “{at}”, “ at ”, “&#64;” and “.” appears as “(dot)”, “[dot]”, “{dot}”, “ dot ”, “&#46;”. Convert variants such as “user(at)example(dot)com” or “user at example dot com” to “user@example.com”. Ignore addresses hidden inside HTML comments, <script>, or <style> blocks. Deduplicate case-insensitively. The addresses shown in the example output below (e.g., “user@example.com”, “info@example.com”, “support@sample.org”) are placeholders; include them only if they genuinely exist on the web page.\",\n    \"schema\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"email_addresses\": {\n          \"type\": \"array\",\n          \"items\": {\n            \"type\": \"string\",\n            \"format\": \"email\",\n            \"description\": \"A valid email address found and extracted from the page\"\n          },\n          \"description\": \"An array of all email addresses found on the web page\"\n        }\n      },\n      \"required\": [\"emails\"]\n    }\n  }\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        0
+      ],
+      "id": "5634b31e-a44a-4ec4-b03a-63489c252afc",
+      "name": "start_batch_scrape",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NdFL7KKc6l1NqOY1",
+          "name": "Firecrawl Test"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "7e16bcbe-7ea6-48ca-b98e-5b0ec18be8c3",
+              "leftValue": "={{ $runIndex }}",
+              "rightValue": 12,
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1580,
+        160
+      ],
+      "id": "d677a2d7-a291-4602-a8a2-98e551f5fe01",
+      "name": "check_retry_count"
+    },
+    {
+      "parameters": {
+        "errorMessage": "Too many retries when attempting to scrape website."
+      },
+      "type": "n8n-nodes-base.stopAndError",
+      "typeVersion": 1,
+      "position": [
+        1940,
+        240
+      ],
+      "id": "b699b42c-3442-483e-9bd8-e69ce16b26ae",
+      "name": "too_many_attempts_error"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        760,
+        0
+      ],
+      "id": "2b1fd9bf-c226-4a22-a875-1440504435fc",
+      "name": "rate_limit_wait",
+      "webhookId": "3a93d231-a459-4747-b124-4229372407a8"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9efaad04-014a-45a4-9760-1b3edbf51c8d",
+              "name": "scraped_email_addresses",
+              "value": "={{\n  ($node[\"fetch_scrape_results\"].json.data || [])\n    .flatMap(item => item?.json?.email_addresses || [])\n    .filter(email => typeof email === 'string' && email.trim())\n}}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1940,
+        -20
+      ],
+      "id": "f2945391-a9ea-4aec-94f5-186c2e28cd15",
+      "name": "set_result"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cc296f33-b896-49c7-898c-4d8b5f11266a",
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "completed",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1300,
+        0
+      ],
+      "id": "6fb1c4bb-a72e-4dc4-a063-15fb5162b57f",
+      "name": "check_scrape_completed"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.firecrawl.dev/v1/batch/scrape/{{ $('start_batch_scrape').item.json.id }}",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1020,
+        0
+      ],
+      "id": "aaaaf352-57cc-4730-ab62-56f4b1aad551",
+      "name": "fetch_scrape_results",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "NdFL7KKc6l1NqOY1",
+          "name": "Firecrawl Test"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "scraped_email_addresses",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        2240,
+        -20
+      ],
+      "id": "10100a60-077d-4fac-8b91-1d7259e0e096",
+      "name": "split_emails"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.instantly.ai/api/v2/leads",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "email",
+              "value": "={{ $json.scraped_email_addresses }}"
+            },
+            {
+              "name": "campaign",
+              "value": "4d1d4037-a7e0-4ee2-96c2-de223241a83c"
+            }
+          ]
+        },
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        2540,
+        -20
+      ],
+      "id": "124ef489-d321-411f-86fc-10edca9c6209",
+      "name": "create_lead",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "UVjoN3pRJJch82VP",
+          "name": "Instantly API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "form_trigger": {
+      "main": [
+        [
+          {
+            "node": "map_website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "map_website": {
+      "main": [
+        [
+          {
+            "node": "start_batch_scrape",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_retry_count": {
+      "main": [
+        [
+          {
+            "node": "too_many_attempts_error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "rate_limit_wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rate_limit_wait": {
+      "main": [
+        [
+          {
+            "node": "fetch_scrape_results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "start_batch_scrape": {
+      "main": [
+        [
+          {
+            "node": "rate_limit_wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "check_scrape_completed": {
+      "main": [
+        [
+          {
+            "node": "set_result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "check_retry_count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_scrape_results": {
+      "main": [
+        [
+          {
+            "node": "check_scrape_completed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_result": {
+      "main": [
+        [
+          {
+            "node": "split_emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_emails": {
+      "main": [
+        [
+          {
+            "node": "create_lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "f23ace71-3675-4fd1-856f-7420511df0c0",
+  "meta": {
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "995Zs4albP6ZWzOD",
+  "tags": []
+}

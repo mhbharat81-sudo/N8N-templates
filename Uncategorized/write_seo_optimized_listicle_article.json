@@ -1,0 +1,1154 @@
+{
+  "name": "Content - Write Best Tools In Category Article",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Best Tools In Category",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Category Slug",
+              "placeholder": "ai-marketing-tools",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Audience",
+              "placeholder": "Job seekers, employees, and recruiters",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Tool Slugs To Include",
+              "placeholder": "Optional list comma-separated list of tool slugs to include"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -400,
+        0
+      ],
+      "id": "6305efa2-3b34-408a-aa99-7715375ad067",
+      "name": "form_trigger",
+      "webhookId": "3ddd7911-86a3-455a-b766-05b0cfc12dc5"
+    },
+    {
+      "parameters": {
+        "content": "## Construct Deep Research Prompt",
+        "height": 620,
+        "width": 2080
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "e1310f6e-d4c8-4219-80d9-621482a15c67",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "url": "=https://api.aitools.inc/categories/{{ $json['Category Slug'] }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -120,
+        0
+      ],
+      "id": "c6e40603-d8af-414e-9354-bd6508aeaa46",
+      "name": "fetch_category"
+    },
+    {
+      "parameters": {
+        "url": "=https://q0fo807q.api.sanity.io/v2025-04-03/data/query/production?query=*%5B_type+%3D%3D+%22tool%22+%26%26+%24categorySlug+in+categories%5B%5D+-%3E+slug.current%5D+%7B%0A++_id%2C%0A++title%2C%0A++%22slug%22%3A+slug.current%2C%0A++%22websiteUrl%22%3A+tool_urls.website_url%2C%0A++meta_description%0A%7D&%24categorySlug=%22{{ $json.slug.current }}%22&perspective=published",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        100,
+        0
+      ],
+      "id": "d430aae2-19c8-418b-b320-f0e0c0972a6f",
+      "name": "fetch_category_tools"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9481198d-c856-410a-b852-8adfa96794e6",
+              "name": "category_tools",
+              "value": "={{ $json.result }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        340,
+        0
+      ],
+      "id": "60894da4-5d49-4631-80df-47e18d9e228c",
+      "name": "set_category_tools"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "3eebc0cf-6950-4b6a-bbf0-a1b8584aa1dc",
+              "name": "deep_research_prompt",
+              "value": "=## **Task Instructions**\n\nYour task is to research the provided {{ $('fetch_category').item.json.title }} and prepare a report to the exact specification detailed below. Tools included in this report must be part of the provided list and you must output your report exactly as the instructions state. Think carefully and deeply about all of these requirements.\n\n1. You have been provided with JSON in the `{{ $('fetch_category').item.json.title }} Tool List JSON` section (included in this prompt) that contains a JSON array of AI tools relevant to the category “{{ $('fetch_category').item.json.title }}”. You are ONLY allowed to use these tools in your research and in your final output selection of top tools. Keep this in mind throughout the entire research process. You must make note of this in your research plan to confirm you understand. Sometimes this category may be very broad with a lot of tools, if that is the case you should use your best judgement in order to filter down this list to the tools that truly are {{ $('fetch_category').item.json.title }} and are best for the target audince.\n    - **JSON Structure**: Each item in the JSON array will include the following fields for each tool: `_id` (unique tool identifier), `title` (tool name), `slug`, `websiteUrl`, and `meta_description`. Read and parse this list of tools carefully to understand the entire scope of tools you will be researching.\n\n2. **Count the Total Number of Tools and List out each tool**\n    - Read and parse the tools in the `{{ $('fetch_category').item.json.title }} Tool List JSON` section (included in this prompt and wrapped in backticks to indicate it is code), and count the total number of tool items in the JSON array. Before starting your research, you must confirm the tool items you have counted with me. I am expecting you to see *{{ $node[\"fetch_category_tools\"].json.result.length }}* tools here that you will consider for your research and analysis.\n    - List out each tool provided in the `{{ $('fetch_category').item.json.title }} Tool List JSON` section that you plan to research and consider for picking the best tools. Please include the tool name and website url for the tool. You should use this as a reference to help guide your research for possible tools to include in your final output. It is critical that you only research these tools.\n    - In your message, you must include both the total count of tools and the list of every tool to evaluate.\n\n3. **Research Best {{ $('fetch_category').item.json.title }} (Primary Research Task)**\n    - Investigate **only** the tools that appear in the `{{ $('fetch_category').item.json.title }} Tool List JSON` section. Do not consider tools outside this provided JSON array of tools. THIS IS CRITICAL, YOU MUST ONLY CONSIDER THE TOOLS PROVIDED IN THE JSON ARRAY BELOW. DO NOT INCLUDE A TOOL IN YOUR TOP 6-8 TOOLS OUTPUT UNLESS IT IS IN THE JSON ARRAY PROVIDED.\n    - Look for information on popularity, features, community sentiment, pros/cons, and notable use cases. Use reliable sources such as:\n        - User discussions on Reddit, Stack Overflow, Hacker News.\n        - Product review platforms (G2, Capterra, TrustRadius, TrustPilot).\n        - Official websites and reputable professional blogs.\n    - **Timeframe**: Focus on reviews, discussions, and updates within the last 12–18 months to ensure the information is recent and relevant.\n\n{{\n  $('form_trigger').item.json['Tool Slugs To Include']\n    ? \"4. Your MUST include these tools in your research and include each of them in your final output for the best 6-8 selected tools. We have already done some initial research on these tools and know they are part of the best tools we want to feature. The values below are the slugs of the tools in our system. You should match these slugs against the full list of tools listed in the provided JSON section to get more details about the tools.:\\n\" + $('form_trigger').item.json['Tool Slugs To Include'].split(\",\").map(tool => \"\\t- \" + tool.trim()).join(\"\\n\")\n    : \"\\n\"\n}}\n\nYou must pay close attention to these details and include them in your research plan. It is extremely important that you understand this and follow through on these instructions. Use all text here I am providing you as your research plan verbatim. If you miss any details on your research plan will mean a failure for this task. Make sure there is no placeholder text or example text that leaks into the research plan.\n\nUSE EVERYTHING THAT I AM GIVING YOU HERE IN YOUR RESEARCH PLAN. DO NOT REMOVE ANY DETAILS. THIS WILL BE CONSIDERED A FAILED TASK IF YOU REMOVE ANY DETAILS.\n\n### **Evaluation Criteria**\n\n1. **Popularity & Adoption**: Which tools receive consistent, positive mentions or recommendations in online communities?\n2. **Features & Capabilities**: Identify standout functionalities, unique features, or advanced options relevant to this category.\n3. **User Feedback & Satisfaction**: Note key praises and complaints from credible user reviews and comments.\n4. **Recent Activity & Support**: Prioritize tools that show regular updates, active support communities, and well-maintained documentation.\n5. **Suitability for Different Use Cases**: Determine which tools serve specific audiences best (startups vs. enterprises, certain industries, etc.).\n    \n**Ranking Guidance**:\n- **Emphasize Proven User Feedback Over Marketing**: Give more weight to legitimate, repeatedly positive reviews from real users and active communities than to promotional claims.  \n- **Verify Legitimacy**: Ensure the praise or criticism comes from genuine user experiences rather than biased or marketing-driven sources.  \n- **Highlight Repeated Insights**: Look for recurring themes in feedback—when multiple users mention a specific strength (e.g., ease of use, reliability) or weakness (e.g., bugs, poor support), that pattern should significantly influence the ranking.  \n- **Consider Community and Developer Support**: Tools with large and active communities, frequent updates, and responsive support often offer a more robust user experience. Use the degree of ongoing engagement as a key factor in your assessment.\n- **Avoid Low Quality Sources**: You should avoid using unknown websites as sources in your evaluation process. You should avoid using low-authority websites as sources in your evaluation process. Evaluations must exclusively use information from authoritative, credible, and reputable sources OR from real user reviews and feeback left on each tool.\n\n### **Handling Conflicting or Limited Data**\n\n- If you find **conflicting opinions**, attempt to explain the reasons behind the divergence (e.g., different use cases or technical expertise).\n- If a tool has **limited information** online, explicitly note this, as it may indicate lower adoption or visibility.\n\n### **Output Format**\n\nPay close attention to this output format and each section that is detailed here. This details exactly what information needs to be included on the research report output and how it should be organized. Your output should include everything shared here.\n\n1. **Condensed Top 6–8 Table**\n    - Provide a concise ranked table of the **best 6–8 tools**. Don't feel like you just return 8 tools if there are not 8 very strong tools. It is completely your decision on the number of tools to pick in that range as long as they are high quality and should be considered in the \"best\" tools list. If you are struggling to pick out high quality tools, you are encouraged to choose a number of tools that makes more sense. Think deeply about this decision on number of tools to include. Before making your final selection, please review the task requirements that detail that each tool pikced here MUST be from the provided JSON array of tools. You may ONLY consider tools on the provided list. Your final output must contain AT LEAST 6 tools.\n    - Use the following columns (or an equivalent format):\n        1. **Rank** #1 being the best overall tool. Think carefully and deeply one which tools are best and should appear at the top of this list.\n        2. **Tool Name**\n        3. **Tool Id**: You must reference the `Tool Id Extraction` section for instructions on how to output the correct id here. This is extremely important. You must correctly extract this tool id value and follow the given guidelines. You are not allowed to make a mistake here so think carefully and output the correctly matched tool id. On your output, please output the text \"Tool Id: \" followed the tool id value that was matched.\n        4. **“Best For” One-Line Description** (e.g., “Best for small data teams,” “Best for real-time analytics,” etc.). These MUST be unique across each tool. The Best for description may NOT be duplicated across tools.\n2. **Expanded Tool Profiles/Reviews**\n    - For each tool in your top 6–8 tools:\n        - Generate an **In-Depth Profile for each of the top 6-8 leading tools** within the specified category: `{{ $('fetch_category').item.json.title }}`. The analysis must provide deep, actionable insights suitable for informing evaluation and potential adoption/purchase decisions. **Core Requirement: Strategic Essence & Differentiation Analysis** Move beyond surface-level descriptions and feature lists your research and output should cover:\n            1.  **Core Value Proposition & Strategic Positioning:** What fundamental problem does this tool solve, and for whom? What is its unique place or reputation in the market? What is it truly **known for**?\n            2.  **Key Differentiators & Competitive Edge:** What makes this tool genuinely **unique** compared to its peers? Identify specific features, methodologies, or approaches that give it an edge.\n            3.  **Areas of Excellence & Optimal Use Cases:** Where does this tool demonstrably **excel**? What specific tasks or workflows does it handle exceptionally well? What unique capabilities does it **enable** for its users?\n            4.  **Ideal User Profile:** Describe the primary users or organizations that gain the most value from this tool (e.g., specific roles, team sizes, industries, levels of expertise).\n  Present the analysis for each tool as a concise profile (aim for approximately 2 well-developed paragraphs).\n            5. **Start Directly with Insights:** Immediately address the strategic elements above. **Do not** begin with a generic statement defining the tool category (e.g., \"Tool X is a [Category] tool...\"). Assume the reader understands the basic category.\n            6. **Integrate Functionality Contextually:** Mention core functions only as necessary to illustrate points about differentiation, excellence, or enablement, not as a standalone list.\n            7. **Reference Examples:** The provided examples illustrate the required **minimum standard** for depth, insight, and strategic value. Your analysis must achieve this level.\n            8. **Focus:** Prioritize revealing the underlying strategic advantages, target audience fit, and unique capabilities over merely summarizing marketing points or basic features.\n            9. **Requirement:** Delivering this level of deep, non-obvious, and strategically valuable insight is critical for success on this task.\n        - **Tool Id**: You must reference the `Tool Id Extraction` section for instructions on how to output the correct id here. This is extremely important. You are not allowed to make a mistake here so think carefully and output the correctly matched tool id.\n        - **Key Features**: Highlight standout functions or advanced capabilities. You should provide descriptions here of the standout and key features. We want to know more about what make the feature useful or helpful to users. Expand on multiple features if they exist. Please provide a full paragraph of 3-4 sentences FOR EACH FEATURE explaining context like what the feature is, why it benefits users, and its benefits.\n        - **Pros & Cons**: Common praises and criticisms from recent user discussions/reviews. Detailed breakdowns of pros and cons will be helpful here. Please provide multiple bullets for each pro and con. Please expand around the context of each pro and con. Please provide a full pargraph of 3-4 sentences FOR EACH PRO AND CON that you list here. You must reference specific findings that gives more context around each pro and con. Additional context and specifics must be provided on your output.\n        - **Best For**: Specify use cases, industries, or team sizes where the tool is particularly effective. Please include details and why this \"best for\" was selected. Looking for a full paragraph (3-4 sentences) expanding on this.\n        - **References (preferred)**: Provide URLs or mention the forums/discussions where you found significant insights.\n            - If exact links are not available, give the site/platform name and approximate date or any identifying details.\n3. **Honorable Mentions**\n    - If any tools **outside** the top 6–8 frequently appear in your research or show strong potential for niche uses, include them in a short “Honorable Mentions” section. Briefly note why they didn’t make the main list (e.g., limited data, narrower feature set).\n4. **Brief Summary**\n    - Conclude with a concise comparison of your top picks, emphasizing **why** they stand out over others in the JSON.\n    - Highlight any overarching industry trends, repeated user comments, or critical factors (e.g., pricing, community size) that influenced your final ranking.\n\nEach key feature you list must be followed by a paragraph of 3 to 4 sentences of supporting text that adds more context to the feature, what it does, who its for, and its benefits. It is best that you include specific details here. You should aim to identify at least 4 features for each tool.\n\nEach pro you list must be followed by a paragraph of 3 to 4 sentences of supporting text that adds more to the pro just listed. This should reference specific insights or context found in your research. It is best that you include specific details here. You should aim to identify at least 3 pros for each tool. Keep true to the sources you find the pros on. Your output should contain specifics that match what people are saying about the tools and what they find most valuable. Don't summarize these pros, we want you to output the details of exactly what people think.\n\nEach con you list must be followed by a paragraph of 3 to 4 sentences of supporting text that adds more to the pro just listed. This should reference specific insights or context found in your research. It is best that you include specific details here. You should aim to identify at least 4 cons for each tool. Keep true to the sources you find the cons on. Your output should contain specifics that match what people are saying about the tools and what they find most painful, annoying, etc. Don't summarize these cons, we want you to output the details of exactly what people think.\n\nYour output here should be verbose and provide specific deatils and context. We are looking to really to the root of why each tool was selected and better understand the strengths and weaknesses of each tool. Point to specific details that will help best utilize this research when we create content based around it. Having the most important details and insights here is critical to your task. More detail and specific context is always better.\n\n### **Tone & Style**\n\n- Maintain a **professional but approachable** tone.\n- Provide **factual**, **transparent** explanations and source attributions (especially for user-driven insights).\n- Avoid outdated or unverified claims; emphasize consistency across multiple reputable sources.\n- If quoting users or community posts, **anonymize** or paraphrase the content to protect privacy.\n\n## Target Audience\n\n- Creators, marketers, developers, and business owners looking for cutting-edge AI solutions.\n- They are technically curious individuals wanting to keep up with next-gen AI trends.\n\n## Additional Research Instructions **IMPORTANT**\n\n1. You **MUST NOT** use or reference any content from \"aitools.inc\" as a source of information.  \n   - Under **no circumstances** should you cite or link to \"aitools.inc\".\n   - You **cannot** summarize, quote, or otherwise incorporate information from \"aitools.inc\".\n2. Ensure that any references you provide are:\n   - From the last 12–18 months (for relevancy).\n   - Appropriately attributed with either direct URLs or well-known platform names (e.g., “A Reddit thread from August 2024...”).\n3. Do not, under any circumstances, break these instructions. If you are ever unsure, **err on the side of excluding** the content from \"aitools.inc\".\n4. You **MUST** limit the tools you include on your research report to tools provided in the JSON array/list of tools below in the `{{ $('fetch_category').item.json.title }} Tool List JSON` section. You may NOT output tools in the top 6-8 tools selection unless they are included in the provided list of tools. Think through this carefully before constructing your output.\n5. You **MUST** carefully read through each of the examples provided for tool research output and make sure the research you put together matches the same level of detail and insights.\n\nYou should perform your research using queries that include **-site:aitools.inc** in the search string. This ensures that no data from that source is retrieved or synthesized. This means \"site:aitools.inc\" WILL NOT be used in web searches for your research.\n\nBy following these instructions, we will maintain compliance with the requirement to exclude “aitools.inc” as a source.\n\n### **Actionable Next Steps**\n\n- Whenever possible, include quick suggestions on how a reader could **get started** with each tool (e.g., free trials, GitHub links, official demos).\n- This ensures the final list not only compares the best tools but also guides the user on practical next steps.\n- There's no need to include physical locaion in here since these are all digital products and platforms.\n\n## Tool Id Extraction\n\n**Important**: Each tool in the JSON has a **unique `_id` field**. When listing any tool id/identifier (in a table, review, or reference), you **must** do the following:\n\n1. **No Numeric Placeholders or Substitutions**  \n   - For every tool, whenever you reference its Tool Id, you **must** copy and paste the exact `_id` from the JSON.  \n   - You cannot replace or modify any characters in the `_id`—no truncation, no quote changes, no additional spaces, no reformatting.\n\n2. **Distinguish 'Rank' and 'Tool Id'**  \n   - Include a separate column for “Rank” (e.g., #1, #2, #3…) to show ordering.  \n   - In a distinct “Tool Id” column, **only** provide the original `_id` from the JSON verbatim.\n\n3. **Example of Correct Table Columns**  \n   - **Rank**: #1, #2, etc.  \n   - **Tool Name**: e.g., \"Synthesia\"  \n   - **Tool Id**: the exact `_id` value from the JSON, like `3Hx6vANMj3Gv9uQA81MDCl` (not a placeholder).\n   - **Best For**: the 'best for' phrase determined for this tool\n\n4. **No Guessing**  \n   - If you are ever unsure about an `_id`, leave it out rather than guess or fabricate a numeric or placeholder id.\n\n**Example of Correct vs. Incorrect Usage**  \n- **Correct**:  \n  `Tool Id: 3Hx6vANMj3Gv9uQA81MDCl`  \n- **Incorrect** (missing or edited characters, placeholders, or different punctuation):  \n  `Tool Id: 3Hx6vANMj3Gv9uQA81MDCL (example)`  \n  `Tool Id: 3Hx6vANMj3GV9uQA81MDCl`\n\nYou must extract and include the correct tool idea on your report. This is NOT the slug of the tool, it is the `_id` field.\n\nUse this example as an additional reference. On this single tool item json, the correct tool id value to extract and ouput will be `OV3o2t7M68aAVZSgHcO2oS` since it is the value of the `_id` field on the object / element.\n\nIt is critical that you match and extract the correct identifier value here. If you get this wrong, the entire task will be considered a failure. Please review this carefully, think for several minutes on how to approach this, and do perform this matching and tool id extraction process correctly.\n\n```\n{\n    \"meta_description\": \"Create professional videos with AI avatars and voiceovers using quickvideo.ai. Explore how to simplify video production for your business needs.\",\n    \"_id\": \"OV3o2t7M68aAVZSgHcO2oS\",\n    \"title\": \"quickvideo.ai\",\n    \"slug\": \"quickvideo-ai\",\n    \"websiteUrl\": \"https://quickvideo.ai/\"\n}\n```\n\n**Action Required**  \n- When providing your ranked table and expanded reviews, always list the tool’s `_id` exactly as shown in our JSON.  \n- Any tool that you do **not** include in the top 6–8 ranking should not appear in the final table. Do not fabricate IDs for them.\n\n**Why This Matters**\nOur database relies on these precise `_id` values to map your recommendations back to the correct tools. **Even a single missing or altered character** can break this connection.\n\n---\n\n**Final Goal**: Deliver a well-researched, **ranked** shortlist (5–8 tools) with clear justifications. The final output should empower me to quickly decide which tools to explore further based on recent community sentiment, feature sets, and suitability for my specific needs. All output must be in English.\n\nPlease chose an appropriate number in the range of 6-8 tools to include. I trust your judgement on picking a number of tools that makes the most sense to feature on a blog post.\n\n---\n## Tool Research Output Examples (IMPORTANT)\n\nHere are examples of the quality level of deep research output require for this task. You must look below the surface level details for each tool and gain a true understanding of what makes this tool good, what its features are, who primarly uses it, how it stands out, what unique features it has, and other details that would be valuable to someone looking to make a purchase decision for this tools. This level of detail and depth is REQUIRED for this research task to be successful.\n\nYou must spend 3 hours reading each of these examples and then reflect on why this output is good. After doing that, you may being your research and apply what makes these examples so good to the output of your own research.\n\nYOU MUST BE ABLE TO PROVIDE THE SAME LEVEL OF DETAIL AND UNIQUE INSIGHTS FOR EACH TOOL ON YOUR RESEARCH REPORT. IF YOU CANNOT DO THIS, YOUR OUPUT ON THIS TASK WILL BE CONSIDERED A FAILURE.\n\n### Tool Research Output Example #1\n\nHere is an example from great text content output from a tool called \"Instantly\". I want you to read through this output example deeply, think on it for 3 hours about what makes it great, and apply this to your research process and output. Your research output MUST match the quality and detail level of this example.\n\nThis example does a very good job of finding useful details abou the tool that are deeper than surface-level and expanding on key functionality/features, value proposition of the tool, and what it excels at. This output really does a great job researching \"Instantly\" in-depth and sharing the details.\n\n```\nOverview: Instantly has rapidly become a go-to tool for cold email outreach, especially among startups and agencies in the past 1–2 years​\nSALESFORGE.AI\n. It’s an email prospecting platform known for its ability to send campaigns from multiple email accounts while also warming those accounts to maintain deliverability. Instantly doesn’t provide prospect lists; rather, it maximizes the impact of your email outreach with automation and inbox management powered by AI. Its tagline might as well be “send more emails that land in the inbox.” With Instantly, you can connect unlimited email accounts, automate follow-ups, track replies, and use AI for basic email text variations – all with an emphasis on hitting the primary inbox and not spam. Key Features:\nUnlimited Email Accounts & Warm-up: Instantly allows users to connect many sender accounts (Gmail, Outlook, etc.) and automatically runs warm-up sequences on them. This improves sender reputation so that your cold emails are more likely to be delivered. Many competitors cap the number of inboxes or charge per inbox; Instantly’s flat pricing for unlimited accounts has been a big draw​\nG2.COM\n.\nAutomated Sequences & Follow-ups: You can set up multi-step email sequences (e.g., initial outreach, then a bump email 3 days later) easily. Instantly handles sending follow-ups in the same thread if desired. It also offers scheduling and throttling to mimic human sending patterns.\nAI Copy Suggestions: While not as advanced as some others, Instantly has introduced AI features like an “AI Email Writer” to help craft or improve your message content (e.g., rephrase a sentence to be more concise or adjust tone). This is handy for users who aren’t sure how to write outreach emails, though it’s more of a helper than a fully autonomous writer.\nAnalytics & Email Health Insights: Instantly provides dashboards for open, reply, bounce rates, and even an email “Health” monitor that checks each account’s deliverability status. It will alert you if an account is at risk (e.g., too many bounces or spam flags) so you can pause or adjust. This focus on deliverability sets it apart.\nTeam Collaboration: It supports team workflows – you can manage multiple client campaigns (great for agencies) and share templates or results across team members.\nPros: Excellent deliverability and ease of use are the top praises. Many users report that Instantly helped them land in inboxes reliably and scale up outreach. On G2, it’s one of the highest-rated in its category (4.8/5 with over 3,600 reviews) and users highlight its intuitive interface and strong customer support​\nG2.COM\n​\nG2.COM\n. A Reddit user in r/coldemail mentioned “I’ve been using Instantly for all my cold email campaigns, and it’s been great so far” (late 2023). Another thread noted high deliverability and the time-saving nature of managing many inboxes in one place​\nREPLY.IO\n. In short, Instantly is loved for letting even a small team run big email campaigns without much technical headache. Support is described as very responsive and helpful​\nG2.COM\n, which is crucial when dealing with email issues. It’s also quite affordable relative to the volume you can send – there is even a free plan and the paid plans (~$30-$80/mo range) allow unlimited sending accounts​\nINSTANTLY.AI\n, which is a huge value for heavy senders. Cons: The feature set is focused mostly on email – it doesn’t natively do LinkedIn or phone, etc., so it’s not a multi-channel tool (unlike some others). A few users have reported bugs or tracking issues; for example, one Reddit user complained that Instantly said emails were sent but they didn’t see them in the outbox, raising concerns about reporting accuracy​\nREDDIT.COM\n. Another user was “very disappointed” after some success, citing that a lot of their emails might not actually be getting delivered despite what the app says​\nREDDIT.COM\n. These anecdotes suggest that while many find deliverability great, some have hit snags – possibly due to sending tactics or technical hiccups. Email content personalization is limited – you can use mail-merge fields, but Instantly’s AI isn’t as advanced in crafting unique first lines about a prospect (you’d use it alongside a tool like Quicklines or do manual research for that). Also, a small number of users mention billing frustrations (e.g., misunderstanding the free trial or being charged when forgetting to cancel) – always double-check the terms. Overall, however, concrete cons are relatively few; Instantly is a specialized tool and it does that specialty well, with most “dislikes” being feature requests (e.g., better team roles, more CRM integrations)​\nG2.COM\n​\nG2.COM\n. Best Fit Use Cases: Cold email at scale is Instantly’s bread and butter. It’s ideal for startups, agencies, or SDR teams that have their own lead lists and need to reach out to hundreds or thousands of prospects via email while keeping bounce/spam rates low. If you manage multiple outbound campaigns (especially across multiple domains or clients), Instantly provides a central hub. It’s also great for experimenting – you can spin up new sender accounts, try different email copies, and see results quickly. On the flip side, if your prospecting heavily involves calls or LinkedIn, you’d need other tools alongside Instantly (since it won’t help you there). Many growth hackers choose Instantly + another lead source (like Apollo or Snov.io for contacts) + perhaps an AI personalization tool to cover the full workflow. For a lean, email-focused outbound machine, Instantly is a top pick. Recent Updates & Community: In the past year, Instantly has added features like an AI snippet writer and improved their warm-up algorithms (they reacted quickly to changes like Google’s algorithm updates to keep the warm-up effective). The user community (on subreddits like r/EmailMarketing and r/ColdEmail) is quite active – you’ll find people comparing Instantly to alternatives (e.g., vs. SmartLead or Lemlist). Instantly often comes out favorably in those comparisons for its value and deliverability, though some advanced users juggle multiple tools. One trend is many users moving from older tools like Lemlist to Instantly for the unlimited sending capacity. The company appears to be actively engaging with user feedback (for example, addressing a bug or adding an integration when users ask). However, as the space gets competitive, Instantly is also starting to get more direct competition from similar platforms (some launched in 2023–24). Still, it made a strong name for itself in this recent wave of cold email tools. References: Instantly has mixed reviews on Reddit – e.g., “I really enjoy using Instantly… finding verified leads is super easy” vs “Instantly is a scam…horrible service” from different users​\nREDDIT.COM\n​\nREDDIT.COM\n. These polarized comments (both in the last year) show that while many find it effective, issues can arise if not set up correctly. On G2, it’s lauded for ease-of-use and support, though some note missing features and cost at scale as minor cons​\nG2.COM\n​\nG2.COM\n. The cold email community (posts circa 2023) often lists Instantly among the top tools for newcomers. (Sources: Reddit r/emailmarketing threads from 2023​\nREDDIT.COM\n; G2 reviews summary, Jan 2024​\nG2.COM\n​\nG2.COM\n.) Getting Started: Instantly offers a free plan – you can “Start for free. No credit card required” on their website​\nINSTANTLY.AI\n. This free tier allows you to connect a couple of email accounts and send a limited number of emails to test it out (at the time of writing, it includes up to 1,000 contacts and 5,000 emails/month according to a 2025 Lemlist review​\nLEMLIST.COM\n). To begin, sign up on Instantly.ai and use the onboarding wizard to connect an email inbox (or create a new dedicated Gmail/Outlook for testing). Try running the built-in Email Warm-up feature for a week to boost your sender reputation. Instantly provides templates for outreach sequences – you can load one and tweak the copy. They also have an online academy with tips on improving deliverability (worth a read if you’re new). After getting comfortable, upgrade to the Growth plan (~$30/mo) which unlocks unlimited email accounts and higher sending volumes – this is usually where the real power of Instantly shines for serious outbound campaigns.\n```\n\n### Tool Research Output Example #2\n\n```\nOverview: Reply.io is a sales engagement platform that allows you to automate outreach across multiple channels – primarily email, but also LinkedIn, calls, SMS, and more – now with AI assistance baked in. It’s an established player (around since mid-2010s) that has kept evolving, recently adding an AI writing assistant called “Jason AI” to help craft and personalize messages. Reply.io can be seen as a lighter-weight alternative to enterprise systems like Outreach.io or Salesloft, giving teams sequence automation, a built-in leads finder, and analytics in one package. In the last year or so, Reply.io has doubled down on AI features, making it quite relevant in the AI prospecting tools landscape. Key Features:\nMultichannel Sequences: You can create automated sequences that include steps like send an email, then wait 2 days, then send a LinkedIn connection, then another email, etc. Reply will handle the sending and even some LinkedIn tasks via integrations. This helps you engage prospects on multiple fronts without manual effort.\nAI SDR “Jason”: Reply introduced Jason AI, an AI sales assistant that can generate outreach sequences for you. You input your target buyer and product info, and Jason will suggest email copy or LinkedIn message copy. It can also handle replies in some capacity – for example, suggesting responses to prospect replies. It’s like having a junior SDR co-pilot that drafts messages and sequences​\nAISDR.COM\n.\nBuilt-in Contact Search: Reply has a database of 140+ million contacts (via partnerships). Through the UI, you can actually search for leads (similar to a mini-Seamless/Apollo). This means you can both find and reach out to leads all inside Reply. The contact data isn’t as exhaustive as dedicated databases, but it’s useful for quickly getting a list without leaving the platform.\nEmail Personalization & Tracking: It supports snippet personalization (merge fields, conditional text) and email A/B testing. Every email sent is tracked for opens, clicks, replies. It also has a handy “Email Quality Check” that uses AI to warn if your email might sound spammy or if it’s too long, etc.\nCRM Integration: Reply integrates well with CRMs like Salesforce, HubSpot, and Pipedrive. It can sync contacts and activity, ensuring your CRM has the updated info on sends and replies. It also has a two-way sync to avoid duplicating effort (e.g., if someone replies, mark them appropriately in CRM).\nTeam Collaboration & Analytics: Managers can see team performance, best-performing sequences, etc. It’s good for SDR teams working together, sharing templates and results. The analytics help optimize campaigns over time.\nPros: Feature-rich and unified – users appreciate that Reply.io can be a one-stop shop for outreach. Instead of using separate tools for email, LinkedIn automation, and phone task reminders, Reply covers many in one. Reviews often highlight its ease of setup for sequences and the slick sequencing interface. One Reddit user in r/coldemail called Reply.io “a game-changer for my outreach – the AI writing assistant and multichannel sequences are pretty slick.”​\nREDDIT.COM\n That sentiment of slick AI assistance is echoed by others who have tried the new Jason AI. It helps craft messages that feel more 1-to-1; some say Reply’s AI-generated emails are less generic than other tools they tried​\nG2.COM\n. Another pro is deliverability controls – Reply has features like automatic pause if too many emails bounce, and it supports email warm-up via integrations. Users also like the built-in lead search as a convenient way to top-up their contact list without an external database (especially useful for SMBs who can’t afford a big data subscription). Customer sentiment in reviews (G2, Capterra) is generally positive, citing good customer support and continuous improvements. It’s seen as a robust platform that “has everything I need in one place”​\nG2.COM\n, which for a busy sales rep means less tool-switching. The pricing is moderate for the value provided (it’s typically cheaper than Outreach.io and others, and you’re not paying separately for an AI email writer or a data tool, since they’re included). Cons: Complexity and UI quirks: Because Reply.io does a lot, some users find the interface a bit overwhelming or not as polished in certain areas. A user review titled “a mixed bag” noted that while powerful, it took time to learn all the features and they encountered some bugs in the LinkedIn sending workflow (Reddit, ~8 mo ago). The LinkedIn automation is a newer aspect and may require using Reply’s Chrome extension – it’s not as seamless as dedicated LinkedIn tools (and LinkedIn can always change things to break it). Another con is that Reply’s contact data quality (for the built-in database) is not on par with specialist tools – think of it as a bonus, not the main reason to buy. For serious list building, you might still use a dedicated tool. Also, some competitors like SmartLead have pushed ahead on certain features (e.g., more advanced email sending algorithms or team collaboration features) – so a savvy user might find a specific niche tool better in one dimension. A practical complaint: Reply charges per user seat and per contact credits; if you have a growing team, costs can rise, and some features are in higher-tier plans. In community discussions, a few people mentioned they preferred separate best-of-breed tools (like a specialized LinkedIn tool + email tool) rather than an all-in-one like Reply, citing that dedicated tools can have deeper functionality in their area. Lastly, deliverability is ultimately on the user’s setup – a couple of users said they saw lower open rates on Reply than on simpler tools, though this is anecdotal and could be due to many factors (one Reddit post wondered if Reply’s sending IPs or tracking domains affected open rates, when comparing Apollo vs Reply)​\nREDDIT.COM\n. There’s no clear evidence of Reply causing deliverability issues, but as with any platform, careful setup (custom domains, proper warm-up) is needed. Best Fit Use Cases: Sales teams that want a cohesive outreach system will benefit from Reply.io. If you are an SDR or AE who needs to run cadences that touch prospects via multiple channels, Reply provides that orchestration. It’s great for B2B teams where email + LinkedIn together greatly increase contact rates. For example, an SDR can have Reply send emails and also remind them (or automate) to send a LinkedIn message or dial a number as part of the same sequence. It’s also well-suited for teams that have moved beyond basic cold emailing and are looking to scale up – perhaps you started with just Gmail + mail merge, and now you need better tracking, more structure, and some AI help – Reply is a logical next step. Also, organizations that lack content support can use Jason AI to help reps write better outreach copy (useful for consistency and saving time). If you already have enterprise-grade solutions, Reply might overlap, but for many SMB and mid-market companies, it hits a sweet spot of functionality vs. cost. Keep in mind, if your outreach is solely email and you never plan to do calls or LinkedIn, you might not need all of Reply’s bells and whistles (a leaner email-only tool could suffice). But many find that having multichannel capabilities ready to go encourages a more effective outreach strategy. Recent Updates & Community: In the past year, AI in outreach has been the trend, and Reply.io rode that wave by launching Jason AI and other GPT-3/4 powered features (like their email assistant which was highlighted in marketing around early 2024). They also introduced a new interface for sequence building and more granular analytics. The user community (particularly on Reddit’s r/sales and r/coldemail) frequently includes Reply.io in “which tool should I use” discussions. It’s often recommended by users who emphasize multichannel outreach. There’s recognition that Reply has kept up with times – one comment in late 2024 noted that “Reply.io is top tier as well,” putting it in the same breath as Lemlist and others known for deliverability​\nREDDIT.COM\n. Trends: Many tools are adding AI writers, but not all have integrated into the workflow as nicely as Reply (since they built Jason AI to sit within the sequence creation). Another trend is consolidation of tools – some companies want fewer software vendors, and having contact search + dialer + email in one (like Reply) aligns with that, which could be why it’s gaining adoption. On the flip side, some power-users on Hacker News or GrowthHackers still favor API-driven or highly customized stacks, but that’s a minority. The general trajectory is that Reply.io has remained very relevant by innovating and listening to SDR needs. References: A Reddit user review (Q1 2024) mentioned Reply.io’s AI agent “Jason” finding high-value prospects and handling responses, calling it like having a buddy SDR​\nAISDR.COM\n. On G2, Reply.io holds around a 4.6/5 rating; pros often listed include the multichannel sequencing and ease of use, while cons include wanting deeper LinkedIn integration or minor UI improvements (G2 reviews, mid-2024)​\nREDDIT.COM\n​\nREDDIT.COM\n. Another Reddit thread comparing cold email platforms noted “Reply.io is top tier as well” when discussing deliverability and usability (reddit user in r/EmailMarketing, 2023)​\nREDDIT.COM\n. Overall, community feedback in the last year paints Reply as a reliable, ever-improving tool with a strong feature set. (Sources: Reddit threads in r/coldemail and r/sales 2023–24; G2 user reviews 2024; Reply.io official announcements.) Getting Started: Reply.io offers a 14-day free trial (no credit card required). That’s the best way to get hands-on. During the trial, you have access to most features, including Jason AI. Start by using the Email Assistant or Jason AI to generate a sample outreach sequence: you’ll be prompted to input your offering and target persona, and the AI will draft a multi-touch sequence for you – it’s quite an insightful experience to see what it comes up with. You can edit those drafts to add your personal flair. Next, if you have some contacts, upload a small list (or use the Reply contact search to find a few leads in your niche) to test the sequence. Try sending to just 5-10 contacts initially and monitor the opens/replies in Reply’s dashboard. Also explore creating a sequence that includes a LinkedIn task – e.g., “Day 3: send LinkedIn connection request” – to see how Reply guides you or automates it. This will give you a feel for the multichannel capability. When ready to commit, choose a plan based on your team size. The Starter plan (around $60/user/month, annually) is good for a single user with moderate outreach needs. For teams, the Professional or Custom plans might be needed, especially if you want the dialing feature or more contact credits. Make sure to set up your email sending domain properly (SPF, DKIM) – Reply has a setup wizard for that. They also have good onboarding support and a knowledge base if you hit any snags. In short: use the trial to build a dummy sequence with AI help, send a few test emails, and you’ll quickly see how Reply can fit into your sales process.\n```\n\n### Tool Research Output Example #3\n\n```\nOverview: Seamless.AI is a popular tool for building lead lists, known as an affordable alternative to giants like ZoomInfo. It is essentially an AI-powered sales intelligence platform that finds business contacts (emails, phone numbers, etc.) at scale. Seamless provides a massive database of professionals and companies, accessible via a web app or Chrome extension that you can use on LinkedIn. The “AI” in Seamless largely refers to their search algorithms that attempt to find direct dials and emails for prospects in real time, as well as features that recommend prospects similar to your targets. Over the last 12–18 months, Seamless.AI has been widely adopted by sales teams looking to quickly fill their pipeline without the exorbitant cost of legacy data providers. Key Features:\nMassive Contact Database: Seamless claims to index hundreds of millions of contacts. You can search by title, company, industry, etc., and get phone numbers and emails. It also offers company info like revenue, employee count, tech stack indicators, etc.\nReal-Time Search with AI: Instead of static lists, Seamless uses AI to crawl the web and validate info on the fly. For example, when you search for a person, it might pull data from LinkedIn, company websites, and other sources in real time to provide up-to-date contact info.\nChrome Extension: A key workflow is using Seamless on LinkedIn/Sales Navigator – as you view a profile or a list of people, the extension can find their email/phone with one click. This is very handy for prospecting directly from LinkedIn.\nCRM Integration & Export: You can export found leads directly into CRM or into CSV files. Seamless integrates with Salesforce, HubSpot, etc., to push leads and even log activities.\nAI Sales Assistant (Announcements): Seamless has marketed some newer AI features, like an assistant that can generate a first draft outreach message or research talking points about a prospect. However, user focus is primarily on the contact data itself.\nCommunity and Training Content: The company is known for aggressive marketing (the CEO posts a lot on LinkedIn). They provide training videos and even daily “List Building” tips. They also gamified the platform (leaderboards for most leads found, etc.).\nPros: Huge volume of leads at a lower cost is the top selling point. Users like that Seamless offers unlimited searches (in practice, it’s a high cap) for a flat subscription, whereas many data providers charge per contact or have strict limits. Many small-to-mid businesses found they could finally afford a decent contact database with Seamless. As one user noted, “the quality of phone numbers and reach percentage are excellent compared to other tools”​\nONSAAS.ME\n – indicating that for certain data (like direct dials), Seamless gave better results than competitors in their experience. It’s also relatively easy to use: search filters are straightforward and the Chrome extension means you don’t have to leave LinkedIn to get contact info. For building big lists quickly (say you need 500 new prospects for a campaign by tomorrow), Seamless is very efficient. It also got some recognition: it was featured as a leader in G2’s Winter 2025 Grid and has a solid rating (users often mention 4.6+/5 on review sites). Another pro is constant updates – Seamless’s team frequently refreshes the data and adds new features. The platform’s AI recommendations can surface lookalike prospects (find others similar to your best customer profile), which can help newcomers who aren’t sure where to start. Cons: The biggest complaints about Seamless.AI are data accuracy and aggressive sales tactics of the company itself. It’s almost a meme in some sales forums that Seamless’s own sales reps are overly persistent (ironically so for a prospecting company). One Reddit thread titled “F**k Seamless.ai” had a user ranting: “Their software is decent, their business dealing is atrocious. Aggressive sales, high price…”​\nREDDIT.COM\n. Users have reported being signed up to auto-renewing contracts or getting hounded by Seamless reps. So, caution on the buying process – read the fine print and be ready for upsell calls. On data quality: while Seamless can find a lot, email accuracy can be hit or miss. Some users note many emails come back “unverified” or outdated. For example, one person found that about 50% of emails were unverified in a batch​\nREDDIT.COM\n, leading them to question if Seamless was worth it. The phone number accuracy tends to be a bit better (especially direct dials when available), but you’ll still get some wrong numbers. Essentially, Seamless might require additional email verification steps to avoid bounces. Another con: LinkedIn has cracked down on some data scraping tools; a few months ago Seamless’s LinkedIn pages/extensions faced issues (rumor was LinkedIn temporarily restricted them)​\nREDDIT.COM\n. This caused concern about the extension’s stability, though it appears to be working now. Finally, support can be slow unless you’re on an enterprise plan – some small team users complained that it was hard to get issues resolved quickly. Best Fit Use Cases: Seamless.AI is best for teams that need large quantities of B2B contacts quickly – for example, SDR teams doing high-volume outbound, or marketers building big email lists for campaigns. It’s particularly useful if you don’t have an existing database; Seamless can jump-start your prospect list building without a six-figure ZoomInfo contract. It’s also good for sales orgs that have a handle on outreach but just need “more leads” at the top of funnel. If you combine Seamless with an email tool (like Instantly or Reply.io) and perhaps LinkedIn outreach, you have a full outbound engine. However, if extremely high accuracy is required (say you’re only emailing a dozen VIP accounts and need perfect data), Seamless might not be the go-to – a more curated approach or LinkedIn InMail might be better there. Also, very small businesses on a tight budget should be mindful: although cheaper than big competitors, Seamless is not “cheap” – annual plans can cost a few thousand dollars. It yields a lot of data for that price, but only invest if you have the bandwidth to actually use that data (i.e., you plan to reach out to thousands of contacts and thus benefit from unlimited search). Recent Updates & Community: Seamless has been aggressively updating features, including adding AI elements like a pitch writing tool and deeper integration with CRMs. In late 2024, they announced funding and an expanding database. The user community (r/sales, r/LeadGeneration, etc.) is vocal: many new SDRs ask if Seamless is worth it, and answers are mixed. A repeated insight is: Seamless is valuable, but verify the data. Trend-wise, some users compare Apollo.io vs Seamless vs ZoomInfo – often Apollo (another competitor) wins on price for startups (Apollo has a free tier), Seamless wins on unlimited search, ZoomInfo wins on sheer data quality but at a high price. Another trend is LinkedIn continually tightening access – so tools like Seamless walk a fine line to maintain functionality. Seamless’s community presence is also seen in their marketing “hype” (some find it too hyped). Importantly, in mid-2023 there was buzz about Seamless and Apollo’s LinkedIn extensions possibly causing LinkedIn account flags​\nREDDIT.COM\n. Many sellers now use these tools a bit more cautiously (e.g., staying within daily search limits, etc.). Overall, Seamless remains a top-of-mind tool in prospecting discussions, for better or worse. References: On Reddit’s r/sales (2023), multiple threads discuss Seamless: one user bluntly stated “I would never recommend Seamless.ai as a company” due to the aggressive sales tactics​\nREDDIT.COM\n, whereas others acknowledge the tool’s utility but warn to “check how reliable the info is”​\nREDDIT.COM\n. G2 reviews (as of early 2024) give Seamless around 4.2–4.5 stars, often citing the richness of contacts but noting data can be stale. A comparison on r/sales between ZoomInfo, Apollo, and Seamless had folks noting Seamless is great for quantity, ZoomInfo for quality​\nREDDIT.COM\n. (Sources: Reddit r/sales threads, Sept 2023; r/Emailmarketing thread 6 mo. ago; G2 and Capterra reviews 2024.) Getting Started: Seamless.AI typically offers a free trial or free demo credits​\nONSAAS.ME\n. You can start by signing up on their website for a limited free version – often you get e.g. 50 credits to test. Use these to search for a handful of your target prospects and evaluate the results. If you like what you see, the next step is their basic paid plan (monthly or annual). Be aware Seamless usually pushes annual contracts for better pricing. If you’re unsure, try to get a monthly option or a pilot. When you do subscribe, make sure to turn off auto-renew if you don’t want to be locked in (you may need to talk to support for this; reading the contract is key). Technically, onboarding is simple: use the Chrome extension on LinkedIn to start pulling contacts, and watch some of Seamless’s tutorial videos on how to refine searches. A tip: Always run the emails you get through an email verifier (Seamless has one built-in, but a second check with a tool like NeverBounce can help) before sending huge campaigns. This will filter out bad addresses and protect your sender reputation. Given Seamless’s scale, it’s easy to go overboard – start with smaller lists, verify, then expand. In summary, leverage the free trial to gauge if the data fits your needs, then proceed with a paid plan while keeping an eye on data quality.\n```\n\n---\n## {{ $('fetch_category').item.json.title }} Tool List JSON\n\nYou have a single, definitive list of tools (in JSON format) to evaluate:\n\n- This list is the only source you may use when choosing or discussing tools. If this list is empty or not provided, you must then look to the attached JSON file instead.\n- When recommending or discussing the top 6–8 tools, you must choose from the list below.\n- Do not include or create any new tools.\n- If a tool is not in the list above, do not bring it up.\n- You must not reference or propose any tool that does not appear in the JSON array.\n- That means no external or “invented” solutions.\n- Violating this rule would mean failing the instructions.\n\nYou must get this correct. Mistakes here are unacceptable.\n\n```\n{{ JSON.stringify($('set_category_tools').item.json.category_tools, null, 2) }}\n```",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1000,
+        0
+      ],
+      "id": "29dbd860-9b94-4cbb-bdc7-4ed2dabc3ec2",
+      "name": "build_deep_research_prompt"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "operation": "sendAndWait",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C08KC39K8DR",
+          "mode": "list",
+          "cachedResultName": "ai-tools-content"
+        },
+        "message": "=I have put together a Deep Research prompt for the *Best {{ $('fetch_category').item.json.title }}* article please run this prompt using Deep Research then click *Add Result* to continue.\n\nPrompt:\n`{{ $json.permalink }}`\n\nTools JSON:\n`{{ $('upload_tools_json_file').item.json.permalink }}`",
+        "responseType": "customForm",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Deep Research Result",
+              "fieldType": "textarea",
+              "placeholder": "Paste the entire Deep Research result into here.",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "messageButtonLabel": "Add Result"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1700,
+        0
+      ],
+      "id": "e6f33e1f-6b16-48e9-95bb-aaf983f26981",
+      "name": "share_research_prompt_and_wait",
+      "webhookId": "2530ce42-7d56-469f-9d34-5a4fbf826a9b",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toText",
+        "sourceProperty": "deep_research_prompt",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1240,
+        0
+      ],
+      "id": "3e6006a3-1a38-4966-8798-7a2abebb5fe3",
+      "name": "create_prompt_file"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "options": {
+          "fileName": "prompt.txt"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1460,
+        0
+      ],
+      "id": "f893cdea-7587-439e-8255-6a956836159c",
+      "name": "upload_deep_research_prompt_file",
+      "webhookId": "4cbc0321-a8dd-4d49-95d4-3339b6170896",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Write Intro",
+        "height": 620,
+        "width": 840,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "4675413d-2d87-4f23-ad66-1cbbdd72a313",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=# Role and Task\n\nYou are an expert content marketer and expert copywriter who specializes in SEO-driven writing. You have been given an extensive research report by a researcher on the topic of **{{ $('fetch_category').item.json.title }}**. Your job is to distill that research into a compelling introduction for an upcoming blog post, **emulating the style and structure similar to a Zapier blog post (starting with a pain point, introducing AI as the solution, mentioning research)**. The post will be titled:\n\n**“The [X] Best {{ $('fetch_category').item.json.title }} in {{ $now.extract('year') }}”**\n\n(X is the number of tools picked, assume 8 unless specified otherwise)\n\n---\n\n## **Target Audience**\n\n1. Professionals, creators, business owners, or {{ $('form_trigger').item.json[\"Audience\"] }} looking for cutting-edge AI solutions in **{{ $('fetch_category').item.json.title }}**.\n2. Technically curious individuals wanting to keep up with next-gen AI tools and trends.\n\n---\n\n## **Objectives**\n\n1. Write an **SEO-friendly** introduction **that starts with a relatable pain point** related to traditional methods in the **{{ $('fetch_category').item.json.title }}** space, captures attention, and ranks well for keywords such as “best {{ $('fetch_category').item.json.title }},” “{{ $('fetch_category').item.json.title }} software,” and other relevant search terms.\n2. Establish the significance and context of **{{ $('fetch_category').item.json.title }}** in 2025, **positioning them as a powerful solution** to the initial pain point.\n3. Provide a smooth lead-in to the rest of the article **that includes a brief mention of the author's research or review process** and highlights the eight top tools featured **with a final sentence designed to maintain reader interest and clearly signal the value or excitement of the upcoming list.**\n\n---\n\n## **Style and Tone**\n\n- **Professional but approachable and conversational**: Think tech-savvy marketing blog with a friendly, informed voice, **aiming for a feel similar to Zapier's blog.**\n- **Start with a relatable pain point or challenge** relevant to the **{{ $('fetch_category').item.json.title }}** topic.\n- **Directly introduce AI** as a powerful solution addressing these challenges.\n- **Incorporate a sentence suggesting active research or review** of the tools.\n- Keep the focus on the **value and possibilities** of the technology, highlighting benefits without making unrealistic promises.\n- Briefly mention the **evolution or trajectory** of **{{ $('fetch_category').item.json.title }}** (e.g., moving beyond older methods), keeping it **uplifting and solutions-oriented**. Avoid deep controversy.\n- **Craft the final sentence of the introduction carefully**: Ensure it provides a strong, engaging transition to the list. Avoid weak lead-ins like \"Here is the list...\" or passive constructions. Focus on creating anticipation or highlighting the value the reader will gain from the list. This should likely be the only sentence in the final paragraph.\n- Avoid using the sentence structure \"From ... to ...\" multiple times in your output. One usage of this is fine, but two is repetitive.\n- Use direct language and simple sentence structure in the first paragraph. It should feel easy to read and not include excessive commas.\n- Avoid flowery language and overly descriptive text. This should NOT come across as overly promotional.\n\nInstead of using words and terms like \"my\" or \"I\", use \"we\" or \"our\".\n\nWrite clearly, concisely, and directly, using active voice and concrete language. Avoid abstract phrases, passive constructions, vague descriptions, and overly generalized statements. Each sentence should be purposeful, impactful, and communicate its meaning effectively. Avoid redundancy in your writing and words you use.\n\nUse active verb constructions rather than noun phrases. For example:\n- WEAK: \"Intuitive interface that makes voiceover creation accessible to non-technical users\"\n- STRONG: \"Intuitive interface that makes creating voiceovers accessible to non-technical users\"\n\nFocus on what users can actively do with the product rather than abstract concepts. Avoid unnecessary nominalization (turning verbs into nouns) and keep the language direct and dynamic. More Guidelines:\n\n- Place verbs directly after helping verbs like \"makes,\" \"allows,\" \"enables\"\n- Emphasize user actions rather than abstract processes\n- Use clear subject-verb-object structure whenever possible\n- Keep sentences concise and purposeful.\n\nYou Should Avoid:\n- AVOID ALL CAPS or excessive punctuation!!!\n- Avoid making the topic sound more significant than it actually is\n- Avoid over-exaggeration\n- Avoid using over-the-top buzzwords like \"revolution\" and \"game-changing\"\n- Avoid referencing this piece of content as a \"guide\". Use another word instead, like **\"picks,\" \"favorites,\" \"overview,\" or \"breakdown.\"**\n- **Avoid weak, passive, or overly simple transitions** in the final sentence (e.g., \"Here are the tools...\", \"The following list shows...\").\n- Avoid mentioning a phrase like \"analyzing user reviews\". This output will come from personal testing experience.\n\n---\n\n## **Key Points to Cover (Woven into the Zapier-style narrative)**\n\n1.  **Relatable pain point** of traditional methods in the **{{ $('fetch_category').item.json.title }}** space.\n2.  **AI as the solution**, highlighting evolution and benefits (e.g., speed, ease).\n3.  **Brief mention of wide-ranging use cases or user types** who benefit.\n4.  **Implied significance of 2025** through AI's current advanced capabilities.\n5.  **Explicit mention of research/review process**.\n6.  **Strong final transition sentence** leading into the list. Keep this in direct language and strong. This is a good example of a final sentence: \"After almost a month of testing, here are our picks this year for the best AI video generators.\" Be sure this is not overly promotional. It must be strong but should not feel like marketing-speak.\n\n---\n\n## **Length & Format**\n\n- Your output should be two paragraphs.\n- The first paragraph MUST be two sentences in length. It CANNOT be more than two sentences.\n- The second paragraph should just be a single sentence that transitions into the rest of the blog post/article.\n- You should not reference or mention testing in the first paragraph.\n- Maintain clarity and readability; use **short sentences** and **transitions**.\n- Don’t end the intro with a question.\n- If you reference a number of tools that were tested, it should be a minimum of dozens.\n- The second paragraph should be shorter in length than the first and should provide a smooth transition into the list of tools being covered, **ending with the strong transition sentence.**\n\n---\n## Word Blacklist\n\nYou must avoid these words in your output:\n- intuitive\n- magic\n- revolutionize\n- revolutionizing\n- game-changing\n- solutions\n- online presences\n- stunning\n\n---\n\n## **Example of the Desired Outcome (Reflecting Zapier Style with Strong Ending)**\n\n*(This example illustrates the target style for a different topic, like AI writing assistants. It is a bit too long so please reflect on the sentence length requirements. The first paragraph must be 2 sentences. The second paragraph must be 1 sentence.)*\n\nWriting great content takes time. Brainstorming ideas, drafting paragraphs, polishing sentences, and ensuring the right tone—it’s a demanding process, especially on tight deadlines. Thankfully, AI now offers tools to significantly streamline content creation.\n\nFrom generating blog post outlines to refining marketing copy, these AI tools help writers and teams produce quality content faster. After extensive testing, **discover our picks for the AI writing assistants ready to transform your workflow this year.**\n\n---\n\n## **Final Deliverable**\n\nA **polished, 2-paragraph introduction** following the **Zapier-inspired style**, addressing the above points including a **strong final transition sentence**, and setting the stage for:\n\n**“The [X] Best {{ $('fetch_category').item.json.title }} in 2025.”**\n\n---\n## Research Report:\n\n{{ $('share_research_prompt_and_wait').item.json.data['Deep Research Result'] }}",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        300,
+        640
+      ],
+      "id": "78f9a48e-4b3d-48a1-9d2b-8d92a23418db",
+      "name": "write_introduction"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Sequential reasoning thinking through how to write the best introduction paragraph. You should also think though the correct output format required here.\"\n    },\n    \"intro_paragraph\": {\n      \"type\": \"string\",\n      \"description\": \"The introduction paragraph written for this best tools piece of content. This should be formatted as markdown.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"intro_paragraph\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        460,
+        880
+      ],
+      "id": "e1a1cbd9-5dd1-4f22-80f8-d174df1d0abd",
+      "name": "intro_parser"
+    },
+    {
+      "parameters": {
+        "content": "## Extract Tools\n",
+        "height": 620,
+        "width": 440,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1900,
+        -240
+      ],
+      "typeVersion": 1,
+      "id": "4ad663cb-5298-4c86-8c6c-11e1ba06522b",
+      "name": "Sticky Note2"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n        \"chainOfThought\": {\n          \"type\": \"array\",\n          \"description\": \"Sequential reasoning to analyze and select the correct tools that exist in our system.\"\n        },\n\t\t\"tools\": {\n\t\t\t\"type\": \"array\",\n\t\t\t\"items\": {\n                \"tool\": {\n                  \"type\": \"object\",\n                  \"description\": \"A single tool extracted from the research report.\",\n                  \"properties\": {\n                    \"tool_name\": {\n                      \"type\": \"string\",\n                      \"description\": \"Tool name value.\"\n                    },\n                    \"tool_name\": {\n                      \"type\": \"string\",\n                      \"description\": \"Tool slug value.\"\n                    },\n                    \"tool_id\": {\n                      \"type\": \"string\",\n                      \"description\": \"Tool id value. This must be the exact id of the tool provided on the research report that was extracted via the `_id` field.\"\n                    }\n                  }\n                }\n\t\t\t}\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2160,
+        220
+      ],
+      "id": "9e9b5614-f89e-41b8-955d-c49236379dd2",
+      "name": "tool_parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## Task\n\nGiven a research report about the best {{ $('fetch_category').item.json.title }}, I want you to extract an array of the best tools. Each tool will contain its `name`, `slug`, and `id` value. Please keep these in the same order as they were listed in the research report.\n\nYou must think deeply and pay close attention to the `tool_id` you set in your output. In order to pick this, you must match up each tool referenced on the research report its item on the tool JSON list. The `_id` field on each element on the JSON array below. The tool you match against must be the same tool. Look closely at the tool name to help with matching between the research report and tools listed on the tool list JSON.\n\nEvery single tool on the research report WILL appear on the json below. So think carefully when matching and extracting the correct id values. You must pick the correct id value. Errors will not be tolerated. The id value you select must match the tool that is listed in order found on the research report.\n\n## Research Report\n\n{{ $json.data['Deep Research Result'] }}\n\n---\n## {{ $('fetch_category').item.json.title }} Tool List JSON\n\nYou must look through every element on this JSON array. I can assure you that there will be a match. Think deeply and review carefully.\n\n```json\n{{ JSON.stringify($('fetch_category_tools').item.json.result, null, 2) }}\n```",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1940,
+        0
+      ],
+      "id": "e1bf3280-bb28-4586-b56d-79a21756c799",
+      "name": "extract_tools"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=## Task\n\nWrite a clear, concise, and compelling meta description for the **Best {{ $('fetch_category').item.json.title }}** page on our *AI Tools* website. It must sound like it was written by a tech-savvy blogger or a trusted product guide—not a robot or marketing tool. You really just need to follow the formula of the Zapier example to write this.\n\nThe current date and time is: {{ $now.toISO() }}\n\n## Zapier Example\n\nYou should follow this example and use it as a template when writing the meta description.\n\n\"We tested dozens of AI video generators, and these are the best tools to create, edit, and enhance videos using AI.\"\n\n---\n## Things To Avoid\n\n- Passive voice or abstract nouns like “use-case analysis”  \n- Generic phrases like “various tools” or “matches your needs”  \n- Overused endings like “today” or “instantly”  \n- Over-exaggeration or buzzwords like “revolutionary”\n- Avoid referencing specific tool names\n\n---\n## Word Blacklist\n\nYou must avoid these words and phrases in your output:\n- intuitive\n- magic\n- revolutionize\n- revolutionizing\n- game-changing\n- solutions\n- online presences\n- stunning\n- that use artificial intelligence\n- AI assistance\n\n---\n## Research Report Context:\n\nYou should use this research report as context as it will cover the core content of what will go on the 'Best {{ $('fetch_category').item.json.title }}' for our website.\n\n{{ $('share_research_prompt_and_wait').item.json.data['Deep Research Result'] }}\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert copywriter who specializing in writing meta description for pages that will rank well on Google. You know a great deal about writing effective meta descriptions that lead to improved click through rates on search engine result pages (SERPs)."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -180,
+        640
+      ],
+      "id": "483b66a3-1c42-4f55-b63c-62c463f8b390",
+      "name": "write_meta_description"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Sequential reasoning to write this meta description. You should also think though the correct output format required here.\"\n    },\n    \"result_meta_description\": {\n      \"type\": \"string\",\n      \"description\": \"The meta description output for this best tools page.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"result_meta_description\"\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        180,
+        880
+      ],
+      "id": "b1d18b10-3970-4f87-91ee-de2e657f1255",
+      "name": "meta_description_parser"
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        660,
+        1900
+      ],
+      "id": "efdc6055-32c7-486a-b2e3-7f7322f514af",
+      "name": "claude-3-5-sonnet",
+      "credentials": {
+        "anthropicApi": {
+          "id": "l40BD4ZshdbnRGbC",
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## Write Ranking Criteria Content",
+        "height": 620,
+        "width": 460,
+        "color": 5
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "c6e66af6-588b-4022-af27-682a83452453",
+      "name": "Sticky Note4"
+    },
+    {
+      "parameters": {
+        "content": "## Write Body Content",
+        "height": 620,
+        "width": 1200,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        400
+      ],
+      "typeVersion": 1,
+      "id": "b2be4ece-8c48-499f-9b7a-19147dd67c17",
+      "name": "Sticky Note5"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Category: {{ $('fetch_category').item.json.title }}\nTool Id / `tool_id` Value: `{{ $json.id }}`\nTool Name: \"{{ $json.name }}\"\n\n## **Context & Role**\n\nYou are an **expert content marketer for the company AI Tools**. You have received:\n\n1. A detailed **research report** on the best {{ $('fetch_category').item.json.title }}.\n2. A **JSON object** for each tool with a short sentence describing what each tool is “best for”.\n\nYour main task is to distill this information into a straightforward, **in-depth analysis** section for a blog post titled **“The Best {{ $('fetch_category').item.json.title }}”** This section is one part of a larger blog post that dives into detail on each specific tool. This section will contain:\n  - **H2 Heading** – A succinct “Best for” phrase (MUST BE 4 WORDS OR LESS — SHORTER IS BETTER) highlighting the tool’s standout advantage or unique positioning. This should draw directly from the research report AND it must be short, clear, and very concise. This phrase will start with \"Best {{ $('fetch_category').item.json.singular_title }} for <PHRASE GOES HERE>\" This phrase will appears as an H2 on our website so it should also make sense in that context. This should use direct language. You must use active verb constructions rather than noun phrases (you may not end this H2 heading with a noun phrase like 'creation', 'visualization', or another weak noun that trails off in an 'ion' ending). You must avoid using the word 'for' more than once in this h2 heading (for example, the h2 'Best AI Resume Builder for Optimizing Content for ATS' contains 'for' twice and MUST be worded differently). This should follow the H2 points specified in the \"Writing Guidelines\" described below — reference this and review it carefully. Remember this should be precise, short, snappy, and catchy. As another example, I want this to be a strong header so avoid a header like \"Best AI Website Builder for UI Component Generation\", but instead use a header like \"Best AI Website Builder for Generating UI Components\" as it is more clear and direct. Avoid using the word \"via\" in this phrase. Avoid using a time phrase like \"in minutes\" in this phrase. Make sure your phrase is short and concise. It should not contain many words and should be to the point. It should not contain excessive descriptors or the word \"and\" in it. You must review the provided examples to ensure the best for phrase you write would be considered strong. Avoid duplicate language and words that have duplicate meaning in this phrase. For example, you should avoid including both \"builder\" and \"building\" since they mean the same thing. You must review the strong and weak examples so you know what to avoid and what you should strive for. Limit the number of adjectives on this H2 phrase to 1 — using a term like \"beautiful responsive\" is overly objective and too many words. Make sure to use language and terms here that the primary users of this tool/product would actually use. It should relate to the main users of ths product/tool and be relevant to '{{ $('fetch_category').item.json.title }}'. DO NOT end this in a time word like 'fast' or similar word. DO NOT end this in an adverb — this means an adverb like 'efficiently' or 'flexibly' or 'easily' should NOT be used on the end your H2 output here — This is extremely important. Avoid using alliteration in this heading like 'versatile visualizations'. The phrase and heading you pick here MUST be something that is important towards the target users of this tool and something they care about in their work/tasks. This phrase must be UNIQUE from the best for phrases written for other tools.\n  - An H3 heading with the tool’s name\n    - A Body section that includes:\n        1. **Overview**: This must be a concise, factual overview (ONLY 1 paragraph in length) based **solely** on the provided research report's profile for this tool. You MUST stay true to profile for this tool in the research report and pull directly from it. You should directly copy over text content and use the content directly provided in the research report profile.\n          -  **Overview Content Foundation (Research-Grounded Essence):**\n              * You should copy over the deep research report profile/overview content verbatim exactly as it was provided.\n              * This overview may only be 1 PARAGRAPH in length.\n              * The very first sentence of this overview does NOT need to repeat what type of tool this is since this overview is part of a larger piece of content covering '{{ $('fetch_category').item.json.title }}'.\n              * Prefer speaking directly to the reader instead of using words like 'user' and 'users'.\n              * Avoid repetitive phrasing or repeating the same ideas.\n              * You MUST avoid referencing specific versions of AI Models or Model Names in the overview paragraph output. This means that you should avoid using phrases 'GPT-3.5', 'GPT-4', 'Claude 2', and other model names in this overview paragraph.\n              * Use varied references when mentioning the tool (`{{ $json.name }}`); do not overuse the name.\n              * Ensure the final sentence concludes decisively and does *not* end with an adverb (e.g., 'efficiently', 'quickly', 'simply').\n          -  **Overview Specific Formatting (Precise Linking):**\n              * If the tool's name `{{ $json.name }}` is mentioned in the *first sentence*, format it as a markdown link: `[{{ $json.name }}](/tools/{{ $json.slug }})`. Do not include any backticks around the link markdown. The tool's name almost ALWAYS appears here at first so make sure you do this correctly as it will let us build an internal link and improve our website.\n          -  **Overview Quality Benchmark:**\n              * Refer to the provided examples of successful overviews to understand the target style, tone, and level of detail.\n        2. **Pros** (2–4 bullet points of medium length. Do not always use the same number of bullet points. Vary it up, and focus on the most important ones for your target audience. YOU MUST VARY THE NUMBER OF BULLETS) Simply bold the text at the start of this list, do NOT use #### (h4) headings for this. The first part of each pro should be a simple title or descriptor. For example, if a pro for this tool is pricing, the start of the pro should be \"**Pricing:** ...\" (note the bold text followed by a colon charcacter, followed by the actual content of the pro). Pay close attention to these formatting requirements. Keep the start of this pro short, snappy, and concise. When formatting these cons, please write \"**Pros:**\" on its own line and then add each pro as their own bullet. Make sure the first part of each pro comes across strong. Don't mention a generic pro like \"AI Features\" as a pro — It is already known that it has AI Features, you should instead use a more specific pro that was extracted from the research report. When reading the pros listed in your output, it should feel to the reader like the pro is speaking from experience.\n        3. **Cons** (2–4 bullet points of medium length. Do not always use the same number of bullet points. Vary it up, and focus on the most important ones for your target audience. YOU MUST VARY THE NUMBER OF BULLETS) Simply bold the text at the start of this list, do NOT use #### (h4) headings for this. For example, if a con for this tool is ease of use, the start of the pro should be \"**Difficult To Use:** ...\" (note the bold text followed by a colon charcacter, followed by the actual content of the con). Pay close attention to these formatting requirements. Keep the start of this con short, snappy, and concise. When formatting these cons, please write \"**Cons:**\" on its own line and then add each con as their own bullet. Make sure the first part of each con comes across strong. You MUST NOT provide generic cons, you should instead reference specific cons extracted from the research report. When reading the cons listed in your output, it should feel to the reader like the con is speaking from experience.\n        4. **Best Use Cases** (2-3 bullet points of medium length. Do not always use the same number of bullet points. Vary it up, and focus on the most important ones for your target audience.) Simply bold the text at the start of this list, do NOT use #### (h4) headings for this.\n\nYour secondary task is to write \"Quick Look\" details for this tool. This will include: \n    1. **best_for_phrase** – This is the exact same phrase used as the H2 Heading on the main content section. It will NOT start with the text \"Best {{ $('fetch_category').item.json.title }} for\". It will instead just include the phrase that follows that text.\n    2. **standout_feature** – A single short sentence, **2–6 words**, highlighting the tool’s unique feature. We want this to be a feature that is unique or differentiated from the other tools and products included on the research report.\n    3. **pricing** – A single short sentence, **3–7 words**, explaining the tool’s pricing. This should use specifics and not relative pricing.\n\nYou MUST pay close attention to the required output format structure and schema that is required for your task. Think deeply for 3 hours about how to format your output and always be sure that your output matches it. If you don't match the required output format, it will be considered a failed task and I will lose my job, home, and my family will leave me. You CANNOT make a mistake with the format of your output.\n\n## **Target Audience**\n\n- **Creators, marketers, business owners, and {{ $('form_trigger').item.json.Audience }}** looking for cutting-edge AI solutions in {{ $('fetch_category').item.json.title }}.\n- **Technically curious individuals** eager to stay updated on next-gen AI tools and trends.\n\n## H2 Heading and \"Best For Phrase\" Examples\n\nReview these examples carefully and think deeply about what makes each example weak and strong. Use these examples to ensure you are writing headings and best for phrases that would be considered STRONG. Avoid a WEAK writing your H2 and best for phrase.\n\n### Example #1\n\nThe weak example here is far to long. Both the for phrase and heading should be more concise.\n\nWEAK: \"Best AI Website Builder for Building Beautiful Websites Without Code\"\nSTRONG: Best AI Website Builder for Creating Beautiful Websites\"\n\n### Example #2\n\nThe weak example here is far to long. Keep the heading and best for phrase straight forward and avoid excessive description words.\n\nWEAK: \"Best AI Website Builder for Generating Production-Ready UI Components\"\nSTRONG: \"Best AI Website Builder for Generating UI Components\"\n\n### Example #3\n\nWe can remove the build websites part of the weak example here since the whole blog post is about website builders. It can be implied that there are already related to website builders. Additionaly, the term 'Website Builder' already appears earlier in the heading so it is duplicated. Avoid duplicating.\n\nWrite directly and avoid wordiness. It is completely fine just to say that a heading or best for phrase is best for a specific group or target audience. There is no need to 'force' additional words here.\n\nWEAK: \"Best AI Website Builder for Helping Agencies Build Websites\"\nWEAK: \"Best AI Website Builder for Building Agency Websites\"\nSTRONG: \"Best AI Website Builder for Agencies\"\n\n### Example #4\n\nThe example example includes the word 'for' twice which is wordy and come across as sloppy. You should write more directly and avoid repeating 'for'.\n\nWEAK: \"Best AI Website Builder for Building Websites for Entrepreneurs\"\nSTRONG: \"Best AI Website Builder for Entrepreneurs\"\n\n### Example #5\n\nThis example is not good output because it contains duplicate language on the words \"Builder\" and \"Building\". This is excessive and duplicative words that have similar meaning. You MUST avoid doing this.\n\nWEAK: \"Best AI Website Builder for Building Exportable Websites\"\nWEAK: \"Best AI Website Builder for Building Client Websites\"\n\n## Overview Examples\n\nThese are good examples you should use as a reference on the overview section for this tool. Pay attention to the sentence structure used, how the writing goes deeper than simple surface-level descriptions of the tool, and how it touches on the benefits and standout features of each tool.\n\nIt is critical to the success of this task that you read through these examples, think about them for 1 hour on what makes them good examples, and then apply what makes them good to your output of the tool overview.\n\n### Overview Example #1\n\nInstantly has rapidly become a go-to tool for cold email outreach, especially among startups and agencies in the past 1–2 years. It's an email prospecting platform known for its ability to send campaigns from multiple email accounts while also warming those accounts to maintain deliverability. Instantly doesn't provide prospect lists; rather, it maximizes the impact of your email outreach with automation and inbox management powered by AI. Its tagline might as well be \"send more emails that land in the inbox.\" With Instantly, you can connect unlimited email accounts, automate follow-ups, track replies, and use AI for basic email text variations – all with an emphasis on hitting the primary inbox and not spam.\n\n### Overview Example #2\n\nReply.io is a sales engagement platform that allows you to automate outreach across multiple channels – primarily email, but also LinkedIn, calls, SMS, and more – now with AI assistance baked in. It's an established player (around since mid-2010s) that has kept evolving, recently adding an AI writing assistant called \"Jason AI\" to help craft and personalize messages. Reply.io can be seen as a lighter-weight alternative to enterprise systems like Outreach.io or Salesloft, giving teams sequence automation, a built-in leads finder, and analytics in one package. In the last year or so, Reply.io has doubled down on AI features, making it quite relevant in the AI prospecting tools landscape.\n\n### Overview Example #3\n\nSeamless.AI is a popular tool for building lead lists, known as an affordable alternative to giants like ZoomInfo. It is essentially an AI-powered sales intelligence platform that finds business contacts (emails, phone numbers, etc.) at scale. Seamless provides a massive database of professionals and companies, accessible via a web app or Chrome extension that you can use on LinkedIn. The \"AI\" in Seamless largely refers to their search algorithms that attempt to find direct dials and emails for prospects in real time, as well as features that recommend prospects similar to your targets. Over the last 12–18 months, Seamless.AI has been widely adopted by sales teams looking to quickly fill their pipeline without the exorbitant cost of legacy data providers.\n\n### Overview Example #4\n\nClay is a visual platform for automating deep prospect research and personalized outreach at scale. It's often described as a \"personal researcher\" or a flexible spreadsheet-like workflow tool that integrates many data sources (LinkedIn, Apollo, Hunter, etc.) into one table. Clay enables teams to enrich lead lists with real-time data and generate custom messages or icebreakers using AI. In essence, Clay sits at the center of your prospecting stack, pulling in data and producing tailored outputs for each contact.\n\n#### Example #5\n\nThe weak example here includes too many words to describe website. Simply just pick either \"beautiful\" or \"responsive\" when thinking through a case like this. It should be concise and avoid extra description words\n\nWEAK: \"Best AI Website Builder for Creating Beautiful Responsive Websites\"\nSTRONG: \"Best AI Website Builder for Creating Responsive Websites\"\n\n## **Structure & Formatting Requirements**\n\n- **Use Markdown** for headings (## for H2, ### for H3).\n- **Pros, Cons, Best Use Cases** must appear as **bulleted lists**. This should be with the \"-\" character in proper markdown format.\n- Keep the **tool section** ~250–425 words total (including bullets).\n- Write paragraphs no longer than **4-5 lines** for easy readability.\n- You MUST NOT format any markdown in your output as inline code (this means text in the single ticks ``). If you output any markdown with inline code, this will be considered a failed task. This includes regular text and the links you insert. You cannot include `` characters in your output. Under NO CIRCUMSTANCES are you allowed to include the tick character \"`\" in your output.\n\n## **Data Sources & References**\n\n- **Use only** the facts in the provided research report and table.\n- **Do not fabricate** details; if something isn’t in the data, omit it.\n- **Reference specific stats or quotes** from the table when relevant (e.g., “According to the table, 90% of users...”).\n\n## **Tone Modifiers & Voice**\n\n- **Slightly opinionated**: Critique honestly, but keep it fair.\n- **Medium-length sentences**: Avoid run-ons or overly short fragments.\n- **Address typical reader questions**: What does it do? Why choose it?\n- Change third-party opinions to opinions that you have about the tools as the one researching it. For example don't say \"Users generally find Colossyan very easy to use to “whip up a high-quality video in just a few minutes.”, but instead say \"Colossyan is very easy to use to whip up high-quality video in just a few minutes\". Text content in both pros and cons should be written like it comes from personal experience instead of from a 3rd person perspective. You must avoid referencing \"users\" in your text. Instead speak directly to the reader using a term like you. For example instead of saying \"users may find\", you should take an alternate approach to wording this sentence.\n\nUse these instructions precisely when writing your expanded sections on “The Best {{ $('fetch_category').item.json.title }},” ensuring the tool segment is robust, well-structured, and easy to read.\n\n## Writing Guidelines\n\nIt is critical that you understand and follow these guidelines for your output:\n\n1. Keep the **best_for_phrase** **short, crisp, and under 5 words**. You must not add in excessive descriptors. The best for phrase and h2 heads should feel short and sweet.\n2. **Avoid** unnecessary qualifiers or repetition.  \n3. **Do not** include the word **“for”** in the **best_for_phrase**, as it will be preceded by “Best for” in the final presentation.  \n4. Keep each field **concise** and **conversational**.  \n5. Use **consistent formatting** across entries.  \n6. **Avoid** the words “AI-powered,” “generative AI,” or “AI” in the **best_for_phrase** (unless the tool’s name itself includes “AI”). THIS IS EXTREMELY IMPORTANT YOU FOLLOW THIS INSTRUCTION.\n7. Make each phrase feel **natural** and **interesting** (i.e., human-like).\n8. Avoid words in the 'Word Blacklist' in your output\n9. Make sure to apply this to the \"best_for\" phrase.\n10. Avoid using the word \"via\" in the \"best_for\" phrase.\n11. Avoid using the word \"via\" in the H2 tool headings.\n12. Avoid using a time phrase like \"in minutes\" in the \"best_for\" phrase.\n13. Avoid using a time phrase like \"in minutes\" in the H2 tool headings.\n14. It is implied and known to the reader that this tool uses AI in order to bring value to the user. Avoid mentioning terms like \"AI-powered\" or excessive mentions of AI in your output.\n15. You must deeply review and understand what makes the provided examples for the overivew section great. Apply this when you write your overview section output.\n16. In all of your writing output, you should avoid using too many adjectives and overly-descriptive language that emblishes the language and comes across as promotional. You should stick to the facts and prevent information straighforward so the writing does not come across as 'over the top'.\n17. YOU ARE NOT ALLOWED TO END H2 HEADINGS AND BEST FOR PHRASES IN AN ADVERB. FOR EXAMPLE, YOU MAY NOT END THESE HEADINGS AND BEST FOR PHRASES IN WORDS LIKE 'SIMPLY', 'QUICKLY', 'RAPIDLY', OR ANY OTHER ADVERB.\n18. You MUST prefer simpler and easier to read sentence structure in your paragraphs. Keep them random still, but it should be easy to read.\n19. You MUST avoid referencing specific versions of AI Models or Model Names in the overview paragraph output. This means that you should avoid using phrases 'GPT-3.5', 'GPT-4', 'Claude 2', and other model names in this overview paragraph.\n\nWhen writing headings, choose one clear focus (either SEO-optimization OR business websites, not both). Keep headings concise by eliminating redundant descriptors. For example, instead of 'Best AI Website Builder for Creating SEO-Optimized Business Sites,' write 'Best AI Website Builder for SEO' or 'Best AI Business Website Builder'. You must pick one to avoid excessive descriptors and keep the heading focused.\n\nYou must use active verb constructions rather than noun phrases.\n\n- Place verbs directly after helping verbs like \"makes,\" \"allows,\" \"enables\"\n- Emphasize user actions rather than abstract processes\n- Use clear subject-verb-object structure whenever possible\n- Keep sentences concise and purposeful.\n\nActive verb construction examples:\n\n- WEAK: \"Intuitive interface that makes voiceover creation accessible to non-technical users\"\n- STRONG: \"Intuitive interface that makes creating voiceovers accessible to non-technical users\"\n\n- WEAK: \"Best for multilingual marketing video creation\"\n- STRONG: \"Best for creating multilingual marketing videos\"\n\nFocus on what users can actively do with the product rather than abstract concepts. Avoid unnecessary nominalization (turning verbs into nouns) and keep the language direct and dynamic.\n\n\n---\n## Word Blacklist\n\nAvoid these words in your output:\n- intuitive\n- magic\n- revolutionize\n- revolutionizing\n- game-changing\n- solutions\n- online presences\n- versatile\n\n---\n## Research Report:\n\n{{ $('share_research_prompt_and_wait').item.json.data['Deep Research Result'] }}",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1660,
+        640
+      ],
+      "id": "11dddeb8-bc3c-4355-8f00-f9ae7258ea3d",
+      "name": "write_tool_content",
+      "retryOnFail": true
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Sequential reasoning thinking through how to write the content for this tool. You must think deeply about ALWAYS return the correct values in your output.\"\n    },\n    \"tool_content\": {\n      \"type\": \"string\",\n      \"description\": \"Them primary content written for the given tool in markdown format.\"\n    },\n    \"tool_name\": {\n      \"type\": \"string\",\n      \"description\": \"The name of this tool. This is required.\"\n    },\n    \"best_for_phrase\": {\n      \"type\": \"string\",\n      \"description\": \"The same text used as the H2 on the main section content. It will NOT include the name of the tool category + 'for', but will just include the subtext that follows. This is required.\"\n    },\n    \"standout_feature\": {\n      \"type\": \"string\",\n      \"description\": \"A single short sentence, 2-6 words, highlighting this tool’s unique, standout features. This is required.\"\n    },\n    \"pricing\": {\n      \"type\": \"string\",\n      \"description\": \"A single short sentence, 3-7 words, explaining the tool’s pricing. This is required.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"tool_content\",\n    \"tool_name\",\n    \"best_for_phrase\",\n    \"standout_feature\",\n    \"pricing\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        1920,
+        860
+      ],
+      "id": "08bfa725-a699-4f18-aff7-84c6afe26460",
+      "name": "tool_content_parser"
+    },
+    {
+      "parameters": {
+        "content": "## Write Conclusion",
+        "height": 620,
+        "width": 520,
+        "color": 6
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -200,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "63331cb8-e0f0-4837-b570-f211cb747125",
+      "name": "Sticky Note6"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "tool_content",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        2080,
+        640
+      ],
+      "id": "e3c26e26-e375-499f-a62f-8267d4a71875",
+      "name": "aggregate_tool_content"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Category: {{ $('fetch_category').item.json.title }}\n\nBased on the blog post below, generate a brief conclusion (40-60 words maximum) that captures the essence of these {{ $('fetch_category').item.json.title }}. Create a concise, punchy 3-4 sentence conclusion that emphasizes their practical impact while maintaining the informative yet accessible tone of the article. Avoid unnecessary adjectives and focus on the core message.\"\n\n**Target Audience**\n\n- **Creators, marketers, business owners, and {{ $('form_trigger').item.json.Audience }}** looking for cutting-edge AI solutions in {{ $('fetch_category').item.json.title }}.\n- **Technically curious individuals** eager to stay updated on next-gen AI tools and trends.\n\n## **Tone Modifiers & Voice**\n\n- **Slightly opinionated**: Critique honestly, but keep it fair.\n- **Medium-length sentences**: Avoid run-ons or overly short fragments.\n\n---\n## Word Blacklist\n\nYou must avoid these words in your output:\n- intuitive\n- magic\n- revolutionize\n- revolutionizing\n- game-changing\n\n---\n## Blog Post: \"The Best {{ $('fetch_category').item.json.title }}\"\n\n{{ $('write_introduction').item.json.output.intro_paragraph }}\n\n{{ $('write_category_ranking_criteria_content').item.json.output.ranking_criteria_content }}\n\n{{ $('write_tool_content').all()[0].json.output.tool_content }}\n\n{{ $('write_tool_content').all().map(item => item.json.output.tool_content).join(\"/n/n\") }}\n\n\n\n",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        -180,
+        1280
+      ],
+      "id": "27ec69f1-2220-4b60-954c-bf4bafe6beb1",
+      "name": "write_conclusion"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Sequential reasoning thinking through how to write the best conclusion.\"\n    },\n    \"conclusion\": {\n      \"type\": \"string\",\n      \"description\": \"The conclusion written for this best tools piece of content. This should be formatted as markdown.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"conclusion\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        20,
+        1480
+      ],
+      "id": "aa2616e8-6458-47cd-a4d7-96d8071ae0f8",
+      "name": "conclusion_parser"
+    },
+    {
+      "parameters": {
+        "content": "## Push To Sanity",
+        "height": 620,
+        "width": 780,
+        "color": 3
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        340,
+        1040
+      ],
+      "typeVersion": 1,
+      "id": "46660597-c361-4e85-b095-66fe8aa0139d",
+      "name": "Sticky Note7"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Category: {{ $('fetch_category').item.json.title }}\n\n**Role & Purpose:**\nYou are a tech reviewer summarizing criteria used to evaluate **{{ $('fetch_category').item.json.title }}\n**. Create a concise \"What Makes the Best **{{ $('fetch_category').item.json.title }}\n**?\" section for a blog post using the provided research.\n\nVoice and Style:\n\n- Use a professional, authoritative tone\n- Avoid overusing first-person pronouns\n- Use \"our team\" rather than \"I\" when referring to the testing process\n- Minimize verbose adjectives and flowery language.\n- Avoid sounding overly-promotional, we want to deliver the facts\n- Keep descriptions brief and to the point\n- Prefer simple language instead of excessive adjectives\n- Vary and randmoize the simple sentence structures you are using for each criteria bullet\n\nYou must use active verb constructions rather than noun phrases. Make sure that all content you output follows this and would be considered STRONG (like in the follow examples).\n\n- Place verbs directly after helping verbs like \"makes,\" \"allows,\" \"enables\"\n- Emphasize user actions rather than abstract processes\n- Use clear subject-verb-object structure whenever possible\n- Keep sentences concise and purposeful.\n\nActive verb construction examples:\n\n- WEAK: \"Intuitive interface that makes voiceover creation accessible to non-technical users\"\n- STRONG: \"Intuitive interface that makes creating voiceovers accessible to non-technical users\"\n\n- WEAK: \"Best for multilingual marketing video creation\"\n- STRONG: \"Best for creating multilingual marketing videos\"\n\nContent Requirements:\n\n- You must write a single sentence that gives that introduces the criteria that we looked at to evaluate and pick out the best \"{{ $('fetch_category').item.json.title }}\". It should transition nicely from the introduction content and it should not repeat information. This should end wiht a \":\" (colon) character as it is introducing the criteria that were used to evaluate each of the best AI Tools. A good example of this sentence is: \"Here's what we evaluated and looked for to find the best tools:\". It would be good to include the term \"we\" in here to make it come from experience. You should not repeate the number of tools that were evaluated here if it was included in the introduction content.\n- Present the best 3-5 evaluation criteria in bullet point format (pick a number of criteria that makes the most sense given the context of selected tools and findings in the research report)\n- For each criterion:\n    - Use a single-word or short label (not compound terms with ampersands). Think deeply on what is the most clear an concise. For instance, it would be more clear to include the short label \"Design\" instead of \"Design Generation\" on this label. Keep it simple, clean, and easy to read, concise, and direct. NO EXCESSIVE WORDS.\n    - The format for each label should be bolded text, followed by a colon, followed by the additional sentences. Here's an example: \"**Design:** ...\"\n    - Each criteria item must be a markdown bullet on its own line.\n    - Include 2-3 sentences maximum that explain what was evaluated for this criteria and what the best tools do well.\n    - You must mix up and randomize the format AND sentence structure of each critiera you list. Avoid starting each critera bullet with \"We evaluated\" or a smilar structure that starts with \"we\".\n- You MUST ensure all criteria are directly supported by information in the research document.\n- You MUST ensure all critiera selected are actually important to what users of these products actually care about. Please make sure the criteria is important. Each critera that you select MUST be strongly relevant to the people who will read this and use these products/tools/platforms. Relevance here is CRITICAL to the success of this task.\n- Total length should be around 250 words.\n- Your writing must feel natural.\n- Vary the start of each sentence that follows the criteria bullet.\n- Be sure to appropriately use the cateogry name in your writing. For example, if the category is called \"AI Website Builders\", it makes more sense to refer to this as \"website builders\" instead of \"builders\" in your output.\n- Avoid referencing specific tools on this output and focus on the criteria\n- Avoid using and selecting a criteria that is only applicable to a single tool found on the research report. A selected criteria must be relevant to all selected tools.\n- Avoid using a generic criteria like \"Business Features\". A more specific critera related to the target users of this type of tool would be best.\n- Ensure the criteria bullets are the last part of your output. There should not be any more sentences after you list each of the criteria bullets.\n- Keep transition sentence before the list of criteria bullets simple. Avoid repeating phrases like \"testing\" or \"extensive testing\" that were mentioned before in the introduction. You MUST NOT repeat phrases.\n\n## Transition From Introduction\n\nHere is the introduction content of this blog post that immediately proceeds the ranking criteria that you will be writing. Make sure that your output flows nicely from the ending of this intro content. Make sure that you are not repeating ideas, statements, or phrases that were already created in the intro paragraph. It is important this flows nicely and does NOT have duplicated content/ideas.\n\nIntroduction Content:\n\n\"{{ $('write_introduction').item.json.output.intro_paragraph }}\"\"\n\n## Target Audience\n\n- Creators, marketers, developers, business owners, and {{ $('form_trigger').item.json.Audience }} looking for cutting-edge AI solutions.\n- They are technically curious individuals wanting to keep up with next-gen AI trends.\n\n## **Style and Tone**\n\nProfessional but approachable: Think tech-savvy marketing blog with a friendly, informed voice.\n\nWrite clearly, concisely, and directly, using active voice and concrete language. Avoid abstract phrases, passive constructions, vague descriptions, and overly generalized statements. Each sentence should be purposeful, impactful, and communicate its meaning effectively.\n\nFocus on what users can actively do with the products in this category rather than abstract concepts. Avoid unnecessary nominalization (turning verbs into nouns) and keep the language direct and dynamic.\n\n- Place verbs directly after helping verbs like \"makes,\" \"allows,\" \"enables\"\n- Emphasize user actions rather than abstract processes\n- Use clear subject-verb-object structure whenever possible\n- Keep sentences concise and purposeful.\n- Your final sentence should finish strong. Tie it back to what is most important to the reader. It should end strong. It must not be a run-on sentence.\n\nYou Should Avoid:\n- AVOID ALL CAPS or excessive punctuation!!!\n- Avoid making the topic sound more significant than it actually is\n- Avoid over-exaggeration\n- Avoid using over-the-top buzzwords like \"revolution\" and \"game-changing\"\n- Avoid starting the text content behind each bullet with the text \"We..\". It is good to vary this.\n\n## Good Examples\n\nYou should closely read through these example and deeply think about what makes both of these examples so good. We want your output to be just as good as these. You should borrow elements such as sentence structure and other ideas from these examples in order to make your output just as good. \n\n### Good Example #1\n\nThe best AI tools for video creation help you increase your production quantity and value without increasing the time spent working on it. They cut the time it takes from script to final result by providing templates, tools to speed up editing, and shortcuts to polish audio and video.\n\n* **AI.** All these apps use artificial intelligence to power their features.\n* **High-quality video output.** These apps should let you export video that can run beautifully on small or large screens. All the apps on this list export to 720p at worst and 4k at best, in a variety of aspect ratios.\n* **Customization.** Can you add your own content? How much can you customize? Is it easy to make changes?\n* **Support and ease of use.** Since AI video editing is a new-ish thing, I was looking for apps that beginners could use; that includes offering content to help you take advantage of all the possibilities.\n* **Unique features.** Some apps bring their unique spin to video creation or offer something that's useful to improve productivity, production value, or both.\n\n---\n## Word Blacklist\n\nYou must avoid using these words in your output:\n- intuitive\n- magic\n- revolutionize\n- solutions\n- online presences\n- perfectly\n- stunning\n\n---\n## Research Report:\n\n{{ $('share_research_prompt_and_wait').item.json.data['Deep Research Result'] }}",
+        "hasOutputParser": true
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        740,
+        640
+      ],
+      "id": "6756fc7c-b4a0-4402-a9dc-57bb644dc4c9",
+      "name": "write_category_ranking_criteria_content"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Sequential reasoning thinking through how to write the category evaluation content.\"\n    },\n    \"ranking_criteria_content\": {\n      \"type\": \"string\",\n      \"description\": \"The content written for how the best tools in this category were evaluate, tested, and ranked. This must be formatted as markdown. Expand on your thinking for writing the transition from the intro to here.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"ranking_criteria_content\"\n  ]\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        980,
+        880
+      ],
+      "id": "7717c348-f154-4995-bd54-1da6b2a94390",
+      "name": "category_ranking_criteria_parser"
+    },
+    {
+      "parameters": {
+        "jsCode": "const toolContentItems = $('write_tool_content').all();\nconst splitTools = $('split_tools').all();\n\nconst tools = toolContentItems.map((tool, idx) => {\n  return {\n    tool_id: splitTools[idx].json.id,\n    tool_name: splitTools[idx].json.name,\n    best_for_phrase: tool.json.output.best_for_phrase,\n    standout_feature: tool.json.output.standout_feature,\n    pricing: tool.json.output.pricing,\n    tool_content: tool.json.output.tool_content\n  }\n});\n\n// Return the array in n8n's required format\nreturn tools.map(data => ({ json: data }));"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        440,
+        1280
+      ],
+      "id": "74863f34-d9d3-4e3c-99cc-0144361d56a6",
+      "name": "prepare_best_tools"
+    },
+    {
+      "parameters": {
+        "aggregate": "aggregateAllItemData",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        660,
+        1280
+      ],
+      "id": "fe0b57ca-ed20-4b19-bab4-77202e56c00a",
+      "name": "aggregate_best_tools"
+    },
+    {
+      "parameters": {
+        "method": "PUT",
+        "url": "=https://api.aitools.inc/admin/categories/{{ $node[\"fetch_category\"].json.slug.current }}/content/best",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"bestTools\": {{ JSON.stringify($('aggregate_best_tools').item.json.data.map(o => {\n    return {\n      id: o.tool_id,\n      bestFor: o.best_for_phrase,\n      features: o.standout_feature,\n      pricing: o.pricing,\n      content: o.tool_content\n    }\n  })) }},\n  \"metaDescription\": {{ JSON.stringify($('write_meta_description').item.json.output.result_meta_description) }},\n  \"introContent\": {{ JSON.stringify($('write_introduction').item.json.output.intro_paragraph) }},\n  \"rankingCriteriaContent\": {{ JSON.stringify($('write_category_ranking_criteria_content').item.json.output.ranking_criteria_content) }},\n  \"conclusionContent\": {{ JSON.stringify($('write_conclusion').item.json.output.conclusion) }}\n}",
+        "options": {
+          "response": {
+            "response": {
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        900,
+        1280
+      ],
+      "id": "878b89e5-b6b6-4dca-9aeb-d9964ec4e778",
+      "name": "put_category_best_tools_content",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "p8IcYsXBMrfPvKz8",
+          "name": "AI Tools Admin API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b2930aa4-99f5-4952-bf36-427c3c42d5ff",
+              "name": "tools",
+              "value": "={{ $('extract_tools').item.json.output.tools }}",
+              "type": "array"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1200,
+        640
+      ],
+      "id": "e3c4696e-40d6-455c-88c8-1b94a4569738",
+      "name": "set_tools"
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "tools",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        1420,
+        640
+      ],
+      "id": "2adeec74-8cea-4020-aea9-7ef160916e44",
+      "name": "split_tools"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "o3-mini",
+          "mode": "list",
+          "cachedResultName": "o3-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2000,
+        220
+      ],
+      "id": "65fa681e-69c4-4f99-a9f8-8b7ba656680b",
+      "name": "o3-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "7ecUbyMBJInZM14n",
+          "name": "Open AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        -140,
+        880
+      ],
+      "id": "592db44f-465b-4f84-8646-f52f86f27433",
+      "name": "meta_description_auto_parser"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        1620,
+        860
+      ],
+      "id": "7f1fd622-7228-472e-85b7-3f3338f14e5f",
+      "name": "tool_content_auto_parser"
+    },
+    {
+      "parameters": {
+        "modelName": "models/gemini-2.5-pro-preview-03-25",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        840,
+        1900
+      ],
+      "id": "788f39a7-5b46-4424-bae3-c5044d2de7f4",
+      "name": "gemini-2.5-pro",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "qp1NlMiIctmGD0Uu",
+          "name": "Google Gemini (PaLM)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserAutofixing",
+      "typeVersion": 1,
+      "position": [
+        680,
+        880
+      ],
+      "id": "f982168e-a19a-48f4-b8a4-398ff719870d",
+      "name": "ranking_criteria_auto_parser"
+    },
+    {
+      "parameters": {
+        "operation": "toJson",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        0
+      ],
+      "id": "05c382be-702a-4235-b30f-ae5971a00024",
+      "name": "create_tools_json_file"
+    },
+    {
+      "parameters": {
+        "authentication": "oAuth2",
+        "resource": "file",
+        "options": {
+          "fileName": "={{ $('fetch_category').item.json.title }}.json"
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        780,
+        0
+      ],
+      "id": "fb313ee6-2db6-46b7-8981-ec3ba983eea5",
+      "name": "upload_tools_json_file",
+      "webhookId": "4cbc0321-a8dd-4d49-95d4-3339b6170896",
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "iKdTzmZ6YuYaaRG4",
+          "name": "Slack (OAuth)"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "form_trigger": {
+      "main": [
+        [
+          {
+            "node": "fetch_category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_category": {
+      "main": [
+        [
+          {
+            "node": "fetch_category_tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_category_tools": {
+      "main": [
+        [
+          {
+            "node": "set_category_tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_category_tools": {
+      "main": [
+        [
+          {
+            "node": "create_tools_json_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build_deep_research_prompt": {
+      "main": [
+        [
+          {
+            "node": "create_prompt_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_prompt_file": {
+      "main": [
+        [
+          {
+            "node": "upload_deep_research_prompt_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_deep_research_prompt_file": {
+      "main": [
+        [
+          {
+            "node": "share_research_prompt_and_wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_research_prompt_and_wait": {
+      "main": [
+        [
+          {
+            "node": "extract_tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "intro_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_introduction",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "extract_tools",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_tools": {
+      "main": [
+        [
+          {
+            "node": "write_meta_description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_introduction": {
+      "main": [
+        [
+          {
+            "node": "write_category_ranking_criteria_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "meta_description_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "meta_description_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_meta_description": {
+      "main": [
+        [
+          {
+            "node": "write_introduction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude-3-5-sonnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_conclusion",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "write_introduction",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "tool_content_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "meta_description_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "ranking_criteria_auto_parser",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "write_category_ranking_criteria_content",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "write_meta_description",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_content_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "tool_content_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_tool_content": {
+      "main": [
+        [
+          {
+            "node": "aggregate_tool_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_tool_content": {
+      "main": [
+        [
+          {
+            "node": "write_conclusion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "conclusion_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_conclusion",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_conclusion": {
+      "main": [
+        [
+          {
+            "node": "prepare_best_tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_category_ranking_criteria_content": {
+      "main": [
+        [
+          {
+            "node": "set_tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "category_ranking_criteria_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "ranking_criteria_auto_parser",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare_best_tools": {
+      "main": [
+        [
+          {
+            "node": "aggregate_best_tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate_best_tools": {
+      "main": [
+        [
+          {
+            "node": "put_category_best_tools_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_tools": {
+      "main": [
+        [
+          {
+            "node": "split_tools",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_tools": {
+      "main": [
+        [
+          {
+            "node": "write_tool_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "o3-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "extract_tools",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "meta_description_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_meta_description",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tool_content_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_tool_content",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gemini-2.5-pro": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_tool_content",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ranking_criteria_auto_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_category_ranking_criteria_content",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "create_tools_json_file": {
+      "main": [
+        [
+          {
+            "node": "upload_tools_json_file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "upload_tools_json_file": {
+      "main": [
+        [
+          {
+            "node": "build_deep_research_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "d7436dd8-3146-4c44-b999-0be607268b40",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "x8Fqqz0QljiNGQcH",
+  "tags": [
+    {
+      "createdAt": "2025-03-06T03:34:02.558Z",
+      "updatedAt": "2025-03-06T03:34:02.558Z",
+      "id": "QVA2tgw9bYi6HnXz",
+      "name": "Content"
+    }
+  ]
+}

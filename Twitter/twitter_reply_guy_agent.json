@@ -1,0 +1,989 @@
+{
+  "name": "Agent - Twitter Reply Guy",
+  "nodes": [
+    {
+      "parameters": {
+        "trigger": [
+          "message"
+        ],
+        "channelId": {
+          "__rl": true,
+          "value": "C07RY6EQ6SH",
+          "mode": "id"
+        },
+        "options": {
+          "userIds": "U07CUPY83ST,U05Q3C50S0Z,U05QEE5V57A,U08F1GJG0PQ"
+        }
+      },
+      "type": "n8n-nodes-base.slackTrigger",
+      "typeVersion": 1,
+      "position": [
+        -260,
+        0
+      ],
+      "id": "497103c4-d11e-49ed-ad3d-16140cbd646b",
+      "name": "slack_trigger",
+      "webhookId": "27416a71-648c-4ef2-b6c9-47a9aff1a695",
+      "credentials": {
+        "slackApi": {
+          "id": "pr0JaTRurC0Durjf",
+          "name": "Slack - Twitter Reply Guy Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "423cab91-b5b5-4f52-9ba6-f05345b63f5c",
+              "leftValue": "={{ $json.attachments[0].fields.map(o => o.value) }}",
+              "rightValue": "X (Twitter)",
+              "operator": {
+                "type": "array",
+                "operation": "contains",
+                "rightType": "any"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        -40,
+        0
+      ],
+      "id": "7911a768-7321-4976-8c2f-0601602fe2f6",
+      "name": "filter_only_twitter_source"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "932940ad-cafb-4621-b97c-ec638528942e",
+              "leftValue": "={{ $json.attachments[0].author_name }}",
+              "rightValue": "@aiden_tooley",
+              "operator": {
+                "type": "string",
+                "operation": "notContains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        200,
+        0
+      ],
+      "id": "6bfd9477-56c3-4a92-a3c4-d0c774fed6f0",
+      "name": "exclude_self_account"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=I want to read this tweet and make a decision if you think a response with a link to an AI Tools directory page that would help answer the question / ask in the provided tweet.\n\nA good tweet for us to reply to is usually in the form of a question like \"How can I use AI to do...?\", \"Are there any AI tools that can help me do...?\", and other questions of that nature.\n\nHere are some examples of types of tweets we don't want to reply to:\n- A statement instead of someone asking for a tool\n- An unrelated question or inquiry that could not be helped by us sharing a link to tools on our AI Tools directory\n- A reply to another tweet (this typical begins with an @ symbol followed by their twitter user name). You can look at the raw slack alert to find more metadata to determine if this was a reply or not.\n- A tweet that shares a link to an article or content piece on another website\n- If someone tweets the question \"How can I use AI to do my job better?\", don't write a reply. This is a common quote that people use instead of a real question we want to reply to.\n- If someone is asking something nefarious, you should NOT reply to this tweet.\n- If someone is asking for a specific tool to take action towards an individual you should NOT reply to this tweet.\n- If someone is sharing a prompt for LLMs, don't reply to that tweet.\n\n---\nTweet To Evaluate:\n\n{{ $('get_tweet_content').item.json.tweet_content }}\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a helpful assistant, an expert community manager, and expert social media manager, and an expert at marketing. Your job is to help grow the social media presence of our AI tool directory called \"AI Tools\" on X (formerly Twitter) by evaluating AI-related tweets you should reply to."
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        1900,
+        -20
+      ],
+      "id": "f9dafa16-6605-4f57-949e-a46e68cff20e",
+      "name": "evaluate_tweet",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=I want you to write a reply to the tweet I am providing below that will help this person out by sharing a relevant link to our AI Tools directory along with a short note.\n\nYou should first pick out which category page url on AI Tools will be able to help them the most based on their question or inquiry in the initial tweet.\n\nOnce that is done, write a helpful and concise tweet that let's the original person know that they can find helpful or useful tools at the link you selected out. Include this category url link in your tweet reply message.\n\nYou should write in a style that is friendly but would not be considered excessive or over the top. Your goal is to be helpful and share a resource that helps them out.\n\nAvoid repeating information from the original tweet.\n\nKeep your note very concise (short and sweet) and use as few words as you can.\n\nIt is very important you are picking the best category on AI Tools to share in your reply in order to help this person the most. The link you share should help this person find what they are looking for and asking about.\n\nUse direct language in your tweet reply.\n\nDon't start your reply with \"check\".\n\nPrefer \"may help\" over \"could\" in your reply.\n\nShort and sweet is best for this.\n\n---\nHere are some examples we have replied to in the past to help you out when crafting a great reply tweet. Please read these:\n\n### Tweet #1\n- Initial Tweet: Is there an AI tool(or tools) you might  recommend for a novice that wants to play with creating whimsical images? Thanks much!\n- Reply Tweet: There's a bunch of cool ones on here: https://aitools.inc/categories/ai-image-generators\n\n### Tweet #2\n- Initial Tweet: is there a AI tool that can help create comic book stories based on prompts and a story line\n- Reply Tweet: several on here! https://aitools.inc/categories/ai-comic-generators\n\n### Tweet #3\n- Initial Tweet: Sir, is there an AI tool that is able to create a short video based on an image? I want to create a short commercial video but I only have some photos of the product.\n- Reply Tweet: I think some of these allow you to include images w/ your prompt: https://aitools.inc/categories/ai-text-to-video-tools\n\n### Tweet #4\n- Initial Tweet: Are there AI tools that can give you a professional design for an entire web app UI?\n- Reply Tweet: We have a really good list here! https://aitools.inc/categories/ai-design-tools\n\n---\nHere's some feedback on tweets you previously wrote that you should consider for this tweet you are writing. Please reivew this feedback and apply my suggestions when you are writing this tweet:\n\n### Feedback 1\n\n- Input Tweet: I hate video tutorials so fucking much is there an AI tool that give me text ones from a video\n- Your Output: These tools can convert videos into text formats: https://aitools.inc/categories/ai-video-to-blog-tools\n\nInstead of what you wrote, I would write this instead: \"Some of these tools may help: https://aitools.inc/categories/ai-video-to-blog-tools\"\n\n### Feedback 2\n\n- Input Tweet: Is there an AI tool that takes design instructions and produces high fidelity designs?\n- Your Output: Great design tools listed here: https://aitools.inc/categories/ai-design-tools\n\nInstead of what you wrote, I suggest you respond more like this: \"There's some great AI design tools on here: https://aitools.inc/categories/ai-design-tools\"\n\n### Feedback 3\n\n- Input Tweet: This is sick! How do you actually get the design? Are there any ai tools that help with designing that we can then port to cursor?\n- Your Output: There are several AI design tools that might help with what you need: https://aitools.inc/categories/ai-design-tools\n\nInstead of what you wrote, I suggest you respond more like this: \"There are some design tools that may help here: https://aitools.inc/categories/ai-design-tools\"\n\n### Feedback 4\n\n- Input Tweet: is there an ai tool out there where i can just talk to it and it summarizes what i say? hahahahaa like i gotta stop calling @tasonjorres and brain dump\n- Your Output: These AI meeting note takers could help with those brain dumps: https://aitools.inc/categories/ai-meeting-note-takers\n\nInstead of what you wrote, I suggest you respond more like this: \"These could help out with those brain dumps: https://aitools.inc/categories/ai-meeting-note-takers\". It is okay to exclude the exact category name in your response to keep it short.\n\n### Feedback 4\n\n- Input Tweet: are there any AI tools that timestamp youtube videos for you?\n- Your Output: You'll find some helpful tools here: https://aitools.inc/categories/ai-video-to-blog-tools\n\nInstead of what you wrote, I suggest you respond more like this: \"Some of these may be helpful: https://aitools.inc/categories/ai-video-to-blog-tools\". Since the category we are sharing isn't an exact match to what they are asking, we should with a little less certainty.\n\n---\nTweet you will be replying to:\n{{ $node['get_tweet_content'].json.tweet_content }}\n\n---\nList of category page urls on our AI Tools directory. The link you include in your tweet MUST be from this list of urls that point to a category page on our AI Tools directory:\n{{ $('get_category_content').item.json.category_content }}\n\n",
+        "hasOutputParser": true,
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a helpful assistant, an expert community manager, an expert social media manager, and an expert at marketing. Your job is to help grow the social media presence of our AI tool directory called \"AI Tools\" on X (formerly Twitter) by writing a reply tweet that "
+            }
+          ]
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.5,
+      "position": [
+        700,
+        720
+      ],
+      "id": "e0d2d5f5-5d5a-4b72-81f4-a2e5c78f52c6",
+      "name": "write_tweet",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "8246f59e-597a-425d-adf8-60bd45dd25f9",
+              "leftValue": "={{ $('exclude_retweets').all().length }}",
+              "rightValue": 1,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        660,
+        0
+      ],
+      "id": "0f2f8bff-9333-4bfa-9f42-992a94e5ad96",
+      "name": "should_evaluate"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "C07RY6EQ6SH",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('slack_trigger').item.json.event_ts }}",
+        "name": "x"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        960,
+        240
+      ],
+      "id": "8885819a-0ba5-48b1-a1ea-c9a99c2904cc",
+      "name": "leave_skip_reaction",
+      "webhookId": "3d1dd3e9-f7d3-4cfe-9fae-b568bca25db5",
+      "credentials": {
+        "slackApi": {
+          "id": "pr0JaTRurC0Durjf",
+          "name": "Slack - Twitter Reply Guy Agent"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Sequential reasoning to determine if this tweet should be replied to.\"\n    },\n    \"is_tweet_good_reply_candidate\": {\n      \"type\": \"boolean\",\n      \"description\": \"Indicator if the evaluated tweet content is a good candidate to reply to.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"is_tweet_good_reply_candidate\"\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        2060,
+        420
+      ],
+      "id": "db122f0e-b558-4953-a8bc-3b404c71d5dd",
+      "name": "evaluate_tweet_output_parser"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1480,
+        420
+      ],
+      "id": "96b2eedf-f40e-4ed6-9e1c-b9a3304d36ec",
+      "name": "gpt-4o-mini",
+      "credentials": {
+        "openAiApi": {
+          "id": "7ecUbyMBJInZM14n",
+          "name": "Open AI"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1c8fe2cd-da05-4f6f-8de8-bfcdaebd8b45",
+              "name": "tweet_content",
+              "value": "={{ $('fetch_tweet_content').item.json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1600,
+        -20
+      ],
+      "id": "d2bbb29c-76a8-4375-8aa1-0deca41a121d",
+      "name": "get_tweet_content"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "6684bc25-d89e-4a22-954a-4c9c3aa5ae47",
+              "leftValue": "={{ $json.output.is_tweet_good_reply_candidate }}",
+              "rightValue": "",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -280,
+        900
+      ],
+      "id": "6d9d8de2-5999-4cb4-892f-6cea2bfb9661",
+      "name": "is_good_candidate"
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "C07RY6EQ6SH",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('slack_trigger').last().json.event_ts }}",
+        "name": "x"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        380,
+        1020
+      ],
+      "id": "35df57d0-703d-4aee-ae24-32d9993c0b78",
+      "name": "leave_bad_candidate_reaction",
+      "webhookId": "3d1dd3e9-f7d3-4cfe-9fae-b568bca25db5",
+      "credentials": {
+        "slackApi": {
+          "id": "pr0JaTRurC0Durjf",
+          "name": "Slack - Twitter Reply Guy Agent"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C07RY6EQ6SH",
+          "mode": "id"
+        },
+        "text": "=I don't think this is a good Tweet for me to reply to.\n\n*Reason:*\n{{ $('evaluate_tweet').item.json.output.chainOfThought }}\n",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('slack_trigger').last().json.event_ts }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        120,
+        1020
+      ],
+      "id": "31da114a-34a2-4732-b44e-c017ab8ee104",
+      "name": "share_bad_tweet_candidate_msg",
+      "webhookId": "a195152d-c866-486c-a074-500d37dece2f",
+      "credentials": {
+        "slackApi": {
+          "id": "pr0JaTRurC0Durjf",
+          "name": "Slack - Twitter Reply Guy Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"chainOfThought\": {\n      \"type\": \"string\",\n      \"description\": \"Sequential reasoning to make a decision on the most helpful page to share from AI Tools and how you decided to write your helpful note in the tweet reply.\"\n    },\n    \"tweet_content\": {\n      \"type\": \"string\",\n      \"description\": \"The final tweet content that will be used as a reply on Twitter. This MUST include a url provided from the AI tools website that will help the user.\"\n    }\n  },\n  \"required\": [\n    \"chainOfThought\",\n    \"tweet_content\"\n  ]\n}\n"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.2,
+      "position": [
+        900,
+        920
+      ],
+      "id": "1635cf5d-e9ac-44f3-8ee5-77e2e87b881f",
+      "name": "write_tweet_output_parser"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "C07RY6EQ6SH",
+          "mode": "id"
+        },
+        "text": "=I went forward replying with this Tweet:\n```\n{{ $('write_tweet').item.json.output.tweet_content }}\n```\n\n*Reasoning:*\n{{ $('write_tweet').item.json.output.chainOfThought }}\n",
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('slack_trigger').last().json.event_ts }}"
+            }
+          }
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1700,
+        720
+      ],
+      "id": "dc46ea3c-e071-4bd6-ac0b-82b33ac4b354",
+      "name": "share_tweet_content",
+      "webhookId": "a195152d-c866-486c-a074-500d37dece2f",
+      "credentials": {
+        "slackApi": {
+          "id": "pr0JaTRurC0Durjf",
+          "name": "Slack - Twitter Reply Guy Agent"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "reaction",
+        "channelId": {
+          "__rl": true,
+          "value": "C07RY6EQ6SH",
+          "mode": "id"
+        },
+        "timestamp": "={{ $('slack_trigger').last().json.event_ts }}",
+        "name": "white_check_mark"
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        2000,
+        720
+      ],
+      "id": "a4d2091b-2b5a-49d5-95bb-5d1ae86e1454",
+      "name": "leave_check_reaction",
+      "webhookId": "3d1dd3e9-f7d3-4cfe-9fae-b568bca25db5",
+      "credentials": {
+        "slackApi": {
+          "id": "pr0JaTRurC0Durjf",
+          "name": "Slack - Twitter Reply Guy Agent"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": false,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "a8a140f5-ae97-4476-b4de-fac4d3f30767",
+              "leftValue": "={{ $json.attachments[0].text }}",
+              "rightValue": "RT",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {
+          "ignoreCase": true
+        }
+      },
+      "type": "n8n-nodes-base.filter",
+      "typeVersion": 2.2,
+      "position": [
+        440,
+        0
+      ],
+      "id": "b8e15349-45ee-436e-9351-6bdcc0bd6b09",
+      "name": "exclude_retweets"
+    },
+    {
+      "parameters": {
+        "url": "=https://cdn.syndication.twimg.com/tweet-result?id={{ $('extract_tweet_id').item.json.output.tweet_id }}&token=utxo",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1360,
+        -20
+      ],
+      "id": "e69bd2fc-4831-4ec2-afdb-f0f05801458d",
+      "name": "fetch_tweet_content"
+    },
+    {
+      "parameters": {
+        "text": "=Help me extract the tweet id from the \"Open on web\" url included in this json payload that I received from a slack message webhook.\n\nHere is the slack message content to extract his information from:\n{{ JSON.stringify($('slack_trigger').first().json, null, 2) }}",
+        "attributes": {
+          "attributes": [
+            {
+              "name": "tweet_id",
+              "description": "The tweet id to extract from slack webhook json payload. This id can be extracted from the 'Open on web' link in the included json payload.",
+              "required": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "typeVersion": 1,
+      "position": [
+        960,
+        -20
+      ],
+      "id": "f6ed0244-b02d-4705-8239-a5e0ddd8beca",
+      "name": "extract_tweet_id",
+      "retryOnFail": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "url": "http://api.aitools.inc/categories",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        120,
+        720
+      ],
+      "id": "a8fe8823-d809-40ff-9c6d-b7703f9e41fa",
+      "name": "fetch_categories"
+    },
+    {
+      "parameters": {
+        "jsCode": "let category_content = $input.all().map(o => {\n  let result = \"\";\n\n  result += `Title: ${o.json.title}\\n`;\n  result += `Description: ${o.json.meta_description}\\n`;\n  result += `Url: https://aitools.inc/categories/${o.json.slug}`;\n\n  return result;\n}).join(\"\\n\\n\");\n\nreturn { category_content };"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        380,
+        720
+      ],
+      "id": "b558cf94-82b6-453c-b989-9c71532c9d89",
+      "name": "get_category_content"
+    },
+    {
+      "parameters": {
+        "text": "={{ $('write_tweet').item.json.output.tweet_content }}",
+        "additionalFields": {
+          "inReplyToStatusId": {
+            "__rl": true,
+            "value": "={{ $('extract_tweet_id').item.json.output.tweet_id }}",
+            "mode": "id"
+          }
+        }
+      },
+      "type": "n8n-nodes-base.twitter",
+      "typeVersion": 2,
+      "position": [
+        1400,
+        720
+      ],
+      "id": "55e16bbd-5632-402b-a6e4-d43bec0cd5fb",
+      "name": "post_reply_tweet",
+      "credentials": {
+        "twitterOAuth2Api": {
+          "id": "ZSWk5R8CSxFG083p",
+          "name": "Aiden Tooley Twitter"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "amount": 65
+      },
+      "type": "n8n-nodes-base.wait",
+      "typeVersion": 1.1,
+      "position": [
+        1120,
+        720
+      ],
+      "id": "669345a3-b5b6-4c40-85ab-e54135c45394",
+      "name": "delay",
+      "webhookId": "a96b123e-027c-4c3d-9fdd-3ffc61ba7cb1"
+    },
+    {
+      "parameters": {
+        "model": "claude-3-5-sonnet-20241022",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.2,
+      "position": [
+        680,
+        920
+      ],
+      "id": "c9c84937-4b42-4bb8-8a13-d39c78b33ad2",
+      "name": "claude-3.5-sonnet",
+      "credentials": {
+        "anthropicApi": {
+          "id": "l40BD4ZshdbnRGbC",
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "content": "## 1. Evaluate Tweet\n",
+        "height": 640,
+        "width": 2540
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        -60
+      ],
+      "typeVersion": 1,
+      "id": "0526763a-b350-4be6-affc-151de01dc8ae",
+      "name": "Sticky Note"
+    },
+    {
+      "parameters": {
+        "content": "## 2. Post Reply\n\n",
+        "height": 640,
+        "width": 2540,
+        "color": 4
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -300,
+        600
+      ],
+      "typeVersion": 1,
+      "id": "801729af-c942-4412-8291-f8370df6aa62",
+      "name": "Sticky Note1"
+    }
+  ],
+  "pinData": {
+    "slack_trigger": [
+      {
+        "json": {
+          "subtype": "bot_message",
+          "text": "*1* new mention for the alert *AI Tools*",
+          "attachments": [
+            {
+              "id": 1,
+              "color": "7ED321",
+              "fallback": "RT <https://twitter.com/hackSultan|@hackSultan>: 109 companies  (Hiring  2 -5 interns on average) and over 4000+ potential interns.How do I use AI to accurately pair interns to the right company based off skill set, requirements and location?\n<http://web.mention.com/#alert/2626255/mentions/145212540259|Open in Mention> - <https://twitter.com/egcarson_/status/1926932393660756370|Open on web> - <http://web.mention.com/#alert/2626255/edit/settings|Settings>",
+              "text": "RT <https://twitter.com/hackSultan|@hackSultan>: 109 companies  (Hiring  2 -5 interns on average) and over 4000+ potential interns.How do I use AI to accurately pair interns to the right company based off skill set, requirements and location?\n<http://web.mention.com/#alert/2626255/mentions/145212540259|Open in Mention> - <https://twitter.com/egcarson_/status/1926932393660756370|Open on web> - <http://web.mention.com/#alert/2626255/edit/settings|Settings>",
+              "author_name": "EG Carson  ‍  (@egcarson_)",
+              "author_link": "https://twitter.com/egcarson_",
+              "author_icon": "https://pbs.twimg.com/profile_images/1668901911104221187/Jy9zCnTG_normal.jpg",
+              "fields": [
+                {
+                  "value": "X (Twitter)",
+                  "title": "Source",
+                  "short": true
+                },
+                {
+                  "value": "12",
+                  "title": "Influence",
+                  "short": true
+                }
+              ],
+              "mrkdwn_in": [
+                "fields",
+                "pretext",
+                "text"
+              ]
+            }
+          ],
+          "type": "message",
+          "ts": "1748251466.728959",
+          "bot_id": "B07STMFJADP",
+          "blocks": [
+            {
+              "type": "rich_text",
+              "block_id": "YGeaD",
+              "elements": [
+                {
+                  "type": "rich_text_section",
+                  "elements": [
+                    {
+                      "type": "text",
+                      "text": "1",
+                      "style": {
+                        "bold": true
+                      }
+                    },
+                    {
+                      "type": "text",
+                      "text": " new mention for the alert "
+                    },
+                    {
+                      "type": "text",
+                      "text": "AI Tools",
+                      "style": {
+                        "bold": true
+                      }
+                    }
+                  ]
+                }
+              ]
+            }
+          ],
+          "channel": "C07RY6EQ6SH",
+          "event_ts": "1748251466.728959",
+          "channel_type": "channel"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "slack_trigger": {
+      "main": [
+        [
+          {
+            "node": "filter_only_twitter_source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "filter_only_twitter_source": {
+      "main": [
+        [
+          {
+            "node": "exclude_self_account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "exclude_self_account": {
+      "main": [
+        [
+          {
+            "node": "exclude_retweets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "evaluate_tweet": {
+      "main": [
+        [
+          {
+            "node": "is_good_candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "should_evaluate": {
+      "main": [
+        [
+          {
+            "node": "extract_tweet_id",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "leave_skip_reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "evaluate_tweet_output_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "evaluate_tweet",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "gpt-4o-mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "evaluate_tweet",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "extract_tweet_id",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "evaluate_tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "is_good_candidate": {
+      "main": [
+        [
+          {
+            "node": "fetch_categories",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "share_bad_tweet_candidate_msg",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_bad_tweet_candidate_msg": {
+      "main": [
+        [
+          {
+            "node": "leave_bad_candidate_reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_tweet": {
+      "main": [
+        [
+          {
+            "node": "delay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_tweet_output_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_tweet",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "share_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "leave_check_reaction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "exclude_retweets": {
+      "main": [
+        [
+          {
+            "node": "should_evaluate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_tweet_content": {
+      "main": [
+        [
+          {
+            "node": "get_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "extract_tweet_id": {
+      "main": [
+        [
+          {
+            "node": "fetch_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "fetch_categories": {
+      "main": [
+        [
+          {
+            "node": "get_category_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_category_content": {
+      "main": [
+        [
+          {
+            "node": "write_tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "post_reply_tweet": {
+      "main": [
+        [
+          {
+            "node": "share_tweet_content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "delay": {
+      "main": [
+        [
+          {
+            "node": "post_reply_tweet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude-3.5-sonnet": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_tweet",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "33c1f1e3-a201-4466-9405-3da0cba70435",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "yad1A85lKxOrlKyJ",
+  "tags": [
+    {
+      "createdAt": "2025-02-26T22:25:49.163Z",
+      "updatedAt": "2025-02-26T22:25:49.163Z",
+      "id": "arpWEVz9S0cowtPq",
+      "name": "Twitter Reply Guy"
+    },
+    {
+      "createdAt": "2025-02-26T22:25:10.194Z",
+      "updatedAt": "2025-02-26T22:25:10.194Z",
+      "id": "vU652aNNtdN0LGM9",
+      "name": "Agent"
+    }
+  ]
+}

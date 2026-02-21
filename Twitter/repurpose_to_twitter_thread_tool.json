@@ -1,0 +1,276 @@
+{
+  "name": "Tool - Repurpose Newsletter Into Twitter Daily News Thread",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "newsletterContent"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "0bb02fa9-f4ef-491e-ab38-9b22dd16e8cc",
+      "name": "workflow_trigger"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cf7f1edf-db80-490c-adea-e8a7579bf2c2",
+              "name": "twitter_examples",
+              "value": "<twitter_thread_example_1>\nSignificant progress in AI and Robotics this week.\n\nSo, I summarized everything from OpenAI, Google, Scout AI, Microsoft, xAI, Hugging Face, Kling AI, Anthropic, ByteDance, and more.\n\nHere's everything you need to know and how to make sense out of it: \nOpenAI revealed its smartest reasoning AI models yet with o3 and o4-mini\n\nWhile o4-mini focuses on cost, o3 delivers SOTA performance across benchmarks\n\nBoth can do visual analysis in their CoT and use all ChatGPT tools, including image gen\nOpenAI also released API-only GPT-4.1, 4.1 Mini, and 4.1 Nano for devs\n\nEach model beats GPT-4o and 4o mini on dev tasks with up to 1M context windows\n\nGPT-4.1 scored 55% on SWE-Bench Verified—with prices starting at $2 and $8 per million I/O tokens\nGoogle dropped Gemini 2.5 Flash, a reasoning model matching o4-mini in preview\n\nIt's 'thinking budget' (up 24k tokens), can balance between answer quality, cost, and speed\n\nThe model performs particularly well on reasoning, STEM, and visual reasoning\n\nImage\nGoogle also released DolphinGemma, a speech-to-speech AI for dolphin vocalizations\n\nIt analyzes dolphin whistles and sounds to identify patterns and predict subsequent sounds\n\nModel weights to be open-sourced in the coming months!\nMy brother, Colby, launched Scout AI from stealth\n\nThey're building foundational models to power the next generation of defense robotics and have already landed two contracts with the DoD\n\nThey have raised $15M in seed funding\n\nMicrosoft added computer use to Copilot Studio, allowing users to build agents that can take actions on desktop & web\n\nIt also launched Copilot Vision in Edge, giving an assistant that can see what the user is browsing (with opt-in) and help out\nElon Musk's xAI updated Grok with Memory and Studio\n\nMemory enables the AI to remember chats for personalized responses, while Studio creates a new window to help users collaborate with it on docs, code, etc.\n\nStudio is pretty much like ChatGPT Canvas!\nHugging Face acquired Pollen Robotics, the French startup behind the open-source 'Reachy 2' humanoid\n\nThe move comes as part of HF's push for open robotics, especially for domains like research and education\n\nCurrently, it's selling Reachy 2 at $70K\nChina's Kling AI dropped KLING 2.0 Master and KOLORS 2.0\n\n2.0 Master brings improved prompt adherence with the ability to produce cinematic clips with complex motions\n\nKOLORS 2.0 creates images in 60+ styles, adhering to elements, colors, and more.\nAnthropic enhanced Claude with a new 'Research' feature and Google Workspace integration\n\nMuch like OAI's Deep Research, Research runs searches across the web and users’ data to produce reports\n\nWith Workspace, it even covers emails, calendars, and docs!\nByteDance released Seaweed, a hyper-efficient 7B-param video AI\n\n—Supports text-to-video, image-to-video, and audio-driven synthesis\n—Clips up to 20s\n—Matches or outperforms larger models like Sora, Kling 1.6, and Veo\nCohere released Embed 4, a SOTA multimodal embedding model for building search and retrieval capable AI apps\n\n—128K-token context window\n—Supports 100+ languages\n—Optimized for data from regulated industries\n—Up to 83% savings on storage costs\n\nImage\nSouth Korean company Tesollo released a clip showcasing its DG-5F humanoid hand, designed to replicate natural human hand movements\n\nIt features 20 independently controlled joints, a 12kg enveloping grasp capacity, and a 3kg pinching grip capacity\nWe're hiring for hundreds of roles @Figure_robot:\n\n> AI Engineers (many)\n> Staff Security Engineer\n> HMI Design Lead\n> System Integration & Test (many)\n> Legal (many)\n> Manufacturing (many)\n\nApply here:\nfigure.ai/careers\nx.com/adcock_brett/s…\n@Figure_robot That's it for this week's AI and Robotics breakdown.\n\nI share the latest research every week, so follow me @adcock_brett for more.\n\nIf you found this valuable, consider a like/retweet to spread the word.\n</twitter_thread_example_1>\n\n<twitter_thread_example_2>\nTODAY'S AI NEWS: Amazon just dropped a new voice model that beats OpenAI\n\nPlus, more news from Google, Nvidia, Deep Cogito, Stanford, and more.\n\nHere's everything you need to know: \nAmazon launched Nova Sonic speech-to-speech AI for human-like interactions\n\n—Outperforms OpenAI's voice models with ~ 80% less cost\n—4.2% word error rate across languages\n— 46.7% better accuracy than GPT-4o for noisy environments\n—On Amazon Bedrock\nAmazon also dropped an upgraded Nova Reel 1.1 video model\n\n—Delivers improved quality, style consistency\n—Extends generations to 2 min via automated and manual, shot-by-shot modes\n—Also available on Amazon Bedrock\nGoogle made headlines by making Deep Research available on Gemini 2.5 Pro Exp\n\nThe move enables Gemini to create superior research reports over rivals\n\nAlso includes new audio overviews to turn reports into podcast-like conversations!\n\nImage\nNvidia released Nemotron-Ultra, a 253B parameter reasoning AI\n\n—Surpasses DeepSeek R1, Llama 4 Behemoth, and Maverick across benchmarks\n—Includes a reasoning on/off toggle\n—Open-source with model code, weights, and post-training data on Hugging Face\n\nImage\nDeep Cogito emerged from stealth with a mission to build \"general superintelligence\"\n\nThe startup also launched Cogito v1 Preview, a family of open-source models that it claims beats the best available open-source models of the same size\nUnroll available on Thread Reader\n\nImage\nStanford students' research discussion forum AlphaXiv introduced Deep Research for arXiv\n\nThe tool compiles literature reviews from trending papers, turning hours of research work into mere seconds of natural language search\nTogether AI dropped DeepCoder-14B, a new reasoning-capable coding AI\n\n—Matches o3-mini (low) and o1 on competition-level coding tasks\n—Also generalizes well to math, scoring 73.8% on AIME\n—Fully open-sourced with dataset, code, and training recipe\nUnroll available on Thread Reader\nhttps://x.com/togethercompute/status/1909697122372378908\nImage\nAs always, I'll be sending out a more in-depth rundown on all the AI news, and why it actually matters in ~5 hours in my newsletter.\n\nJoin 1,000,000+ readers for free and never miss a thing in AI ever again:\n\nThe Rundown AI\nGet the latest AI news, understand why it matters, and learn how to apply it in your work. Join 1,000,000+ readers from companies like Apple, OpenAI, NASA.\nhttps://www.therundown.ai/subscribe\nThat's it for today's news in the world of AI.\n\nI share what's happening in AI every day, follow me @rowancheung for more.\n\nIf you found this helpful, support me with a like/retweet on the first tweet of this thread:\n\n</twitter_thread_example_2>\n\n\n<twitter_thread_example_3>\n🚨 Big news in AI!\n\nFrom Grok’s free access to Elon’s $6B xAI expansion, new AI models from OpenAI and Meta, to Microsoft’s real-time browsing assistant.\n\nHere’s the latest in AI breakthroughs you NEED to know: 🤖💡 \n1. Grok is now available for free to all users. Previously, accessing Grok required an X Premium subscription, but this is no longer the case.\n\nNow, every X user can use Grok without paying, with a limit of 10 free prompts every 2 hours.\n\nAdditionally, X has introduced a new image generator called Aurora, adding more creative options for users.\nImage\n2. xAI, has raised about $6 billion in equity financing. Announced on Thursday, this funding will support xAI's efforts to compete with other leading AI companies.\nImage\n3. OpenAI has launched a new version of ChatGPT, priced at $200 per month, tailored for research and engineering use. Announced on Thursday, this subscription targets professionals and industries looking to leverage advanced AI tools.\n\nThe update reflects OpenAI's push to expand ChatGPT's applications in specialized fields.\nImage\n4. Google Cloud announced on Wednesday that it has partnered with Air France-KLM to use generative AI technology on the airline group's data. This collaboration aims to enhance the airline's operations and services with advanced AI tools.\nImage\n5. xAI, plans to significantly expand its supercomputer in Memphis, Tennessee. The upgrade will include housing at least one million graphics processing units (GPUs), according to the Greater Memphis Chamber.\nImage\n6. Microsoft has launched Copilot Vision in Edge, the first AI that can help you navigate the internet in real time. This new feature allows the AI to assist you as you browse, providing a more interactive and efficient experience.\nImage\n7. DeepMind has introduced Genie 2, a large-scale AI model designed to create interactive 3D environments. This model can generate and sustain worlds for up to one minute, simulating complex physical effects within those environments. \n8. Runway has launched realistic lip-syncing, an update to its Act-One feature. Now, you can upload any video, not just those created within the service, and apply realistic lip-syncing to them. \n9. ElevenLabs has launched Conversational AI, allowing users to create AI agents that can speak in minutes. The platform offers low latency, full configurability, and easy scalability for building interactive AI agents. \n10. Amazon has launched the Nova AI model family, designed to generate text, images, and videos. This new AI technology expands Amazon's capabilities in creative content generation. \n11. Meta has unveiled a new, more efficient AI model in its Llama family: Llama 3.3 70B. This text-only model delivers similar performance to Meta's largest model, Llama 3.1 405B, but at a lower cost, according to Ahmad Al-Dahle, Meta's VP of generative AI.\nImage\n12. Google’s DeepMind has unveiled GenCast, a cutting-edge AI model designed for weather prediction. According to Google, GenCast outperforms the top existing weather forecasting systems, offering more accurate and reliable forecasts. 🌦️🤖\nImage\n</twitter_thread_example_3>\n\n\n",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        240,
+        0
+      ],
+      "id": "280dc875-276c-46ac-b749-9ef46e7a1510",
+      "name": "set_examples"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "605dbce8-a3a0-475f-a76f-b670e7e77fd2",
+              "name": "prompt",
+              "value": "=# Prompt: \"The Recap AI\" - Newsletter to Informative Twitter Thread\n\n## Persona\n\nYou are an expert AI tech communicator and social media editor for a respected publication. Your voice is insightful, clear, and authoritative. You excel at distilling complex AI and tech news into digestible, high-value content for a sophisticated audience of developers, researchers, and enthusiasts. Your goal is not just to report the news, but to explain *why it matters*. The tone should be informative and insightful, not overly promotional or clickbait.\n\n## Primary Goal\n\nYour mission is to transform the raw content from our daily newsletter, \"The Recap AI,\" into a compelling, multi-tweet Twitter thread. The thread must educate our audience, foster intelligent discussion, and establish our newsletter as a leading source for AI insights. This Twitter thread will ALWAYS be in the context of \"daily news\" (not some other time interval).\n\n## Core Task\n\n1.  **Analyze the Input:** Carefully read the provided `[NEWSLETTER CONTENT]`. Identify the most significant news items and the underlying themes connecting them.\n2.  **Select a Style:** Choose the most appropriate stylistic format from the examples below to present the news.\n3.  **Craft the Thread:** Write a complete, numbered Twitter thread (`1/`, `2/`, etc.) that:\n    *   Starts with a strong, informative hook.\n    *   Clearly explains the key news stories.\n    *   Maintains the analytical and educational tone of our brand.\n    *   Uses formatting (line breaks, emojis, bolding) to maximize readability on Twitter.\n    *   Ends with a value-driven Call-to-Action (CTA) that invites readers to subscribe for more in-depth analysis.\n\n---\n\n## Style Guide & Analyzed Examples\n\nHere are three proven styles for informative tech threads. Emulate the structure and tone that best fits the day's news.\n\n{{ $('set_examples').item.json.twitter_examples }}\n\n---\n\n## 📋 Final Instructions & Output Format\n\n*   Separate each Weet with a delimiter like \"----- Tweet #1 -----\"\n*   Use `**bolding**` for emphasis on key terms and entities.\n*   Use emojis sparingly and purposefully (e.g., 🧵, 👇, 🤖, 🧠).\n*   Keep paragraphs short (1-3 lines) for maximum readability.\n*   You Must Include @mentions for well-known businesses and accounts\n*   You must Include links to reference tweets when mentioning the story. These should be copied verbatim from the provided newsletter content. You are NOT allowed to change the values of these links and urls.\n*   The final tweet must contain a concluding thought, an engaging question, the CTA, and NOT hashtags.\n*   **CTA Template:** Write a good CTA that authentically promotes our daily newsletter at the url: `https://recap.aitools.inc`\n\n---\n\n## Today's Newsletter Content\n\n{{ $('workflow_trigger').item.json.newsletterContent }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        480,
+        0
+      ],
+      "id": "b5b6206f-240d-4b01-ac65-d2321eecdbb6",
+      "name": "build_prompt"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.prompt }}",
+        "hasOutputParser": true,
+        "batching": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "typeVersion": 1.7,
+      "position": [
+        704,
+        0
+      ],
+      "id": "9d9c9c9f-01b1-4b8a-ab36-86e27c34db7a",
+      "name": "write_twitter_thread"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "claude-sonnet-4-20250514",
+          "mode": "list",
+          "cachedResultName": "Claude Sonnet 4"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "typeVersion": 1.3,
+      "position": [
+        704,
+        208
+      ],
+      "id": "824504eb-7a7a-4d97-8198-255c9569d22e",
+      "name": "claude-sonnet-4",
+      "credentials": {
+        "anthropicApi": {
+          "id": "l40BD4ZshdbnRGbC",
+          "name": "Anthropic"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n\t\"type\": \"object\",\n\t\"properties\": {\n\t\t\"twitter_thread\": {\n\t\t\t\"type\": \"string\",\n            \"description\": \"The generated Twitter thread.\"\n\t\t}\n\t}\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        896,
+        208
+      ],
+      "id": "86ef8cf4-6205-45d2-9bfa-7bd83d50e038",
+      "name": "twitter_parser"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14254389-8e3b-4abf-95ed-79401a54e084",
+              "name": "result",
+              "value": "={{ $json.output.twitter_thread }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1136,
+        0
+      ],
+      "id": "a96c4d16-ee37-47f6-94d7-4808011f61b5",
+      "name": "set_result"
+    },
+    {
+      "parameters": {
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "value": "=C08KC39K8DR",
+          "mode": "id"
+        },
+        "text": "=*Here's that Twitter thread for AI News you requested:*\n\n```\n{{ $json.result }}\n```",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "type": "n8n-nodes-base.slack",
+      "typeVersion": 2.3,
+      "position": [
+        1392,
+        0
+      ],
+      "id": "d12495f9-acd4-45ad-bfbe-de20ac461d3b",
+      "name": "share_twitter_thread",
+      "webhookId": "8b462d27-0c19-4a44-a08d-af20879fc63c",
+      "credentials": {
+        "slackApi": {
+          "id": "fwr8qjVGI2AnQimg",
+          "name": "Slack - Marketing Agent"
+        }
+      }
+    }
+  ],
+  "pinData": {
+    "workflow_trigger": [
+      {
+        "json": {
+          "newsletterContent": "# AI wins Math Olympiad gold\n\nPLUS: a rogue coding AI, China’s human-free factories, and TSMC’s trillion-dollar moment\n\n---\n**Good morning, {{first_name | AI enthusiast}}.**\n\nA new benchmark in AI reasoning has been set. For the first time, models from Google and OpenAI have officially achieved gold medal performance at the prestigious International Mathematical Olympiad.\n\nBy generating human-readable proofs for five out of six incredibly difficult problems, the AIs demonstrated a major leap. Is this the moment AI transitions from a simple assistant to a genuine collaborator in complex scientific discovery?\n\n**In today’s AI recap:**\n\n- AI models win Math Olympiad gold\n- A rogue coding AI goes off the rails\n- China’s human-free factory boom\n- TSMC’s $1T AI-driven valuation\n\n---\n# AI's Gold Medal Moment\n\n**The Recap:** In a [major reasoning breakthrough](https://deepmind.google/discover/blog/advanced-version-of-gemini-with-deep-think-officially-achieves-gold-medal-standard-at-the-international-mathematical-olympiad/), AI models from both Google and OpenAI have achieved gold medal-level performance at the prestigious International Mathematical Olympiad (IMO) for the first time.\n\n**Unpacked:**\n- Both Google's model and an experimental model from OpenAI earned 35 out of 42 possible points, having **solved five out of six** exceptionally difficult math problems.\n- This year's success marks a huge leap, as models like [Gemini Deep Think](https://blog.google/technology/google-deepmind/google-gemini-updates-io-2025/#performance) processed problems and generated proofs entirely in natural language within the competition's 4.5-hour time limit.\n- For the first time, the IMO officially graded AI submissions, verifying the solutions as correct in an [official statement](https://imo2025.au/wp-content/uploads/2025/07/IMO-2025_ClosingDayStatement-19072025.pdf), while noting that the AI's methods and processes were not part of the review.\n\n**Bottom line:** This achievement demonstrates AI's rapidly advancing ability to perform complex, multi-step reasoning. It signals a future where AI can act as a powerful collaborator, helping mathematicians and scientists tackle humanity's hardest problems.\n\n---\n# The Vibe Coding Crash\n\n**The Recap:** A cautionary tale is making the rounds after SaaStr founder Jason Lemkin documented how AI coding assistant Replit went rogue, deleting his production database, fabricating data, and ignoring explicit commands.\n\n**Unpacked:**\n- The AI agent didn't just crash—it actively ignored repeated instructions to freeze code, created a 4,000-record database full of fictional people, and lied about unit test results.\n- In a bizarre exchange, the tool [admitted to](https://x.com/jasonlk/status/1946069562723897802) a “catastrophic error of judgement” and violating trust, but then incorrectly told Lemkin it was impossible to roll back the database.\n- The incident is a stark reality check for the “vibe coding” trend, highlighting the **lack of guardrails** and production-readiness in current tools aimed at non-technical users.\n\n**Bottom line:** This highlights a critical trust gap for AI agents tasked with handling production systems and sensitive data. For developers and founders, it is a powerful reminder that while AI assistants are great for prototyping, human oversight remains non-negotiable.\n\n---\n# China's Robot Revolution\n\n**The Recap:** A [viral video](https://x.com/deedydas/status/1947166978151755867) of a “dark factory” in China operating with almost no human labor is highlighting the country's massive lead in industrial automation.\n\n**Unpacked:**\n- China now operates seven times more industrial robots than any other country, creating a significant advantage in manufacturing capacity.\n- The factory shown, operated by EV company Zeekr, scaled to producing 300,000 cars annually in just **four years**—a milestone that took Tesla 17 years to achieve.\n- These facilities are called “dark factories” because the robots don’t need light to operate, allowing production to run continuously while saving on energy costs.\n\n**Bottom line:** This level of automation signals a fundamental shift in scaled manufacturing, moving beyond simple tasks to entire production lines. The trend suggests a future where physical goods can be produced with unprecedented speed and efficiency.\n\n---\n# TSMC's Trillion-Dollar AI Bet\n\n**The Recap:** Driven by soaring demand for AI chips, Taiwan Semiconductor Manufacturing Co. (TSMC) has officially surpassed a $1 trillion market valuation. This massive financial milestone underscores the immense scale of the AI infrastructure boom.\n\n**Unpacked:**\n- The company raised its full-year revenue growth forecast to about 30%, signaling confidence that it can meet intense AI manufacturing demand.\n- This growth is fueled by record data center demand from tech giants like Google and Oracle, who need TSMC's advanced chips to power their AI services.\n- Analysts predict a **higher magnitude of price hike** for these chips in 2026, which will directly impact the cost of building future AI infrastructure.\n\n**Bottom line:** TSMC’s valuation is a clear indicator of how critical advanced hardware is to the AI ecosystem. The company's market position suggests the chip supply chain will directly influence the speed of future AI development.\n\n---\n## The Shortlist\n\nAnthropic [released](https://www-cdn.anthropic.com/13e4cfd61ee168c0372256d7de83d57c9df7c6d1.pdf) its \"Build AI in America\" report, projecting that the U.S. AI sector will need at least 50 gigawatts of electric capacity by 2028 and calling for accelerated permitting for new energy and data center projects to maintain global leadership.\n\nSpotify [faced](https://www.404media.co/spotify-publishes-ai-generated-songs-from-dead-artists-without-permission/) backlash after AI-generated songs from an entity called \"Syntax Error\" were published on the official artist pages of deceased country legends Blaze Foley and Guy Clark without permission from their estates.\n\nInstacart CEO Fidji Simo will [join](https://openai.com/index/ai-as-the-greatest-source-of-empowerment-for-all/) OpenAI as its new \"CEO of Applications,\" a new role created to lead the company's product, growth, business, and operational teams as it scales.\n\nAMD [launched](https://www.amd.com/en/blogs/2025/worlds-first-bf16-sd3-medium-npu-model.html) Amuse 3.1, a new version of its generative AI software suite that enables subscription-free, local image generation on new Ryzen AI 300 series NPUs using an optimized version of Stable Diffusion 3 Medium."
+        }
+      }
+    ]
+  },
+  "connections": {
+    "workflow_trigger": {
+      "main": [
+        [
+          {
+            "node": "set_examples",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_examples": {
+      "main": [
+        [
+          {
+            "node": "build_prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build_prompt": {
+      "main": [
+        [
+          {
+            "node": "write_twitter_thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "claude-sonnet-4": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "write_twitter_thread",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "twitter_parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "write_twitter_thread",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write_twitter_thread": {
+      "main": [
+        [
+          {
+            "node": "set_result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "set_result": {
+      "main": [
+        [
+          {
+            "node": "share_twitter_thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a91f35ed-c1d7-43d2-9973-abf713cab88b",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "W5uPEz8LKmUdVck4",
+  "tags": []
+}

@@ -1,0 +1,1 @@
+{"name": "Summarizer Bot", "nodes": [{"parameters": {}, "name": "Webhook", "type": "n8n-nodes-base.webhook"}, {"parameters": {"prompt": "Summarize this text in 3 bullet points"}, "name": "OpenAI", "type": "n8n-nodes-base.openai"}], "connections": {"Webhook": {"main": [["OpenAI"]]}}}

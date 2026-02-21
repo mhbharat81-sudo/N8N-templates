@@ -1,0 +1,683 @@
+{
+  "name": "Personal_Assistant",
+  "nodes": [
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "7c268bf3-289f-4edd-84b9-17868436c58b",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        820,
+        120
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "jnNUHJBYF6GdP07Z",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "id": "c8c99dee-8bc6-4d15-aeeb-933ac4bb4bd9",
+      "name": "OpenAI Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1800,
+        540
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "jnNUHJBYF6GdP07Z",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "id": "b5bbfd39-2f88-4e53-8a24-bbdfdefff9ef",
+      "name": "Embeddings OpenAI",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "typeVersion": 1,
+      "position": [
+        1540,
+        880
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "jnNUHJBYF6GdP07Z",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Knowledge_Base",
+        "description": "Call this tool to get information about my company."
+      },
+      "id": "d2c0d353-59b2-4b30-a803-42c0eb8830e8",
+      "name": "Knowledge Base",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "typeVersion": 1,
+      "position": [
+        1480,
+        380
+      ]
+    },
+    {
+      "parameters": {
+        "descriptionType": "manual",
+        "toolDescription": "Get row(s) in sheet in Google Sheets",
+        "documentId": {
+          "__rl": true,
+          "value": "1OsyD46Qanv1_u1rV2VC2C-3UNo-UO1etAbDx3jIZlFo",
+          "mode": "list",
+          "cachedResultName": "Contact database",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OsyD46Qanv1_u1rV2VC2C-3UNo-UO1etAbDx3jIZlFo/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OsyD46Qanv1_u1rV2VC2C-3UNo-UO1etAbDx3jIZlFo/edit#gid=0"
+        },
+        "options": {}
+      },
+      "id": "f4cce509-3be7-41e6-9cfd-4b51387e1c8e",
+      "name": "Contacts Data",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "typeVersion": 4.5,
+      "position": [
+        920,
+        440
+      ],
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "72x2iMwv3fEVad9v",
+          "name": "Google Sheets account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Listen for incoming events').first().json.message.from.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "cb430001-c503-443d-8a58-7685917b94bf",
+      "name": "Respond to Me",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1500,
+        0
+      ],
+      "webhookId": "59625d03-4fda-4130-ae7f-4894ccc6d7f8",
+      "credentials": {
+        "telegramApi": {
+          "id": "djVytLETl5VLmpWG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "*"
+        ],
+        "additionalFields": {}
+      },
+      "id": "6c18d6a2-4e1a-4993-ae54-c58cef7687d2",
+      "name": "Listen for incoming events",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -320,
+        180
+      ],
+      "webhookId": "322dce18-f93e-4f86-b9b1-3305519b7834",
+      "typeVersion": 1,
+      "credentials": {
+        "telegramApi": {
+          "id": "djVytLETl5VLmpWG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{$json.message.voice.file_id}}"
+      },
+      "id": "4bcdedb4-10ff-4991-8f88-c70841cba46b",
+      "name": "Download voice file",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        180,
+        300
+      ],
+      "typeVersion": 1.2,
+      "webhookId": "08250cc3-cbfe-4cb0-9b83-942d77d12906",
+      "credentials": {
+        "telegramApi": {
+          "id": "djVytLETl5VLmpWG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bccbce0a-7786-49c9-979a-7a285cb69f78",
+              "name": "CombinedMessage",
+              "type": "string",
+              "value": "={{ $json.message && $json.message.text ? $json.message.text : ($json.text ? $json.text : '') }}"
+            },
+            {
+              "id": "5b1fc9f5-1408-4099-88cc-a23725c9eddb",
+              "name": "Message Type ",
+              "type": "string",
+              "value": "={{ $json?.message?.text && !$json?.text ? \"text query\" : (!$json?.message?.text && $json?.text ? \"voice message\" : \"unknown type message\") }}"
+            },
+            {
+              "id": "1e9a17fa-ec5d-49dc-9ff6-1f28b57fb02e",
+              "name": "Source Type",
+              "type": "string",
+              "value": "={{ $('Listen for incoming events').item.json.message.forward_origin ? \" forwarded\" : \"\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2eaaeb65-fc7f-4b8e-ab5a-54ecc5dcb617",
+      "name": "Combine content and set properties",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        600,
+        20
+      ],
+      "typeVersion": 3.4
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Listen for incoming events').first().json.message.from.id }}",
+        "text": "=Sorry, {{ $('Listen for incoming events').first().json.message.from.first_name }}! This command is not supported yet. Please send text or voice messages.",
+        "additionalFields": {
+          "appendAttribution": false,
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "4f3a22a9-9338-4f5e-a422-a7f1979498ef",
+      "name": "Send error message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -100,
+        460
+      ],
+      "typeVersion": 1.2,
+      "webhookId": "c219800e-42ba-4ca6-ba25-07eda647ea98",
+      "credentials": {
+        "telegramApi": {
+          "id": "djVytLETl5VLmpWG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{ $('Listen for incoming events').first().json.message.from.id }}"
+      },
+      "id": "39679439-8c44-4415-9b1f-775738fa5daa",
+      "name": "Send Typing action",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        -60,
+        0
+      ],
+      "typeVersion": 1.2,
+      "webhookId": "fd992425-5d02-40c8-a179-c0e2b4f98d97",
+      "credentials": {
+        "telegramApi": {
+          "id": "djVytLETl5VLmpWG",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "/"
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "dd41bbf0-bee0-450b-9160-b769821a4abc",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.message.voice}}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "92fc2430-8dd4-41ad-a2ac-ad2ef07c2a54",
+      "name": "Determine content type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -80,
+        200
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {
+          "language": "",
+          "temperature": 0.7
+        }
+      },
+      "id": "3055e84a-c8d4-41c5-9d71-52210150867e",
+      "name": "Convert audio to text",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        360,
+        300
+      ],
+      "typeVersion": 1.5,
+      "credentials": {
+        "openAiApi": {
+          "id": "jnNUHJBYF6GdP07Z",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "name": "Calendar_Agent",
+        "description": "Call this tool to take actions within Calendar",
+        "workflowId": {
+          "__rl": true,
+          "value": "0vBc9gJYA3iJ5sos",
+          "mode": "list",
+          "cachedResultName": "CalendarAgent"
+        }
+      },
+      "id": "91ed7d2c-136b-4c87-be7f-e34fb324607c",
+      "name": "Calendar Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1100,
+        500
+      ]
+    },
+    {
+      "parameters": {
+        "name": "Email_Agent",
+        "description": "Call this tool to take any email actions",
+        "workflowId": {
+          "__rl": true,
+          "value": "KLifODuorqjN4a4M",
+          "mode": "list",
+          "cachedResultName": "EmailAgent"
+        }
+      },
+      "id": "31eca191-96c9-4ff2-af37-cecfe7cb6e36",
+      "name": "Email Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1280,
+        480
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Listen for incoming events').item.json.message.chat.id }}"
+      },
+      "id": "5ff89152-ed22-4e9f-9b20-7522d2132c05",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.2,
+      "position": [
+        740,
+        400
+      ]
+    },
+    {
+      "parameters": {
+        "pineconeIndex": {
+          "__rl": true,
+          "value": "text-embedding-3-small",
+          "mode": "list",
+          "cachedResultName": "text-embedding-3-small"
+        },
+        "options": {
+          "pineconeNamespace": "=Adaptify AI SOP"
+        }
+      },
+      "id": "8403c677-aa0e-4984-ba60-c3429f6072d8",
+      "name": "Pinecone Vector Store",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "typeVersion": 1,
+      "position": [
+        1380,
+        680
+      ],
+      "credentials": {
+        "pineconeApi": {
+          "id": "RlDgqIzAzrArL7ER",
+          "name": "PineconeApi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.CombinedMessage }}",
+        "options": {
+          "systemMessage": "=#Role\n\nYou are Olivia, Nikhil's personal assistant. Your primary role is to delegate tasks to the appropriate tool—you do not complete tasks yourself. Instead, you ensure that each request is routed correctly, with all necessary details passed to the right tool for execution.\n\n## Tools:\n\n- Phone Call Agent → Initiates phone calls by following provided instructions, ensuring clear and effective communication.\n\nContacts Data: For any task involving communication (e.g., calls, emails, or scheduling), always retrieve and verify contact details using the Contacts Data tool before passing them to the relevant agent.\n\nEmail Agent: Use this for handling all email-related actions, such as sending messages, setting up replies, or forwarding emails. Only send emails to verified email addresses found in the Contacts list. Always sign emails as \"Nikhil\" and NEVER use placeholders like \"[Your Name].\"\n\nIf an email address for a recipient cannot be found in the Contacts list, do not attempt to send the email or use placeholder addresses like \"@example.com\". \n\nCalendar Agent: Use this for scheduling, updating, or managing calendar events.\n\n\n### How to Use the Phone Call Agent:\n\nIf the user wants to make a phone call, trigger the Phone call Agent tool.\nEnsure the following details are passed to the calling agent:\nfirst_name → The name of the person or business being called.\ntype → The contact type (e.g., \"Doctor,\" \"Client,\" \"Supplier\").\ninstructions → A clear, concise description of what needs to be discussed or achieved on the call.\nphone_number → Must be formatted in E.164 format (e.g., \"+xxxxxxxxxxxx\").\ncall_purpose → The reason for the call.\nresponse_style → Determines whether responses should be concise or detailed.\ntone → Defines how the assistant should sound (e.g., friendly, professional).\npause_between_sentences → Controls the pacing of speech.\nfallback_response → A predefined response if the assistant is unsure of an answer.\nThe calling agent already understands it is a personal assistant making the call, so only provide essential details—avoid unnecessary context or explanations.\n\nExample Usage:\nUser Input: \"Call my accountant to ask about tax deductions for this year.\"\n\nAction:\n\nFirst, fetch the accountant’s phone number from the Contacts Data tool.\nEnsure the number is in E.164 format (e.g., \"+xxxxxxxxxxxx\").\nInvoke the Phone call Agent tool, passing the following details:\n\n{\n  \"first_name\": \"Mark Dan\",\n  \"type\": \"Accountant\",\n  \"instructions\": \"Ask about available tax deductions for this year and clarify if there are any changes in tax regulations that might affect Damian.\",\n  \"phone_number\": \"+xxxxxxxxxxxx\",\n  \"call_purpose\": \"Tax deduction inquiry\",\n  \"response_style\": \"concise\",\n  \"tone\": \"friendly\",\n  \"pause_between_sentences\": \"short\",\n  \"fallback_response\": \"I'm not sure, but I'll check with Nikhil and get back to you.\"\n}\nResponse to User: \"I spoke with Mark. He will send over a list of tax deductions by the end of the day.\"\n\n\n\n#### Rules & Best Practices:\nAlways respond in English.\nAlways delegate tasks using the correct tool—never complete them manually.\nIf a request requires contact details, fetch them first before proceeding.\nDo not include user questions in emails or phone call instructions.\nKeep responses clear, structured, and professional.\nEnsure efficient and proactive delegation to maintain a seamless workflow.\n\nWhen a task requires using one or more of these tools, make sure to identify which tool is most appropriate, pass along the relevant details, and execute the actions needed to complete the task. Your goal is to be proactive, precise, and organized in managing these resources to provide a smooth experience for the user.\n\nHere is the current time/date: {{ $now.format('DD')}}\n\n"
+        }
+      },
+      "id": "1ab0700f-900e-49e5-96ad-211bd29ccc2d",
+      "name": "Personal Assistant",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.6,
+      "position": [
+        1060,
+        0
+      ],
+      "retryOnFail": false
+    },
+    {
+      "parameters": {
+        "name": "phone_call_agent",
+        "description": "Use this tool to call someone.\n",
+        "workflowId": {
+          "__rl": true,
+          "value": "pa2wKv0LsdfvSWxn",
+          "mode": "list",
+          "cachedResultName": "PhoneCallAgent"
+        },
+        "specifyInputSchema": true,
+        "jsonSchemaExample": "{\n  \"query\": {\n    \"first_name\": \"\",\n    \"type\": \"\",\n    \"instructions\": \"\",\n    \"phone_number\": \"\",\n    \"call_purpose\": \"\",\n    \"response_style\": \"concise\",\n    \"tone\": \"friendly\",\n    \"pause_between_sentences\": \"short\",\n    \"fallback_response\": \"I'm not sure, but I'll check with Nikhil and get back to you.\"\n  }\n}\n\n"
+      },
+      "id": "f6ee1adc-6998-4c33-9cbd-64bea466a3ed",
+      "name": "Phone Call Agent",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "typeVersion": 1.2,
+      "position": [
+        1200,
+        740
+      ]
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Knowledge Base",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embeddings OpenAI": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Pinecone Vector Store",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Knowledge Base": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contacts Data": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listen for incoming events": {
+      "main": [
+        [
+          {
+            "node": "Determine content type",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Typing action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download voice file": {
+      "main": [
+        [
+          {
+            "node": "Convert audio to text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine content and set properties": {
+      "main": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Determine content type": {
+      "main": [
+        [
+          {
+            "node": "Combine content and set properties",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download voice file",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send error message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert audio to text": {
+      "main": [
+        [
+          {
+            "node": "Combine content and set properties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pinecone Vector Store": {
+      "ai_vectorStore": [
+        [
+          {
+            "node": "Knowledge Base",
+            "type": "ai_vectorStore",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Personal Assistant": {
+      "main": [
+        [
+          {
+            "node": "Respond to Me",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Phone Call Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "Personal Assistant",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "27af9a5f-10c6-415b-98e3-36b088a7c9b3",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "4fbb40ba82fe5efb6c4fb651e2085d0afce0425f4b05e300bbce0fe5c2c6b4af"
+  },
+  "id": "e0pthxtytY6HYTLO",
+  "tags": []
+}

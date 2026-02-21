@@ -1,0 +1,210 @@
+{
+  "name": "Tool - Scrape Website",
+  "nodes": [
+    {
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "website_url"
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        0,
+        0
+      ],
+      "id": "488c6430-ab53-480d-b14a-a1304d62db41",
+      "name": "workflow_trigger"
+    },
+    {
+      "parameters": {
+        "operation": "map",
+        "url": "={{ $json.website_url }}",
+        "limit": 5,
+        "timeout": 30000,
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        272,
+        0
+      ],
+      "id": "bbb67d48-3f3c-437d-8efa-408f044dfff3",
+      "name": "map_website",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "tTXd52Qm4ZR6N7sq",
+          "name": "Firecrawl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "scrape",
+        "url": "={{ $json.links }}",
+        "scrapeOptions": {
+          "options": {
+            "headers": {},
+            "timeout": 60000
+          }
+        },
+        "requestOptions": {}
+      },
+      "type": "@mendable/n8n-nodes-firecrawl.firecrawl",
+      "typeVersion": 1,
+      "position": [
+        784,
+        0
+      ],
+      "id": "04e29aa7-e8ca-4d9e-8342-ad74be51777c",
+      "name": "scrape_url",
+      "credentials": {
+        "firecrawlApi": {
+          "id": "tTXd52Qm4ZR6N7sq",
+          "name": "Firecrawl"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "links",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        528,
+        0
+      ],
+      "id": "b4f19b07-627a-4d5b-aa27-3e01d9d83b7a",
+      "name": "split_urls"
+    },
+    {
+      "parameters": {
+        "fieldsToAggregate": {
+          "fieldToAggregate": [
+            {
+              "fieldToAggregate": "data.markdown",
+              "renameField": true,
+              "outputFieldName": "markdown"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.aggregate",
+      "typeVersion": 1,
+      "position": [
+        1024,
+        0
+      ],
+      "id": "0a568646-9dd1-44fa-8bf7-bb28bc4c1162",
+      "name": "aggregate"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "0977e7a9-8c0c-4f8d-9749-fda01e8f1b1a",
+              "name": "scraped_website_result",
+              "value": "={{ $json.markdown.map(item => item).join(\"\\n-----\\n\") }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1264,
+        0
+      ],
+      "id": "0c41994d-7cfa-4c38-9c97-de635ed2026d",
+      "name": "set_result"
+    }
+  ],
+  "pinData": {
+    "workflow_trigger": [
+      {
+        "json": {
+          "website_url": "http://mikeweed.com"
+        }
+      }
+    ]
+  },
+  "connections": {
+    "workflow_trigger": {
+      "main": [
+        [
+          {
+            "node": "map_website",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "map_website": {
+      "main": [
+        [
+          {
+            "node": "split_urls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split_urls": {
+      "main": [
+        [
+          {
+            "node": "scrape_url",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "scrape_url": {
+      "main": [
+        [
+          {
+            "node": "aggregate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "aggregate": {
+      "main": [
+        [
+          {
+            "node": "set_result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "358aa728-4a4f-4d46-a367-478289bad7d9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "06e5009344f682419c20ccd4ecdcb5223bbb91761882af93ac6d468dbc2cbf8d"
+  },
+  "id": "0YfNe02BBtOegzAT",
+  "tags": []
+}
